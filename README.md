@@ -1,1 +1,1 @@
-# BinanceNewCoinSniper
+# NewCoinSniper
