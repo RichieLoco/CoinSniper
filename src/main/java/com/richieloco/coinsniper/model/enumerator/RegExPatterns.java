@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 @Getter
-public enum BinanceRegExPatterns {
+public enum RegExPatterns {
     // Initial new coin listing announcement
     NEW_COIN_LIST_PREFIX("Binance Will List"),
     // Usually follows on from "Binance Will List"...
@@ -24,7 +24,7 @@ public enum BinanceRegExPatterns {
     private final Pattern pattern;
 
     // Constructor
-    BinanceRegExPatterns(String expression) {
+    RegExPatterns(String expression) {
         this.expression = expression;
         this.pattern = Pattern.compile(expression);
     }
