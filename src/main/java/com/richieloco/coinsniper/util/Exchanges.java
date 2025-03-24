@@ -1,6 +1,6 @@
-package com.richieloco.coinsniper.model.enumerator;
+package com.richieloco.coinsniper.util;
 
-public enum Exchange {
+public enum Exchanges {
     Binance,
     Bitfinex,
     Bitstamp,
