@@ -1,4 +1,4 @@
-package com.richieloco.coinsniper.model.enumerator;
+package com.richieloco.coinsniper.entity.binance;
 
 import lombok.Getter;
 

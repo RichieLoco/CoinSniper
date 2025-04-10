@@ -1,0 +1,22 @@
+server:
+  port: 8080
+
+coin-sniper:
+  api:
+    binance:
+      announcement:
+        base-url: "https://www.binance.com/bapi/apex/v1/public/apex/cms/article/list/query"
+        type: 1
+        pageNo: 1
+        pageSize: 10
+    on-exchange:
+      poloniex:
+        trade:
+          base-url: ""
+          api-key: 123
+          api-secret: 456
+      bybit:
+        trade:
+          base-url: ""
+          api-key: 123
+          api-secret: 456
