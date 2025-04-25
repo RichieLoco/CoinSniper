@@ -1,12 +1,19 @@
 package com.richieloco.coinsniper.entity.binance;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @lombok.Data
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class AnnouncementResponse {
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "announcements")
+public class Announcement {
     private String code;
     private String message;
     private String messageDetail;
@@ -14,10 +21,14 @@ public class AnnouncementResponse {
     private boolean success;
 }
 
+
+@lombok.Data
 class Data {
     private List<Catalog> catalogs;
 }
 
+
+@lombok.Data
 class Catalog {
     private int catalogId;
     private Integer parentCatalogId;
@@ -31,6 +42,7 @@ class Catalog {
 
 }
 
+@lombok.Data
 class Article {
     private int id;
     private String code;

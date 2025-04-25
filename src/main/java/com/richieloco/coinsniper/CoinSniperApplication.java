@@ -9,5 +9,4 @@ public class CoinSniperApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CoinSniperApplication.class, args);
 	}
-
 }
