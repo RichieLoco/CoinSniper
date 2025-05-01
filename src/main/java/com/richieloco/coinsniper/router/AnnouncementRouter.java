@@ -16,7 +16,7 @@ public class AnnouncementRouter {
     @Bean
     public RouterFunction<ServerResponse> routeAnnouncements(AnnouncementHandler handler) {
         return RouterFunctions
-                .nest(path("/announcements"),
+                .nest(path("/api/announcements"),
                         RouterFunctions.route(GET("/fetch"), handler::getAnnouncements));
     }
 }

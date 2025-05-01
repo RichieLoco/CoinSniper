@@ -59,7 +59,7 @@ public class AnnouncementRouterTest {
                 .thenReturn(Mono.just(announcement));
 
         webTestClient.get()
-                .uri("/announcements/fetch?type=1&pageNo=1&pageSize=10")
+                .uri("/api/announcements/fetch?type=1&pageNo=1&pageSize=10")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(Announcement.class)

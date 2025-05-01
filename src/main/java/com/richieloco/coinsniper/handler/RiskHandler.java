@@ -24,7 +24,7 @@ public class RiskHandler {
         double fees = Double.parseDouble(request.queryParam("fees").orElse("0"));
 
         double risk = riskEvaluationService.assessExchangeRisk(from, to, volatility, liquidity, fees);
-        return ServerResponse.ok().contentType(MediaType.TEXT_PLAIN).bodyValue(risk);
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).bodyValue(risk);
     }
 
     public Mono<ServerResponse> coinRisk(ServerRequest request) {
@@ -35,6 +35,6 @@ public class RiskHandler {
         double volumeDiff = Double.parseDouble(request.queryParam("volumeDiff").orElse("0"));
 
         double risk = riskEvaluationService.assessCoinRisk(coinA, coinB, volatility, correlation, volumeDiff);
-        return ServerResponse.ok().contentType(MediaType.TEXT_PLAIN).bodyValue(risk);
+        return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).bodyValue(risk);
     }
 }

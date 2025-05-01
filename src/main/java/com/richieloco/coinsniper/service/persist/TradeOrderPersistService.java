@@ -1,6 +1,6 @@
 package com.richieloco.coinsniper.service.persist;
 
-import com.richieloco.coinsniper.entity.on.TradeOrderLog;
+import com.richieloco.coinsniper.entity.on.log.TradeOrderLog;
 import com.richieloco.coinsniper.repo.TradeOrderRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;

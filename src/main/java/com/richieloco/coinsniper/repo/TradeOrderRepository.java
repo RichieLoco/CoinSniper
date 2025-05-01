@@ -1,6 +1,6 @@
 package com.richieloco.coinsniper.repo;
 
-import com.richieloco.coinsniper.entity.on.TradeOrderLog;
+import com.richieloco.coinsniper.entity.on.log.TradeOrderLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

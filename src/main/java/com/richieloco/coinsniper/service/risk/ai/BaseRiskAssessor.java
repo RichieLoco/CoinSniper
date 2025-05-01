@@ -1,6 +1,6 @@
 package com.richieloco.coinsniper.service.risk.ai;
 
-import com.richieloco.coinsniper.entity.on.RiskAssessmentLog;
+import com.richieloco.coinsniper.entity.on.log.RiskAssessmentLog;
 import com.richieloco.coinsniper.repo.RiskAssessmentLogRepository;
 import com.richieloco.coinsniper.service.risk.RiskAssessmentFunction;
 import org.springframework.ai.chat.messages.UserMessage;

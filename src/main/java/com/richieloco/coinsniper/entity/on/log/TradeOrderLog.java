@@ -1,4 +1,4 @@
-package com.richieloco.coinsniper.entity.on;
+package com.richieloco.coinsniper.entity.on.log;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
