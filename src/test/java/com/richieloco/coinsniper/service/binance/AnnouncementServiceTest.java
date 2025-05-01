@@ -1,8 +1,7 @@
-package com.richieloco.coinsniper.service;
+package com.richieloco.coinsniper.service.binance;
 
 import com.richieloco.coinsniper.config.CoinSniperConfig;
 import com.richieloco.coinsniper.entity.binance.Announcement;
-import com.richieloco.coinsniper.service.binance.AnnouncementService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -26,7 +25,7 @@ public class AnnouncementServiceTest {
     private WebClient.ResponseSpec responseSpecMock;
 
     @BeforeEach
-    public void setup() {
+    void setUp() {
         mockWebClient = mock(WebClient.class);
         uriSpecMock = mock(WebClient.RequestHeadersUriSpec.class);
         headersSpecMock = mock(WebClient.RequestHeadersSpec.class);
