@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "risk_assessments")
-public class RiskScore {
+public class Risk {
     private Double riskScore;
 }

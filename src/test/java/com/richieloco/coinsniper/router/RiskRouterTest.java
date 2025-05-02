@@ -1,9 +1,10 @@
 package com.richieloco.coinsniper.router;
 
 import com.richieloco.coinsniper.config.CoinSniperConfig;
-import com.richieloco.coinsniper.entity.on.RiskScore;
+import com.richieloco.coinsniper.entity.on.Risk;
 import com.richieloco.coinsniper.handler.RiskHandler;
 import com.richieloco.coinsniper.service.risk.RiskEvaluationService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +13,17 @@ import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Mono;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.reset;
 
 @WebFluxTest(controllers = RiskRouter.class, excludeAutoConfiguration = {
         ReactiveSecurityAutoConfiguration.class
 })
 @Import({RiskRouter.class, RiskHandler.class, RiskRouterTest.MockedBeans.class})
-
 class RiskRouterTest {
 
     @Autowired
@@ -27,15 +32,24 @@ class RiskRouterTest {
     @Autowired
     private RiskEvaluationService service;
 
-    @Autowired
-    private CoinSniperConfig.BinanceConfig config;
+    @BeforeEach
+    void resetMocks() {
+        reset(service); // reset all stubbings and interactions
+
+        Mockito.when(service.assessExchangeRisk(anyString(), anyString(), anyDouble(), anyDouble(), anyDouble()))
+                .thenReturn(Mono.just(new Risk(0.42)));
+
+        Mockito.when(service.assessCoinRisk(anyString(), anyString(), anyDouble(), anyDouble(), anyDouble()))
+                .thenReturn(Mono.just(new Risk(0.88)));
+    }
 
     @TestConfiguration
     static class MockedBeans {
 
         @Bean
         public RiskEvaluationService mockRiskEvaluationService() {
-            return Mockito.mock(RiskEvaluationService.class);
+            RiskEvaluationService service = Mockito.mock(RiskEvaluationService.class);
+            return service;
         }
 
         @Bean
@@ -49,13 +63,86 @@ class RiskRouterTest {
     }
 
     @Test
-    void testExchangeRiskEndpoint() {
+    void testExchangeRiskEndpoint_Success() {
+        webTestClient.get()
+                .uri("/api/risk/exchange?from=Binance&to=Kraken&volatility=0.6&liquidity=0.2&fees=0.001")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Risk.class)
+                .consumeWith(result -> {
+                    Risk risk = result.getResponseBody();
+                    assert risk != null;
+                    assert risk.getRiskScore() == 0.42;
+                });
+    }
+
+    @Test
+    void testCoinRiskEndpoint_Success() {
+        webTestClient.get()
+                .uri("/api/risk/coin?coinA=BTC&coinB=ETH&volatility=0.5&correlation=0.8&volumeDiff=0.1")
+                .accept(MediaType.APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Risk.class)
+                .consumeWith(result -> {
+                    Risk score = result.getResponseBody();
+                    assert score != null;
+                    assert score.getRiskScore() == 0.88;
+                });
+    }
+
+    @Test
+    void testExchangeRiskEndpoint_MissingParams() {
+        webTestClient.get()
+                .uri("/api/risk/exchange?from=Binance&to=Kraken") // missing volatility, liquidity, fees
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testCoinRiskEndpoint_MissingParams() {
+        webTestClient.get()
+                .uri("/api/risk/coin?coinA=BTC&coinB=ETH") // missing volatility, correlation, volume
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testExchangeRiskEndpoint_InvalidParams() {
+        webTestClient.get()
+                .uri("/api/risk/exchange?from=Binance&to=Kraken&volatility=abc&liquidity=0.2&fees=0.001")
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testCoinRiskEndpoint_InvalidParams() {
+        webTestClient.get()
+                .uri("/api/risk/coin?coinA=BTC&coinB=ETH&volatility=0.5&correlation=bad&volume=0.1")
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testExchangeRiskEndpoint_InternalServerError() {
+        Mockito.when(service.assessExchangeRisk(anyString(), anyString(), anyDouble(), anyDouble(), anyDouble()))
+                .thenThrow(new RuntimeException("AI failure"));
+
         webTestClient.get()
                 .uri("/api/risk/exchange?from=Binance&to=Kraken&volatility=0.6&liquidity=0.2&fees=0.001")
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody(RiskScore.class);
-                //.value(response -> assertTrue(response.matches("\\d\\.\\d+")));
+                .expectStatus().is5xxServerError();
+    }
 
+    @Test
+    void testCoinRiskEndpoint_InternalServerError() {
+        Mockito.when(service.assessCoinRisk(anyString(), anyString(), anyDouble(), anyDouble(), anyDouble()))
+                .thenThrow(new RuntimeException("Model error"));
+
+        webTestClient.get()
+                .uri("/api/risk/coin?coinA=BTC&coinB=ETH&volatility=0.5&correlation=0.8&volumeDiff=0.1")
+                .exchange()
+                .expectStatus().is5xxServerError();
     }
 }

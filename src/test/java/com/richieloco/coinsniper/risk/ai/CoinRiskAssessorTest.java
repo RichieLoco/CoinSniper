@@ -3,8 +3,8 @@ package com.richieloco.coinsniper.risk.ai;
 import com.richieloco.coinsniper.config.AiConfig;
 import com.richieloco.coinsniper.entity.on.Risk;
 import com.richieloco.coinsniper.repo.RiskAssessmentLogRepository;
-import com.richieloco.coinsniper.service.risk.ai.ExchangeRiskAssessor;
-import com.richieloco.coinsniper.service.risk.ai.context.ExchangeRiskContext;
+import com.richieloco.coinsniper.service.risk.ai.CoinRiskAssessor;
+import com.richieloco.coinsniper.service.risk.ai.context.CoinRiskContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -19,27 +19,27 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class ExchangeRiskAssessorTest {
+class CoinRiskAssessorTest {
 
     @Mock private ChatModel chatModel;
     @Mock private RiskAssessmentLogRepository repository;
 
-    private ExchangeRiskAssessor buildAssessor() {
+    private CoinRiskAssessor buildAssessor() {
         AiConfig config = new AiConfig();
-        return new ExchangeRiskAssessor(chatModel, repository, config);
+        return new CoinRiskAssessor(chatModel, repository, config);
     }
 
-    private ExchangeRiskContext buildContext() {
-        return new ExchangeRiskContext("Binance", "Kraken", 0.7, 0.3, 0.001);
+    private CoinRiskContext buildContext() {
+        return new CoinRiskContext("BTC", "ETH", 0.5, 0.75, 0.2);
     }
 
     @Test
     void testAssessRiskReturnsCorrectValue() {
-        ExchangeRiskAssessor assessor = buildAssessor();
-        ExchangeRiskContext context = buildContext();
+        CoinRiskAssessor assessor = buildAssessor();
+        CoinRiskContext context = buildContext();
 
         AssistantMessage assistantMessage = mock(AssistantMessage.class);
-        when(assistantMessage.getText()).thenReturn("0.42");
+        when(assistantMessage.getText()).thenReturn("0.55");
 
         Generation generation = mock(Generation.class);
         when(generation.getOutput()).thenReturn(assistantMessage);
@@ -50,13 +50,13 @@ class ExchangeRiskAssessorTest {
         when(chatModel.call(any(Prompt.class))).thenReturn(chatResponse);
 
         Risk result = assessor.assessRisk(context).block();
-        assertEquals(0.42, result.getRiskScore(), 0.001);
+        assertEquals(0.55, result.getRiskScore(), 0.001);
     }
 
     @Test
     void testAssessRiskWithNonNumericResponseShouldThrow() {
-        ExchangeRiskAssessor assessor = buildAssessor();
-        ExchangeRiskContext context = buildContext();
+        CoinRiskAssessor assessor = buildAssessor();
+        CoinRiskContext context = buildContext();
 
         AssistantMessage assistantMessage = mock(AssistantMessage.class);
         when(assistantMessage.getText()).thenReturn("not-a-number");
@@ -74,8 +74,8 @@ class ExchangeRiskAssessorTest {
 
     @Test
     void testAssessRiskWithEmptyResponseShouldThrow() {
-        ExchangeRiskAssessor assessor = buildAssessor();
-        ExchangeRiskContext context = buildContext();
+        CoinRiskAssessor assessor = buildAssessor();
+        CoinRiskContext context = buildContext();
 
         AssistantMessage assistantMessage = mock(AssistantMessage.class);
         when(assistantMessage.getText()).thenReturn("");
@@ -93,8 +93,8 @@ class ExchangeRiskAssessorTest {
 
     @Test
     void testAssessRiskWithNullGenerationShouldThrow() {
-        ExchangeRiskAssessor assessor = buildAssessor();
-        ExchangeRiskContext context = buildContext();
+        CoinRiskAssessor assessor = buildAssessor();
+        CoinRiskContext context = buildContext();
 
         ChatResponse chatResponse = mock(ChatResponse.class);
         when(chatResponse.getResult()).thenReturn(null);
@@ -106,8 +106,8 @@ class ExchangeRiskAssessorTest {
 
     @Test
     void testAssessRiskWithNullAssistantMessageShouldThrow() {
-        ExchangeRiskAssessor assessor = buildAssessor();
-        ExchangeRiskContext context = buildContext();
+        CoinRiskAssessor assessor = buildAssessor();
+        CoinRiskContext context = buildContext();
 
         Generation generation = mock(Generation.class);
         when(generation.getOutput()).thenReturn(null);
@@ -122,13 +122,13 @@ class ExchangeRiskAssessorTest {
 
     @Test
     void testAssessRiskModelThrowsException() {
-        ExchangeRiskAssessor assessor = buildAssessor();
-        ExchangeRiskContext context = buildContext();
+        CoinRiskAssessor assessor = buildAssessor();
+        CoinRiskContext context = buildContext();
 
         when(chatModel.call(any(Prompt.class)))
-                .thenThrow(new RuntimeException("AI service error"));
+                .thenThrow(new RuntimeException("AI failure"));
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> assessor.assessRisk(context).block());
-        assertEquals("AI service error", exception.getMessage());
+        assertEquals("AI failure", exception.getMessage());
     }
 }

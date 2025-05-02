@@ -1,11 +1,13 @@
 package com.richieloco.coinsniper.service.risk;
 
+import com.richieloco.coinsniper.entity.on.Risk;
 import com.richieloco.coinsniper.service.risk.ai.CoinRiskAssessor;
 import com.richieloco.coinsniper.service.risk.ai.ExchangeRiskAssessor;
 import com.richieloco.coinsniper.service.risk.ai.context.CoinRiskContext;
 import com.richieloco.coinsniper.service.risk.ai.context.ExchangeRiskContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -27,22 +29,26 @@ public class RiskEvaluationServiceTest {
     // ✅ Successful exchange risk evaluation
     @Test
     void testAssessExchangeRisk_Success() {
-        when(exchangeRiskAssessor.assessRisk(any(ExchangeRiskContext.class))).thenReturn(0.75);
+        Risk spy = spy(Risk.class);
+        spy.setRiskScore(0.75);
+        when(exchangeRiskAssessor.assessRisk(any(ExchangeRiskContext.class))).thenReturn(Mono.just(spy));
 
-        double result = service.assessExchangeRisk("Binance", "Kraken", 0.6, 0.2, 0.001);
+        Risk result = service.assessExchangeRisk("Binance", "Kraken", 0.6, 0.2, 0.001).block();
 
-        assertEquals(0.75, result);
+        assertEquals(0.75, result.getRiskScore());
         verify(exchangeRiskAssessor, times(1)).assessRisk(any(ExchangeRiskContext.class));
     }
 
     // ✅ Successful coin risk evaluation
     @Test
     void testAssessCoinRisk_Success() {
-        when(coinRiskAssessor.assessRisk(any(CoinRiskContext.class))).thenReturn(0.55);
+        Risk spy = spy(Risk.class);
+        spy.setRiskScore(0.55);
+        when(coinRiskAssessor.assessRisk(any(CoinRiskContext.class))).thenReturn(Mono.just(spy));
 
-        double result = service.assessCoinRisk("BTC", "ETH", 0.5, 0.3, 0.1);
+        Risk result = service.assessCoinRisk("BTC", "ETH", 0.5, 0.3, 0.1).block();
 
-        assertEquals(0.55, result);
+        assertEquals(0.55, result.getRiskScore());
         verify(coinRiskAssessor, times(1)).assessRisk(any(CoinRiskContext.class));
     }
 
