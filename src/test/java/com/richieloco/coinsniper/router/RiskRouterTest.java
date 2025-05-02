@@ -130,8 +130,7 @@ class RiskRouterTest {
                 .thenThrow(new RuntimeException("AI failure"));
 
         webTestClient.get()
-                .uri("/api/risk/exchange?from=Binance&to=Kraken&volatility=0.6&liquidity=0.2&fees=0.001")
-                .exchange()
+                .uri("/api/risk/exchange?from=Binance&to=Kraken&volatility=0.6&liquidity=0.2&fees=0.001").exchange()
                 .expectStatus().is5xxServerError();
     }
 
