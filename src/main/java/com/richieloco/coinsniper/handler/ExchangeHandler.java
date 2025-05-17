@@ -1,7 +1,7 @@
 package com.richieloco.coinsniper.handler;
 
 import com.richieloco.coinsniper.entity.on.Risk;
-import com.richieloco.coinsniper.service.risk.RiskEvaluationService;
+import com.richieloco.coinsniper.service.risk.ExchangeEvaluationService;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -11,12 +11,12 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 @Component
-public class RiskHandler {
+public class ExchangeHandler {
 
-    private final RiskEvaluationService riskEvaluationService;
+    private final ExchangeEvaluationService exchangeEvaluationService;
 
-    public RiskHandler(RiskEvaluationService riskEvaluationService) {
-        this.riskEvaluationService = riskEvaluationService;
+    public ExchangeHandler(ExchangeEvaluationService exchangeEvaluationService) {
+        this.exchangeEvaluationService = exchangeEvaluationService;
     }
 
     public Mono<ServerResponse> exchangeRisk(ServerRequest request) {
@@ -27,7 +27,7 @@ public class RiskHandler {
             double liquidity = Double.parseDouble(request.queryParam("liquidity").orElseThrow(() -> new IllegalArgumentException("Missing 'liquidity' parameter")));
             double fees = Double.parseDouble(request.queryParam("fees").orElseThrow(() -> new IllegalArgumentException("Missing 'fees' parameter")));
 
-            return riskEvaluationService
+            return exchangeEvaluationService
                     .assessExchangeRisk(from, to, volatility, liquidity, fees)
                     .flatMap(risk -> ServerResponse.ok().bodyValue(risk));
         } catch (IllegalArgumentException e) {
@@ -43,7 +43,7 @@ public class RiskHandler {
             double correlation = Double.parseDouble(request.queryParam("correlation").orElseThrow(() -> new IllegalArgumentException("Missing 'correlation' parameter")));
             double volumeDiff = Double.parseDouble(request.queryParam("volumeDiff").orElseThrow(() -> new IllegalArgumentException("Missing 'volumeDiff' parameter")));
 
-            Mono<Risk> risk = riskEvaluationService.assessCoinRisk(coinA, coinB, volatility, correlation, volumeDiff);
+            Mono<Risk> risk = exchangeEvaluationService.assessCoinRisk(coinA, coinB, volatility, correlation, volumeDiff);
             return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON).body(risk, Risk.class);
         } catch (IllegalArgumentException e) {
             return ServerResponse.badRequest()

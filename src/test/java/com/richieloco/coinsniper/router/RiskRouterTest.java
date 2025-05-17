@@ -2,8 +2,8 @@ package com.richieloco.coinsniper.router;
 
 import com.richieloco.coinsniper.config.CoinSniperConfig;
 import com.richieloco.coinsniper.entity.on.Risk;
-import com.richieloco.coinsniper.handler.RiskHandler;
-import com.richieloco.coinsniper.service.risk.RiskEvaluationService;
+import com.richieloco.coinsniper.handler.ExchangeHandler;
+import com.richieloco.coinsniper.service.risk.ExchangeEvaluationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -23,14 +23,14 @@ import static org.mockito.Mockito.reset;
 @WebFluxTest(controllers = RiskRouter.class, excludeAutoConfiguration = {
         ReactiveSecurityAutoConfiguration.class
 })
-@Import({RiskRouter.class, RiskHandler.class, RiskRouterTest.MockedBeans.class})
+@Import({RiskRouter.class, ExchangeHandler.class, RiskRouterTest.MockedBeans.class})
 class RiskRouterTest {
 
     @Autowired
     private WebTestClient webTestClient;
 
     @Autowired
-    private RiskEvaluationService service;
+    private ExchangeEvaluationService service;
 
     @BeforeEach
     void resetMocks() {
@@ -47,8 +47,8 @@ class RiskRouterTest {
     static class MockedBeans {
 
         @Bean
-        public RiskEvaluationService mockRiskEvaluationService() {
-            RiskEvaluationService service = Mockito.mock(RiskEvaluationService.class);
+        public ExchangeEvaluationService mockRiskEvaluationService() {
+            ExchangeEvaluationService service = Mockito.mock(ExchangeEvaluationService.class);
             return service;
         }
 
