@@ -7,17 +7,21 @@ spring:
       api-key: YOUR_OPENAI_KEY
 
 coin-sniper:
-  exchanges:
-  - "Binance"
-  - "Bybit"
-  - "Coinbase"
-  - "GateIo"
-  - "Kraken"
-  - "Kucoin"
-  - "MEXC"
-  - "OKCoin"
-  - "Poloniex"
-  stable-coin: "USDT"
+  supported:
+    exchanges:
+      - "Binance"
+      - "Bybit"
+      - "Coinbase"
+      - "GateIo"
+      - "Kraken"
+      - "Kucoin"
+      - "MEXC"
+      - "OKCoin"
+      - "Poloniex"
+    stable-coins:
+      - "USDT"
+      - "USDC"
+      - "USD"
   api:
     binance:
       announcement:

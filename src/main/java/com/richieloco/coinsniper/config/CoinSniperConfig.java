@@ -1,47 +1,53 @@
 package com.richieloco.coinsniper.config;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-import lombok.Data;
-import org.springframework.validation.annotation.Validated;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
+import java.util.List;
 import java.util.Map;
 
-@ConfigurationProperties(prefix = "coin-sniper.api")
+@Configuration
+@ConfigurationProperties(prefix = "coin-sniper")
 @Data
-@Validated
 public class CoinSniperConfig {
-    private BinanceConfig binance;
-    private Map<String, ExchangeConfig> onExchange;
+    private Supported supported;
+    private Api api;
 
     @Data
-    public static class BinanceConfig {
-
-        @NotBlank
-        private String baseUrl;
-
-        @Min(1)
-        private int type;
-
-        @Min(1)
-        private int pageNo;
-
-        @Min(1)
-        private int pageSize;
+    public static class Supported {
+        private List<String> exchanges;
+        private List<String> stableCoins;
     }
 
     @Data
-    public static class ExchangeConfig {
+    public static class Api {
+        private Binance binance;
+        private Map<String, OnExchange> onExchange;
 
-        @NotBlank
-        private String baseUrl;
+        @Data
+        public static class Binance {
+            private Announcement announcement;
 
-        @NotBlank
-        private String apiKey;
+            @Data
+            public static class Announcement {
+                private String baseUrl;
+                private int type;
+                private int pageNo;
+                private int pageSize;
+            }
+        }
 
-        @NotBlank
-        private String apiSecret;
+        @Data
+        public static class OnExchange {
+            private Trade trade;
+
+            @Data
+            public static class Trade {
+                private String baseUrl;
+                private String apiKey;
+                private String apiSecret;
+            }
+        }
     }
 }

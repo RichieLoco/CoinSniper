@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Coin Sniper Dashboard</title>
+</head>
+<body>
+<h1>Recent Trades</h1>
+<table>
+    <tr>
+        <th>Coin</th><th>Exchange</th><th>Risk Score</th><th>Executed</th><th>Time</th>
+    </tr>
+    <tr th:each="trade : ${trades}">
+        <td th:text="${trade.coinSymbol}"></td>
+        <td th:text="${trade.exchange}"></td>
+        <td th:text="${trade.riskScore}"></td>
+        <td th:text="${trade.tradeExecuted}"></td>
+        <td th:text="${trade.timestamp}"></td>
+    </tr>
+</table>
+</body>
+</html>

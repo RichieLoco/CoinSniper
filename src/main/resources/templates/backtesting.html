@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Backtesting Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<h1>AI Backtesting Results</h1>
+
+<canvas id="riskChart" width="800" height="400"></canvas>
+
+<script th:inline="javascript">
+    const tradeData = [[${history}]];
+    const labels = tradeData.map(t => t.coinSymbol + ' @ ' + t.exchange);
+    const data = tradeData.map(t => t.riskScore);
+
+    const ctx = document.getElementById('riskChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Risk Score',
+                data: data,
+                backgroundColor: 'rgba(75, 192, 192, 0.6)'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 10
+                }
+            }
+        }
+    });
+</script>
+
+<table>
+    <tr>
+        <th>Coin</th><th>Exchange</th><th>Risk Score</th><th>Executed</th><th>Time</th>
+    </tr>
+    <tr th:each="trade : ${history}">
+        <td th:text="${trade.coinSymbol}"></td>
+        <td th:text="${trade.exchange}"></td>
+        <td th:text="${trade.riskScore}"></td>
+        <td th:text="${trade.tradeExecuted}"></td>
+        <td th:text="${trade.timestamp}"></td>
+    </tr>
+</table>
+</body>
+</html>
