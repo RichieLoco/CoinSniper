@@ -22,8 +22,8 @@ public class TradeExecutionService {
     private final CoinSniperConfig config;
 
     public Mono<TradeDecisionRecord> evaluateAndTrade(CoinAnnouncementRecord announcement) {
-        ExchangeSelectorContext context
-                = ExchangeSelectorContext.from(config, announcement.getCoinSymbol());
+        ExchangeSelectorContext context =
+                ExchangeSelectorContext.from(config, announcement.getCoinSymbol());
 
         return exchangeAssessor.assess(context)
                 .map(assessment -> TradeDecisionRecord.builder()
@@ -31,7 +31,7 @@ public class TradeExecutionService {
                         .coinSymbol(announcement.getCoinSymbol())
                         .exchange(assessment.getExchange())
                         .riskScore(assessment.getOverallRiskScore())
-                        .tradeExecuted(assessment.getOverallRiskScore() < 5.0) // TODO simplified logic... for now!
+                        .tradeExecuted(assessment.getOverallRiskScore() < 5.0) // TODO: Simplified logic
                         .timestamp(Instant.now())
                         .build())
                 .flatMap(repository::save);
