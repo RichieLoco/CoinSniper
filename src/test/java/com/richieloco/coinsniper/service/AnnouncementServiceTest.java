@@ -19,6 +19,12 @@ public class AnnouncementServiceTest {
         CoinAnnouncementRepository repository = mock(CoinAnnouncementRepository.class);
         CoinSniperConfig config = new CoinSniperConfig();
 
+        CoinSniperConfig.Api.Binance binance = new CoinSniperConfig.Api.Binance();
+        CoinSniperConfig.Api api = new CoinSniperConfig.Api();
+        api.setBinance(binance);
+
+        when(config.getApi()).thenReturn(api);
+
         CoinAnnouncementRecord announcement = CoinAnnouncementRecord.builder()
                 .id(UUID.randomUUID().toString())
                 .coinSymbol("XYZ")

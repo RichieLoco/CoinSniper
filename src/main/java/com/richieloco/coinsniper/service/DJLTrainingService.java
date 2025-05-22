@@ -2,6 +2,8 @@ package com.richieloco.coinsniper.service;
 
 import ai.djl.Model;
 import ai.djl.ndarray.NDManager;
+import ai.djl.nn.SequentialBlock;
+import ai.djl.nn.core.Linear;
 import ai.djl.training.DefaultTrainingConfig;
 import ai.djl.training.Trainer;
 import ai.djl.training.TrainingConfig;
@@ -18,21 +20,26 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class  DJLTrainingService {
+public class DJLTrainingService {
 
     public void train(List<TradeDecisionRecord> tradeData) {
         try (Model model = Model.newInstance("coin-sniper-model");
              NDManager manager = NDManager.newBaseManager()) {
 
-            // Define the loss function
-            //TODO picked this one as a default but need to research some more
+            // ✅ Set a minimal valid model block
+            SequentialBlock block = new SequentialBlock()
+                    .add(Linear.builder().setUnits(10).build())  // input -> hidden layer
+                    .add(Linear.builder().setUnits(2).build());  // hidden -> output
+
+            model.setBlock(block);
+
+            // ✅ Define the loss function and optimizer
             Loss loss = Loss.softmaxCrossEntropyLoss();
-
-            // Create the optimizer
             Optimizer optimizer = Optimizer.adam().build();
+            TrainingConfig config = new DefaultTrainingConfig(loss)
+                    .optOptimizer(optimizer);
 
-            TrainingConfig config = new DefaultTrainingConfig(loss);
-
+            // ✅ Now it's safe to create the trainer
             try (Trainer trainer = model.newTrainer(config)) {
                 log.info("Simulated training with {} records.", tradeData.size());
             }

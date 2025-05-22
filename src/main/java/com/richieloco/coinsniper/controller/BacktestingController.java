@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import reactor.core.publisher.Mono;
 
 @Controller
 @RequiredArgsConstructor
@@ -15,7 +16,7 @@ public class BacktestingController {
     private final DJLTrainingService djlTrainingService;
 
     @GetMapping("/backtesting")
-    public String backtesting(Model model) {
+    public Mono<String> backtesting(Model model) {
         return tradeDecisionRepository.findAll()
                 .collectList()
                 .doOnNext(djlTrainingService::train)
@@ -23,7 +24,8 @@ public class BacktestingController {
                 .map(history -> {
                     model.addAttribute("history", history);
                     return "backtesting";
-                })
-                .block();
+                });
     }
+
+
 }

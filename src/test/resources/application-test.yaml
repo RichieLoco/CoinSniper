@@ -1,0 +1,13 @@
+spring:
+  security:
+    user:
+      name: test
+      password: test
+  r2dbc:
+    url: r2dbc:h2:mem:///testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+  main:
+    allow-bean-definition-overriding: true

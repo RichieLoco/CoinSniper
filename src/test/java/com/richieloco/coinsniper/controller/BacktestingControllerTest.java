@@ -39,10 +39,11 @@ public class BacktestingControllerTest {
         TradeDecisionRecord record = TradeDecisionRecord.builder().coinSymbol("XYZ").build();
         when(repository.findAll()).thenReturn(Flux.just(record));
 
-        String view = controller.backtesting(model);
+        String view = controller.backtesting(model).block(); // ✅ block to get the result
 
         assertEquals("backtesting", view);
         verify(djlTrainingService).train(Collections.singletonList(record));
         verify(djlTrainingService).logToFile(Collections.singletonList(record));
     }
+
 }

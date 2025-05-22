@@ -11,13 +11,14 @@ import java.util.UUID;
 public class DJLTrainingServiceTest {
 
     @BeforeAll
-    public static void setUp() {
+    public static void setupEngine() {
         System.setProperty("ai.djl.default_engine", "PyTorch");
     }
 
     @Test
     public void testTrainingAndLogging() {
         DJLTrainingService trainer = new DJLTrainingService();
+
 
         TradeDecisionRecord record = TradeDecisionRecord.builder()
                 .id(UUID.randomUUID())
