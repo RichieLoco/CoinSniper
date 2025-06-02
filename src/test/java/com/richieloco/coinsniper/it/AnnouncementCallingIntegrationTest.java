@@ -13,15 +13,15 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
-public class IntegrationTest {
+public class AnnouncementCallingIntegrationTest {
 
     @Autowired
     private WebTestClient webTestClient;
 
     @Test
-    void testPollBinanceEndpoint() {
+    void testCallBinanceEndpoint() {
         webTestClient.get()
-                .uri("/api/announcements/poll")
+                .uri("/api/announcements/call")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()

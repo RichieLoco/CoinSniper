@@ -1,7 +1,7 @@
 package com.richieloco.coinsniper.controller;
 
 import com.richieloco.coinsniper.entity.CoinAnnouncementRecord;
-import com.richieloco.coinsniper.service.AnnouncementService;
+import com.richieloco.coinsniper.service.AnnouncementCallingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -10,43 +10,42 @@ import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.time.Instant;
-import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 
-public class AnnouncementControllerTest {
+public class AnnouncementCallControllerTest {
 
     @Mock
-    private AnnouncementService announcementService;
+    private AnnouncementCallingService announcementCallingService;
 
-    private AnnouncementController controller;
+    private AnnouncementCallController controller;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        controller = new AnnouncementController(announcementService);
+        controller = new AnnouncementCallController(announcementCallingService);
     }
 
     @Test
-    public void pollBinance_shouldReturnAnnouncements() {
+    public void callBinance_shouldReturnAnnouncements() {
         CoinAnnouncementRecord announcement = CoinAnnouncementRecord.builder()
                 .title("XYZ Listing")
                 .coinSymbol("XYZ")
                 .announcedAt(Instant.now())
                 .build();
 
-        when(announcementService.pollBinanceAnnouncements()).thenReturn(Flux.just(announcement));
+        when(announcementCallingService.callBinanceAnnouncements()).thenReturn(Flux.just(announcement));
 
-        StepVerifier.create(controller.pollBinance())
+        StepVerifier.create(controller.callBinance())
                 .expectNext(announcement)
                 .verifyComplete();
     }
 
     @Test
-    public void pollBinance_shouldHandleEmpty() {
-        when(announcementService.pollBinanceAnnouncements()).thenReturn(Flux.empty());
+    public void callBinance_shouldHandleEmpty() {
+        when(announcementCallingService.callBinanceAnnouncements()).thenReturn(Flux.empty());
 
-        StepVerifier.create(controller.pollBinance())
+        StepVerifier.create(controller.callBinance())
                 .verifyComplete();
     }
 }

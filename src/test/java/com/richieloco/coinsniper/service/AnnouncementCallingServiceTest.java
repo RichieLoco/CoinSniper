@@ -17,12 +17,12 @@ import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class AnnouncementServiceTest {
+public class AnnouncementCallingServiceTest {
 
     private CoinAnnouncementRepository announcementRepository;
     private ErrorResponseRepository errorRepository;
     private CoinSniperConfig config;
-    private AnnouncementService service;
+    private AnnouncementCallingService service;
 
     @BeforeEach
     public void setUp() {
@@ -32,7 +32,7 @@ public class AnnouncementServiceTest {
     }
 
     @Test
-    public void testPollBinanceAnnouncements_Success() {
+    public void testPollBinanceAnnouncements_isSuccessful() {
         // Setup config mock
         CoinSniperConfig.Api.Binance.Announcement announcementCfg = new CoinSniperConfig.Api.Binance.Announcement();
         announcementCfg.setBaseUrl("http://mock-url.com");
@@ -53,20 +53,20 @@ public class AnnouncementServiceTest {
 
         when(announcementRepository.save(any())).thenReturn(Mono.just(expectedRecord));
 
-        service = new AnnouncementService(config, announcementRepository, errorRepository) {
+        service = new AnnouncementCallingService(config, announcementRepository, errorRepository) {
             @Override
-            public Flux<CoinAnnouncementRecord> pollBinanceAnnouncements() {
+            public Flux<CoinAnnouncementRecord> callBinanceAnnouncements() {
                 return Flux.just(expectedRecord).flatMap(announcementRepository::save);
             }
         };
 
-        StepVerifier.create(service.pollBinanceAnnouncements())
+        StepVerifier.create(service.callBinanceAnnouncements())
                 .expectNextMatches(record -> record.getCoinSymbol().equals("XYZ"))
                 .verifyComplete();
     }
 
     @Test
-    public void testPollBinanceAnnouncements_Failure() {
+    public void testPollBinanceAnnouncements_isFailure() {
         // Setup config mock
         CoinSniperConfig.Api.Binance.Announcement announcementCfg = new CoinSniperConfig.Api.Binance.Announcement();
         announcementCfg.setBaseUrl("http://mock-fail-url");
@@ -80,9 +80,9 @@ public class AnnouncementServiceTest {
 
         when(errorRepository.save(any())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
-        service = new AnnouncementService(config, announcementRepository, errorRepository) {
+        service = new AnnouncementCallingService(config, announcementRepository, errorRepository) {
             @Override
-            public Flux<CoinAnnouncementRecord> pollBinanceAnnouncements() {
+            public Flux<CoinAnnouncementRecord> callBinanceAnnouncements() {
                 return Flux.<CoinAnnouncementRecord>error(new ExternalApiException("Simulated error", 500))
                         .onErrorResume(ExternalApiException.class, ex -> {
                             ErrorResponseRecord error = ErrorResponseRecord.builder()
@@ -97,7 +97,7 @@ public class AnnouncementServiceTest {
         };
 
 
-        StepVerifier.create(service.pollBinanceAnnouncements())
+        StepVerifier.create(service.callBinanceAnnouncements())
                 .expectComplete()
                 .verify();
 

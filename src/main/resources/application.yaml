@@ -6,6 +6,9 @@ spring:
     openai:
       api-key: YOUR_OPENAI_KEY
 
+management:
+  endpoints.web.exposure.include: configprops
+
 coin-sniper:
   supported:
     exchanges:

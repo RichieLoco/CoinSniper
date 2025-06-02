@@ -34,7 +34,7 @@ public class TradeExecutionServiceTest {
     }
 
     @Test
-    public void testEvaluateAndTrade_successfulAssessment() {
+    public void testEvaluateAndTrade_givenAssessment() {
         CoinAnnouncementRecord announcement = CoinAnnouncementRecord.builder()
                 .coinSymbol("XYZ")
                 .announcedAt(Instant.now())

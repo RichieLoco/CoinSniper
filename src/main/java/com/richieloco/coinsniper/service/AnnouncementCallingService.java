@@ -15,7 +15,7 @@ import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
-public class AnnouncementService {
+public class AnnouncementCallingService {
 
     private final CoinSniperConfig config;
     private final CoinAnnouncementRepository repository;
@@ -23,7 +23,7 @@ public class AnnouncementService {
 
     private final WebClient webClient = WebClient.create();
 
-    public Flux<CoinAnnouncementRecord> pollBinanceAnnouncements() {
+    public Flux<CoinAnnouncementRecord> callBinanceAnnouncements() {
         String url = config.getApi().getBinance().getAnnouncement().getBaseUrl();
 
         return webClient.get()

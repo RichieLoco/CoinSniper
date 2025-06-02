@@ -1,7 +1,7 @@
 package com.richieloco.coinsniper.controller;
 
 import com.richieloco.coinsniper.entity.CoinAnnouncementRecord;
-import com.richieloco.coinsniper.service.AnnouncementService;
+import com.richieloco.coinsniper.service.AnnouncementCallingService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,12 +11,12 @@ import reactor.core.publisher.Flux;
 @RestController
 @RequestMapping("/api/announcements")
 @AllArgsConstructor
-public class AnnouncementController {
+public class AnnouncementCallController {
 
-    private final AnnouncementService announcementService;
+    private final AnnouncementCallingService announcementCallingService;
 
-    @GetMapping("/poll")
-    public Flux<CoinAnnouncementRecord> pollBinance() {
-        return announcementService.pollBinanceAnnouncements();
+    @GetMapping("/call")
+    public Flux<CoinAnnouncementRecord> callBinance() {
+        return announcementCallingService.callBinanceAnnouncements();
     }
 }
