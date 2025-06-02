@@ -1,7 +1,6 @@
 package com.richieloco.coinsniper.entity;
 
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
@@ -14,8 +13,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("trade_decisions")
-public class TradeDecisionRecord {
-    @GeneratedValue(strategy = GenerationType.AUTO)
+public class TradeDecisionRecord implements Identifiable {
+    @Id
+    @GeneratedValue
     private UUID id;
     private String coinSymbol;
     private String exchange;

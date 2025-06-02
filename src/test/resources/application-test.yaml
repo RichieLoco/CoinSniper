@@ -11,3 +11,8 @@ spring:
       schema-locations: classpath:schema.sql
   main:
     allow-bean-definition-overriding: true
+
+logging:
+  level:
+    org.springframework.r2dbc: DEBUG
+    io.r2dbc: DEBUG

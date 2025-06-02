@@ -30,7 +30,6 @@ public class AnnouncementControllerTest {
     @Test
     public void pollBinance_shouldReturnAnnouncements() {
         CoinAnnouncementRecord announcement = CoinAnnouncementRecord.builder()
-                .id(UUID.randomUUID().toString())
                 .title("XYZ Listing")
                 .coinSymbol("XYZ")
                 .announcedAt(Instant.now())

@@ -27,7 +27,6 @@ public class TradeExecutionService {
 
         return exchangeAssessor.assess(context)
                 .map(assessment -> TradeDecisionRecord.builder()
-                        .id(UUID.randomUUID())
                         .coinSymbol(announcement.getCoinSymbol())
                         .exchange(assessment.getExchange())
                         .riskScore(assessment.getOverallRiskScore())

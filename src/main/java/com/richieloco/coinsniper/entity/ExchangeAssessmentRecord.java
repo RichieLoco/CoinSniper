@@ -1,32 +1,29 @@
 package com.richieloco.coinsniper.entity;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.GeneratedValue;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
-import java.util.Objects;
 import java.util.UUID;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "exchange_assessments")
-public class ExchangeAssessmentRecord {
+@AllArgsConstructor
+@Table("exchange_assessments")
+public class ExchangeAssessmentRecord implements Identifiable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     private UUID id;
     private String contextType;
     private String contextDescription;
     private String exchange;
     private String coinListing;
     private Integer overallRiskScore;
-    private RiskLevel tradingVolume;
-    private RiskLevel liquidity;
-    private RiskLevel tradingFees;
+    private String tradingVolume;
+    private String liquidity;
+    private String tradingFees;
     private Instant assessedAt;
 }

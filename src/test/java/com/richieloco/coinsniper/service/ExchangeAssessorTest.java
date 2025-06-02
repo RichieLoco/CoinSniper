@@ -21,6 +21,7 @@ import reactor.test.StepVerifier;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -62,9 +63,9 @@ public class ExchangeAssessorTest {
                         result.getExchange().equals("Binance") &&
                                 result.getCoinListing().equals("XYZUSDT") &&
                                 result.getOverallRiskScore() == 3 &&
-                                result.getLiquidity() == RiskLevel.Low &&
-                                result.getTradingVolume() == RiskLevel.Medium &&
-                                result.getTradingFees() == RiskLevel.Low
+                                Objects.equals(result.getLiquidity(), String.valueOf(RiskLevel.Low)) &&
+                                Objects.equals(result.getTradingVolume(), String.valueOf(RiskLevel.Medium)) &&
+                                Objects.equals(result.getTradingFees(), String.valueOf(RiskLevel.Low))
                 )
                 .verifyComplete();
     }

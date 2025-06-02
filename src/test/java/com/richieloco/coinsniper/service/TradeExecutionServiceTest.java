@@ -37,7 +37,6 @@ public class TradeExecutionServiceTest {
     @Test
     public void testEvaluateAndTrade_successfulAssessment() {
         CoinAnnouncementRecord announcement = CoinAnnouncementRecord.builder()
-                .id(UUID.randomUUID().toString())
                 .coinSymbol("XYZ")
                 .announcedAt(Instant.now())
                 .delisting(false)
@@ -47,9 +46,9 @@ public class TradeExecutionServiceTest {
                 .exchange("Binance")
                 .coinListing("XYZUSDT")
                 .overallRiskScore(3)
-                .liquidity(RiskLevel.Medium)
-                .tradingFees(RiskLevel.Low)
-                .tradingVolume(RiskLevel.Medium)
+                .liquidity(RiskLevel.Medium.name())
+                .tradingFees(RiskLevel.Low.name())
+                .tradingVolume(RiskLevel.Medium.name())
                 .assessedAt(Instant.now())
                 .contextType("Exchange")
                 .build();

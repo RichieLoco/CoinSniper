@@ -6,21 +6,19 @@ import com.richieloco.coinsniper.repository.TradeDecisionRepository;
 import com.richieloco.coinsniper.service.DJLTrainingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import reactor.core.publisher.Flux;
 
 import java.time.Instant;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
@@ -38,7 +36,7 @@ public class BacktestingIntegrationTest {
     @Autowired
     private TradeDecisionRepository repository;
 
-    @Mock
+    @MockBean
     private DJLTrainingService trainingService;
 
     @BeforeEach
@@ -46,7 +44,6 @@ public class BacktestingIntegrationTest {
         repository.deleteAll().block();
 
         TradeDecisionRecord record = TradeDecisionRecord.builder()
-                .id(UUID.randomUUID())
                 .coinSymbol("XYZ")
                 .exchange("Binance")
                 .riskScore(3.2)
@@ -60,7 +57,6 @@ public class BacktestingIntegrationTest {
     @Test
     public void testBacktestingViewLoadsAndLogs() {
         TradeDecisionRecord record = TradeDecisionRecord.builder()
-                .id(UUID.randomUUID())
                 .coinSymbol("XYZ")
                 .exchange("Binance")
                 .riskScore(3.2)

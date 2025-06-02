@@ -32,7 +32,6 @@ public class DashboardIntegrationTest {
         repository.deleteAll().then(
                 repository.save(
                         TradeDecisionRecord.builder()
-                                .id(UUID.randomUUID())
                                 .coinSymbol("XYZ")
                                 .exchange("Binance")
                                 .riskScore(3.5)

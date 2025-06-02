@@ -68,15 +68,14 @@ public class ExchangeAssessor extends BaseAssessor<ExchangeSelectorContext, Exch
         }
 
         return ExchangeAssessmentRecord.builder()
-                .id(UUID.randomUUID())
                 .contextType(contextType())
                 .contextDescription(context.toString())
                 .exchange(exchange)
                 .coinListing(coinListing)
                 .overallRiskScore(overallRiskScore)
-                .liquidity(liquidity)
-                .tradingVolume(tradingVolume)
-                .tradingFees(tradingFees)
+                .liquidity(String.valueOf(liquidity))
+                .tradingVolume(String.valueOf(tradingVolume))
+                .tradingFees(String.valueOf(tradingFees))
                 .assessedAt(Instant.now())
                 .build();
     }

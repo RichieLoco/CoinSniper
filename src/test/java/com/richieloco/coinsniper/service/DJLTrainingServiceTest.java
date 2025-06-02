@@ -21,7 +21,6 @@ public class DJLTrainingServiceTest {
 
 
         TradeDecisionRecord record = TradeDecisionRecord.builder()
-                .id(UUID.randomUUID())
                 .coinSymbol("XYZ")
                 .exchange("Binance")
                 .riskScore(3.5)
