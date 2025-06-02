@@ -22,6 +22,9 @@ coin-sniper:
       - "USDT"
       - "USDC"
       - "USD"
+  announcement-polling:
+    enabled: true
+    interval-seconds: 30
   api:
     binance:
       announcement:
