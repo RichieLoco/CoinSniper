@@ -6,23 +6,29 @@ import com.richieloco.coinsniper.repository.TradeDecisionRepository;
 import com.richieloco.coinsniper.service.DJLTrainingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.Instant;
-import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
-@Import(NoSecurityTestConfig.class)
+@Import({
+        NoSecurityTestConfig.class,
+        BacktestingIntegrationTest.TestMockConfig.class
+})
 @SpringBootTest
 @AutoConfigureWebTestClient
 public class BacktestingIntegrationTest {
@@ -36,7 +42,7 @@ public class BacktestingIntegrationTest {
     @Autowired
     private TradeDecisionRepository repository;
 
-    @MockBean
+    @Autowired
     private DJLTrainingService trainingService;
 
     @BeforeEach
@@ -78,5 +84,14 @@ public class BacktestingIntegrationTest {
 
         verify(trainingService).train(anyList());
         verify(trainingService).logToFile(anyList());
+    }
+
+    @TestConfiguration
+    static class TestMockConfig {
+        @Primary
+        @Bean
+        public DJLTrainingService trainingService() {
+            return Mockito.mock(DJLTrainingService.class);
+        }
     }
 }
