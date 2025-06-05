@@ -1,5 +1,6 @@
 package com.richieloco.coinsniper.controller;
 
+import com.richieloco.coinsniper.config.DashboardConfig;
 import com.richieloco.coinsniper.repository.TradeDecisionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,21 +18,24 @@ public class DashboardControllerTest {
     @Mock
     private TradeDecisionRepository repository;
 
+    @Mock
+    private DashboardConfig dashboardConfig;
+
     private DashboardController controller;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-        controller = new DashboardController(repository);
+        controller = new DashboardController(repository, dashboardConfig);
     }
 
     @Test
-    public void dashboard_shouldAddAttributeAndReturnView() {
+    public void viewDashboard_shouldAddAttributesAndReturnView() {
         Model model = new ConcurrentModel();
 
         when(repository.findAll()).thenReturn(Flux.empty());
 
-        String view = controller.dashboard(model);
+        String view = controller.viewDashboard(model).block();
 
         assertEquals("dashboard", view);
         verify(repository, times(1)).findAll();

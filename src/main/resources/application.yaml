@@ -6,8 +6,16 @@ spring:
     openai:
       api-key: YOUR_OPENAI_KEY
 
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.thymeleaf: DEBUG
+
 management:
-  endpoints.web.exposure.include: configprops
+  endpoints:
+    web:
+      exposure:
+        include: health,info,configprops
 
 coin-sniper:
   supported:
@@ -46,3 +54,10 @@ coin-sniper:
           base-url: ""
           api-key: 123
           api-secret: 456
+
+dashboard:
+  enabled: true
+  maxResults: 50
+  defaultExchange: Binance
+
+

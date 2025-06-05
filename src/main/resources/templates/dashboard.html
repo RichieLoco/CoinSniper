@@ -5,6 +5,14 @@
 </head>
 <body>
 <h1>Recent Trades</h1>
+
+<p><strong>Dashboard Settings:</strong></p>
+<ul>
+    <li>Enabled: <span th:text="${dashboard.enabled}">true</span></li>
+    <li>Max Results: <span th:text="${dashboard.maxResults}">50</span></li>
+    <li>Default Exchange: <span th:text="${dashboard.defaultExchange}">Binance</span></li>
+</ul>
+
 <table>
     <tr>
         <th>Coin</th><th>Exchange</th><th>Risk Score</th><th>Executed</th><th>Time</th>
