@@ -60,4 +60,11 @@ dashboard:
   maxResults: 50
   defaultExchange: Binance
 
+springdoc:
+  swagger-ui:
+    path: /swagger
+  api-docs:
+    path: /api-docs
+
+
 
