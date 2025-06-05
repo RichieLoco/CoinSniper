@@ -5,6 +5,8 @@ target/
 !**/src/test/**/target/
 logs/
 out
+meh*
+mvndt*
 
 ### STS ###
 .apt_generated
