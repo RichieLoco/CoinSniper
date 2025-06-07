@@ -1,6 +1,7 @@
 package com.richieloco.coinsniper.service;
 
 import com.richieloco.coinsniper.config.AnnouncementPollingConfig;
+import com.richieloco.coinsniper.config.CoinSniperConfig;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ public class AnnouncementPollingScheduler {
 
     private final AnnouncementCallingService service;
     private final AnnouncementPollingConfig config;
+    private final CoinSniperConfig coinSniperConfig;
 
     private Disposable pollingSubscription;
 
@@ -30,10 +32,16 @@ public class AnnouncementPollingScheduler {
     public synchronized void startPolling() {
         if (pollingSubscription != null && !pollingSubscription.isDisposed()) return;
 
+        var announcementCfg = coinSniperConfig.getApi().getBinance().getAnnouncement();
+
         pollingSubscription = Flux.interval(Duration.ofSeconds(config.getIntervalSeconds()))
                 .flatMap(tick -> {
                     log.info("Polling Binance...");
-                    return service.callBinanceAnnouncements();
+                    return service.callBinanceAnnouncements(
+                            announcementCfg.getType(),
+                            announcementCfg.getPageNo(),
+                            announcementCfg.getPageSize()
+                    );
                 })
                 .onErrorContinue((ex, obj) -> log.error("Polling error: {}", ex.getMessage()))
                 .subscribe(record -> log.info("Saved: {}", record.getCoinSymbol()));

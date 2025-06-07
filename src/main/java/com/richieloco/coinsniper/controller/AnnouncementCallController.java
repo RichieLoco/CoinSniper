@@ -2,21 +2,31 @@ package com.richieloco.coinsniper.controller;
 
 import com.richieloco.coinsniper.entity.CoinAnnouncementRecord;
 import com.richieloco.coinsniper.service.AnnouncementCallingService;
-import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.richieloco.coinsniper.config.CoinSniperConfig;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping("/api/announcements")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AnnouncementCallController {
 
     private final AnnouncementCallingService announcementCallingService;
+    private final CoinSniperConfig config;
 
     @GetMapping("/call")
-    public Flux<CoinAnnouncementRecord> callBinance() {
-        return announcementCallingService.callBinanceAnnouncements();
+    public Flux<CoinAnnouncementRecord> callBinance(
+            @RequestParam(required = false) Integer type,
+            @RequestParam(required = false) Integer pageNo,
+            @RequestParam(required = false) Integer pageSize
+    ) {
+        var announcementCfg = config.getApi().getBinance().getAnnouncement();
+
+        int resolvedType = type != null ? type : announcementCfg.getType();
+        int resolvedPageNo = pageNo != null ? pageNo : announcementCfg.getPageNo();
+        int resolvedPageSize = pageSize != null ? pageSize : announcementCfg.getPageSize();
+
+        return announcementCallingService.callBinanceAnnouncements(resolvedType, resolvedPageNo, resolvedPageSize);
     }
 }

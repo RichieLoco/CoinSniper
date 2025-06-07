@@ -5,12 +5,15 @@ import com.richieloco.coinsniper.entity.CoinAnnouncementRecord;
 import com.richieloco.coinsniper.entity.ErrorResponseRecord;
 import com.richieloco.coinsniper.repository.CoinAnnouncementRepository;
 import com.richieloco.coinsniper.repository.ErrorResponseRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
 import java.time.Instant;
 
 @Service
@@ -23,16 +26,24 @@ public class AnnouncementCallingService {
 
     private final WebClient webClient = WebClient.create();
 
-    public Flux<CoinAnnouncementRecord> callBinanceAnnouncements() {
-        String url = config.getApi().getBinance().getAnnouncement().getBaseUrl();
+    public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
+        // Construct the URI with query parameters
+        URI uri = UriComponentsBuilder.fromUriString(config.getApi().getBinance().getAnnouncement().getBaseUrl())
+                .queryParam("type", type)
+                .queryParam("pageNo", pageNo)
+                .queryParam("pageSize", pageSize)
+                .build()
+                .toUri();
 
         return webClient.get()
-                .uri(url)
+                .uri(uri)
                 .retrieve()
                 .onStatus(
                         status -> status.is4xxClientError() || status.is5xxServerError(),
                         clientResponse -> clientResponse.bodyToMono(String.class)
-                                .flatMap(errorBody -> Mono.error(new ExternalApiException("Binance API error: " + errorBody, clientResponse.statusCode().value())))
+                                .flatMap(errorBody -> Mono.error(new ExternalApiException(
+                                        "Binance API error: " + errorBody,
+                                        clientResponse.statusCode().value())))
                 )
                 .bodyToMono(String.class)
                 .flatMapMany(body -> Flux.just(
@@ -51,11 +62,11 @@ public class AnnouncementCallingService {
                             .statusCode(ex.getStatusCode())
                             .timestamp(Instant.now())
                             .build();
-                    return errorResponseRepository.save(error)
-                            .thenMany(Flux.empty()); // Do not rethrow
+                    return errorResponseRepository.save(error).thenMany(Flux.empty());
                 });
     }
 
+    @Getter
     @SuppressWarnings("serial")
     private static class ExternalApiException extends RuntimeException {
         private final int statusCode;
@@ -65,8 +76,5 @@ public class AnnouncementCallingService {
             this.statusCode = statusCode;
         }
 
-        public int getStatusCode() {
-            return statusCode;
-        }
     }
 }

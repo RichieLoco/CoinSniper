@@ -1,6 +1,7 @@
 package com.richieloco.coinsniper.controller;
 
 import com.richieloco.coinsniper.config.AnnouncementPollingConfig;
+import com.richieloco.coinsniper.config.CoinSniperConfig;
 import com.richieloco.coinsniper.config.NoSecurityTestConfig;
 import com.richieloco.coinsniper.service.AnnouncementCallingService;
 import com.richieloco.coinsniper.service.AnnouncementPollingScheduler;
@@ -81,7 +82,8 @@ class AnnouncementPollControllerTest {
         public TestableScheduler scheduler() {
             AnnouncementCallingService mockService = mock(AnnouncementCallingService.class);
             AnnouncementPollingConfig dummyConfig = new AnnouncementPollingConfig();
-            return new TestableScheduler(mockService, dummyConfig);
+            CoinSniperConfig dummyCoinSniperConfig = mock(CoinSniperConfig.class); // ✅ Add this
+            return new TestableScheduler(mockService, dummyConfig, dummyCoinSniperConfig);
         }
     }
 
@@ -90,9 +92,12 @@ class AnnouncementPollControllerTest {
         AtomicBoolean startCalled = new AtomicBoolean(false);
         AtomicBoolean stopCalled = new AtomicBoolean(false);
 
-        public TestableScheduler(AnnouncementCallingService service, AnnouncementPollingConfig config) {
-            super(service, config);
+        public TestableScheduler(AnnouncementCallingService service,
+                                 AnnouncementPollingConfig config,
+                                 CoinSniperConfig coinSniperConfig) {
+            super(service, config, coinSniperConfig);
         }
+
 
         @Override
         public void startPolling() {

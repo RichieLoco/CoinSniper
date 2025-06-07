@@ -53,14 +53,14 @@ public class AnnouncementCallingServiceTest {
 
         when(announcementRepository.save(any())).thenReturn(Mono.just(expectedRecord));
 
+        // Instantiate service with overridden method using arguments
         service = new AnnouncementCallingService(config, announcementRepository, errorRepository) {
-            @Override
-            public Flux<CoinAnnouncementRecord> callBinanceAnnouncements() {
+            public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
                 return Flux.just(expectedRecord).flatMap(announcementRepository::save);
             }
         };
 
-        StepVerifier.create(service.callBinanceAnnouncements())
+        StepVerifier.create(service.callBinanceAnnouncements(1, 1, 10))
                 .expectNextMatches(record -> record.getCoinSymbol().equals("XYZ"))
                 .verifyComplete();
     }
@@ -80,9 +80,9 @@ public class AnnouncementCallingServiceTest {
 
         when(errorRepository.save(any())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
+        // Override method to simulate error handling logic
         service = new AnnouncementCallingService(config, announcementRepository, errorRepository) {
-            @Override
-            public Flux<CoinAnnouncementRecord> callBinanceAnnouncements() {
+            public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
                 return Flux.<CoinAnnouncementRecord>error(new ExternalApiException("Simulated error", 500))
                         .onErrorResume(ExternalApiException.class, ex -> {
                             ErrorResponseRecord error = ErrorResponseRecord.builder()
@@ -96,8 +96,7 @@ public class AnnouncementCallingServiceTest {
             }
         };
 
-
-        StepVerifier.create(service.callBinanceAnnouncements())
+        StepVerifier.create(service.callBinanceAnnouncements(1, 1, 10))
                 .expectComplete()
                 .verify();
 
