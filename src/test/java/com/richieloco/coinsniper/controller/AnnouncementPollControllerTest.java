@@ -41,6 +41,21 @@ class AnnouncementPollControllerTest {
     }
 
     @Test
+    void testStartPollingEndpoint_Idempotent() {
+        scheduler.setPollingActive(true); // Already running
+
+        webTestClient.post()
+                .uri("/api/announcements/poll/start")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .value(body -> assertThat(body).isEqualTo("Polling started.")); // Still returns OK
+
+        assertThat(scheduler.pollingActive.get()).isTrue(); // Still active
+    }
+
+
+    @Test
     void testStopPollingEndpoint() {
         webTestClient.post()
                 .uri("/api/announcements/poll/stop")
@@ -51,6 +66,21 @@ class AnnouncementPollControllerTest {
 
         assertThat(scheduler.stopCalled.get()).isTrue();
     }
+
+    @Test
+    void testStopPollingEndpoint_Idempotent() {
+        scheduler.setPollingActive(false); // Already stopped
+
+        webTestClient.post()
+                .uri("/api/announcements/poll/stop")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .value(body -> assertThat(body).isEqualTo("Polling stopped."));
+
+        assertThat(scheduler.pollingActive.get()).isFalse();
+    }
+
 
     @Test
     void testPollingStatusActive() {
@@ -75,6 +105,28 @@ class AnnouncementPollControllerTest {
                 .expectBody(String.class)
                 .value(body -> assertThat(body).isEqualTo("Polling is stopped."));
     }
+
+    @Test
+    void testPollingLifecycleFlow() {
+        // Start
+        webTestClient.post().uri("/api/announcements/poll/start")
+                .exchange().expectStatus().isOk();
+
+        // Status should now be active
+        webTestClient.get().uri("/api/announcements/poll/status")
+                .exchange().expectBody(String.class)
+                .value(body -> assertThat(body).isEqualTo("Polling is active."));
+
+        // Stop
+        webTestClient.post().uri("/api/announcements/poll/stop")
+                .exchange().expectStatus().isOk();
+
+        // Status should now be stopped
+        webTestClient.get().uri("/api/announcements/poll/status")
+                .exchange().expectBody(String.class)
+                .value(body -> assertThat(body).isEqualTo("Polling is stopped."));
+    }
+
 
     @TestConfiguration
     static class SchedulerTestConfig {
