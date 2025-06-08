@@ -36,6 +36,7 @@ public class AnnouncementPollingScheduler {
         var announcementCfg = coinSniperConfig.getApi().getBinance().getAnnouncement();
 
         pollingSubscription = Flux.interval(Duration.ofSeconds(config.getIntervalSeconds()))
+                .startWith(0L)
                 .flatMap(tick -> {
                     log.info("Polling Binance...");
                     return service.callBinanceAnnouncements(
