@@ -58,4 +58,17 @@ public class DJLTrainingService {
             log.error("Error writing training log", e);
         }
     }
+
+    public void logToFile(List<TradeDecisionRecord> history, String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
+            writer.write("CoinSymbol\tExchange\tRiskScore\tExecuted\tTimestamp\n");
+            for (TradeDecisionRecord td : history) {
+                writer.write(String.format("%s\t%s\t%.2f\t%b\t%s\n",
+                        td.getCoinSymbol(), td.getExchange(), td.getRiskScore(),
+                        td.isTradeExecuted(), td.getTimestamp()));
+            }
+        } catch (IOException e) {
+            log.error("Error writing training log", e);
+        }
+    }
 }
