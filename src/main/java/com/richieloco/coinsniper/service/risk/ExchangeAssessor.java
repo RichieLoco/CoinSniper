@@ -81,6 +81,6 @@ public class ExchangeAssessor extends BaseAssessor<ExchangeSelectorContext, Exch
 
     @Override
     protected void logAssessment(ExchangeSelectorContext context, ExchangeAssessmentRecord record) {
-        repository.save(record).subscribe(); // Reactive sideeffect
+        repository.save(record).subscribe(); // Reactive side effect
     }
 }
