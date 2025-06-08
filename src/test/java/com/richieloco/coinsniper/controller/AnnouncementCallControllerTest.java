@@ -47,4 +47,56 @@ public class AnnouncementCallControllerTest {
                                 !record.isDelisting())
                 .verifyComplete();
     }
+
+    @Test
+    public void callBinance_shouldUseDefaultsFromConfigWhenParamsAreNull() {
+        // 👇 Set expected defaults
+        var defaults = coinSniperConfig.getApi().getBinance().getAnnouncement();
+        int defaultType = defaults.getType();
+        int defaultPageNo = defaults.getPageNo();
+        int defaultPageSize = defaults.getPageSize();
+
+        AnnouncementCallingService service = mock(AnnouncementCallingService.class);
+
+        when(service.callBinanceAnnouncements(defaultType, defaultPageNo, defaultPageSize))
+                .thenReturn(Flux.empty());
+
+        AnnouncementCallController controller = new AnnouncementCallController(service, coinSniperConfig);
+
+        StepVerifier.create(controller.callBinance(null, null, null))
+                .verifyComplete();
+
+        verify(service).callBinanceAnnouncements(defaultType, defaultPageNo, defaultPageSize);
+    }
+
+    @Test
+    public void callBinance_shouldReturnMultipleAnnouncements() {
+        AnnouncementCallingService service = mock(AnnouncementCallingService.class);
+
+        CoinAnnouncementRecord one = CoinAnnouncementRecord.builder().coinSymbol("AAA").title("AAA listing").build();
+        CoinAnnouncementRecord two = CoinAnnouncementRecord.builder().coinSymbol("BBB").title("BBB listing").build();
+
+        when(service.callBinanceAnnouncements(1, 1, 10)).thenReturn(Flux.just(one, two));
+
+        AnnouncementCallController controller = new AnnouncementCallController(service, coinSniperConfig);
+
+        StepVerifier.create(controller.callBinance(1, 1, 10))
+                .expectNext(one)
+                .expectNext(two)
+                .verifyComplete();
+    }
+
+    @Test
+    public void callBinance_shouldPropagateErrors() {
+        AnnouncementCallingService service = mock(AnnouncementCallingService.class);
+
+        when(service.callBinanceAnnouncements(1, 1, 10))
+                .thenReturn(Flux.error(new RuntimeException("Binance failure")));
+
+        AnnouncementCallController controller = new AnnouncementCallController(service, coinSniperConfig);
+
+        StepVerifier.create(controller.callBinance(1, 1, 10))
+                .expectErrorMessage("Binance failure")
+                .verify();
+    }
 }
