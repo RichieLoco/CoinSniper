@@ -81,4 +81,15 @@ public class DashboardControllerTest {
 
         assertEquals(dashboardConfig, model.getAttribute("dashboard"));
     }
+
+    @Test
+    public void viewDashboard_shouldHandleRepositoryError() {
+        Model model = new ConcurrentModel();
+
+        when(repository.findAll()).thenReturn(Flux.error(new RuntimeException("Database error")));
+
+        assertThrows(RuntimeException.class, () -> {
+            controller.viewDashboard(model).block();
+        });
+    }
 }

@@ -4,7 +4,7 @@ server:
 spring:
   ai:
     openai:
-      api-key: YOUR_OPENAI_KEY
+      api-key: ${OPENAI_KEY}
 
 logging:
   level:

@@ -53,5 +53,20 @@ public class DashboardIntegrationTest {
                     assert body != null && body.contains("XYZ");
                 });
     }
+
+    @Test
+    public void testDashboardViewLoadsWithNoData() {
+        repository.deleteAll().block(); // clear manually
+
+        webTestClient.get()
+                .uri("/dashboard")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .consumeWith(response -> {
+                    String body = response.getResponseBody();
+                    assert body != null && !body.contains("XYZ"); // Or check for empty message if the UI includes one
+                });
+    }
 }
 

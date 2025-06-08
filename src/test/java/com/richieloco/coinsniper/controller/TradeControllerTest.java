@@ -56,4 +56,41 @@ public class TradeControllerTest {
         StepVerifier.create(controller.trade(input))
                 .verifyComplete();
     }
+
+    @Test
+    public void trade_shouldCallServiceWithCorrectInput() {
+        CoinAnnouncementRecord input = CoinAnnouncementRecord.builder().coinSymbol("DEF").build();
+        TradeDecisionRecord result = TradeDecisionRecord.builder().coinSymbol("DEF").build();
+
+        when(tradeExecutionService.evaluateAndTrade(any())).thenReturn(Mono.just(result));
+
+        StepVerifier.create(controller.trade(input))
+                .expectNext(result)
+                .verifyComplete();
+
+        verify(tradeExecutionService, times(1)).evaluateAndTrade(eq(input));
+    }
+
+    @Test
+    public void trade_shouldHandleNullMono() {
+        CoinAnnouncementRecord input = CoinAnnouncementRecord.builder().coinSymbol("NULL").build();
+
+        // Simulate misbehaving service returning Mono.just(null)
+        when(tradeExecutionService.evaluateAndTrade(input)).thenReturn(Mono.justOrEmpty(null));
+
+        StepVerifier.create(controller.trade(input))
+                .verifyComplete();
+    }
+
+    @Test
+    public void trade_shouldPropagateErrors() {
+        CoinAnnouncementRecord input = CoinAnnouncementRecord.builder().coinSymbol("ERR").build();
+
+        when(tradeExecutionService.evaluateAndTrade(input))
+                .thenReturn(Mono.error(new RuntimeException("Service failure")));
+
+        StepVerifier.create(controller.trade(input))
+                .expectErrorMessage("Service failure")
+                .verify();
+    }
 }

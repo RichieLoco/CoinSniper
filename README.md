@@ -17,6 +17,7 @@ The bot polls Binance's Announcement API and then intelligently filters down pot
 ➡️ From:
 
 ```
+
 <Configured supported exchanges>
 ```
 
@@ -90,7 +91,7 @@ Ensure environment variables are passed correctly. Build & run:
 
 ```bash
 docker build -t coin-sniper .
-docker run -e SPRING_PROFILES_ACTIVE=prod -p 8080:8080 coin-sniper
+docker run -e SPRING_PROFILES_ACTIVE=prod -e OPENAI_API_KEY=sk-xxxxxxxx -p 8080:8080 coin-sniper
 ```
 
 ## 🧩 Kubernetes Deployment
@@ -136,7 +137,7 @@ scp target/coin-sniper.jar pi@raspberrypi:/home/pi
 spring:
   ai:
     openai:
-      api-key: YOUR_OPENAI_KEY
+      api-key: ${OPENAI_API_KEY} # 🔐 Loaded from environment variable
 coin-sniper:
   supported:
     exchanges:
@@ -152,6 +153,28 @@ coin-sniper:
   polling:
     enabled: true
     interval-seconds: 30
+```
+
+### 🔐 Set Your API Key Securely
+
+Set the `OPENAI_API_KEY` environment variable in your terminal or CI environment:
+
+**Linux/macOS:**
+
+```bash
+export OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+**Windows CMD:**
+
+```cmd
+set OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+**Windows PowerShell:**
+
+```powershell
+$env:OPENAI_API_KEY = "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ```
 
 ---
