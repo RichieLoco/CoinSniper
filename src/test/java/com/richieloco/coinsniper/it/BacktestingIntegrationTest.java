@@ -21,6 +21,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
@@ -81,8 +82,69 @@ public class BacktestingIntegrationTest {
                     assert body.contains("XYZ");
                 });
 
-        verify(trainingService).train(anyList());
-        verify(trainingService).logToFile(anyList());
+        verify(trainingService, atLeastOnce()).train(anyList());
+        verify(trainingService, atLeastOnce()).logToFile(anyList());
+
+    }
+
+    @Test
+    public void testBacktestingViewWithNoData() {
+        repository.deleteAll().block();
+
+        webTestClient.get()
+                .uri("/backtesting")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .consumeWith(result -> {
+                    String body = result.getResponseBody();
+                    assert body != null;
+                    assert !body.contains("XYZ");
+                });
+
+        verify(trainingService, atLeastOnce()).train(anyList());
+        verify(trainingService, atLeastOnce()).logToFile(anyList());
+    }
+
+    @Test
+    public void testBacktestingViewWithMultipleTrades() {
+        TradeDecisionRecord extra = TradeDecisionRecord.builder()
+                .coinSymbol("ETH")
+                .exchange("Bybit")
+                .riskScore(2.1)
+                .tradeExecuted(false)
+                .timestamp(Instant.now())
+                .build();
+
+        repository.save(extra).block();
+
+        webTestClient.get()
+                .uri("/backtesting")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .consumeWith(result -> {
+                    String body = result.getResponseBody();
+                    assert body != null;
+                    assert body.contains("XYZ");
+                    assert body.contains("ETH");
+                });
+
+        verify(trainingService, atLeastOnce()).train(anyList());
+        verify(trainingService, atLeastOnce()).logToFile(anyList());
+
+    }
+
+    @Test
+    public void testBacktestingViewHandlesTrainingError() {
+        // Simulate exception on train()
+        Mockito.doThrow(new RuntimeException("Training failed"))
+                .when(trainingService).train(anyList());
+
+        webTestClient.get()
+                .uri("/backtesting")
+                .exchange()
+                .expectStatus().isOk(); // app should still respond OK
     }
 
     @TestConfiguration
