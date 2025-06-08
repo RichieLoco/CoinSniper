@@ -76,7 +76,31 @@ public class AnnouncementCallingIntegrationTest {
         }
     }
 
+    @Test
+    void testCallBinanceWithDefaults() {
+        var responseSpec = webTestClient.get()
+                .uri("/api/announcements/call")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .returnResult();
 
+        String responseBody = new String(responseSpec.getResponseBody(), StandardCharsets.UTF_8);
+        assertNotNull(responseBody);
+    }
+
+    @Test
+    void testCallBinanceWithInvalidTypeParam() {
+        webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/announcements/call")
+                        .queryParam("type", "abc")
+                        .queryParam("pageNo", 1)
+                        .queryParam("pageSize", 10)
+                        .build())
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
 
     @TestConfiguration
     static class MockWebClientConfig {
@@ -86,7 +110,7 @@ public class AnnouncementCallingIntegrationTest {
             ExchangeFunction exchangeFunction = request ->
                     Mono.just(create(OK)
                             .header("Content-Type", APPLICATION_JSON_VALUE)
-                            .body("{\"data\":{\"catalogs\":[{\"articles\":[{\"title\":\"Mock Announcement (MOCK)\",\"releaseDate\":1717785600000}]}]}}")
+                            .body("{\"data\":{\"catalogs\":[]}}")  // no articles
                             .build());
 
             return WebClient.builder()
@@ -94,5 +118,6 @@ public class AnnouncementCallingIntegrationTest {
                     .exchangeStrategies(ExchangeStrategies.withDefaults())
                     .build();
         }
+
     }
 }
