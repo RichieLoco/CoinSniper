@@ -92,4 +92,30 @@ public class DashboardControllerTest {
             controller.viewDashboard(model).block();
         });
     }
+
+    @Test
+    public void viewDashboard_shouldNotOverwriteExistingModelAttributes() {
+        Model model = new ConcurrentModel();
+        model.addAttribute("existingAttr", "keepMe");
+
+        when(repository.findAll()).thenReturn(Flux.empty());
+
+        String view = controller.viewDashboard(model).block();
+
+        assertEquals("dashboard", view);
+        assertEquals("keepMe", model.getAttribute("existingAttr"));
+    }
+
+    @Test
+    public void viewDashboard_shouldHandleNullDashboardConfigGracefully() {
+        controller = new DashboardController(repository, null); // simulate null config
+        Model model = new ConcurrentModel();
+
+        when(repository.findAll()).thenReturn(Flux.empty());
+
+        String view = controller.viewDashboard(model).block();
+
+        assertEquals("dashboard", view);
+        assertNull(model.getAttribute("dashboard")); // or whatever your fallback is
+    }
 }
