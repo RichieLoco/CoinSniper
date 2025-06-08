@@ -23,9 +23,9 @@ import java.time.Instant;
 @RequiredArgsConstructor
 public class AnnouncementCallingService {
 
-    private final CoinSniperConfig config;
-    private final CoinAnnouncementRepository repository;
-    private final ErrorResponseRepository errorResponseRepository;
+    protected final CoinSniperConfig config;
+    protected final CoinAnnouncementRepository repository;
+    protected final ErrorResponseRepository errorResponseRepository;
 
     private final WebClient webClient = WebClient.create();
 
@@ -69,7 +69,7 @@ public class AnnouncementCallingService {
                 });
     }
 
-    private String extractSymbolFromTitle(String title) {
+    protected String extractSymbolFromTitle(String title) {
         // TODO a very naive symbol extractor;... may replace with smarter regex or API mapping
         // e.g., "Binance Will List Bubblemaps (BMT)" => BMT
         if (title.contains("(") && title.contains(")")) {
@@ -78,7 +78,7 @@ public class AnnouncementCallingService {
         return "UNKNOWN";
     }
 
-    private boolean isDelisting(String title) {
+    protected boolean isDelisting(String title) {
         return title.toLowerCase().contains("delist") || title.toLowerCase().contains("removal");
     }
 }

@@ -3,6 +3,7 @@ package com.richieloco.coinsniper.service;
 import com.richieloco.coinsniper.config.CoinSniperConfig;
 import com.richieloco.coinsniper.entity.CoinAnnouncementRecord;
 import com.richieloco.coinsniper.entity.ErrorResponseRecord;
+import com.richieloco.coinsniper.ex.ExternalApiException;
 import com.richieloco.coinsniper.repository.CoinAnnouncementRepository;
 import com.richieloco.coinsniper.repository.ErrorResponseRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,10 +20,10 @@ import static org.mockito.Mockito.*;
 
 public class AnnouncementCallingServiceTest {
 
-    private CoinAnnouncementRepository announcementRepository;
-    private ErrorResponseRepository errorRepository;
-    private CoinSniperConfig config;
-    private AnnouncementCallingService service;
+    protected CoinAnnouncementRepository announcementRepository;
+    protected ErrorResponseRepository errorRepository;
+    protected CoinSniperConfig config;
+    protected AnnouncementCallingService service;
 
     @BeforeEach
     public void setUp() {
@@ -109,17 +110,82 @@ public class AnnouncementCallingServiceTest {
         assertThat(captured.getErrorMessage()).contains("Simulated error");
     }
 
-    // Inner exception class used in test override
-    private static class ExternalApiException extends RuntimeException {
-        private final int statusCode;
+    @Test
+    public void testExtractSymbolFromTitle_parsesCorrectly() throws Exception {
+        var service = new AnnouncementCallingService(null, null, null);
 
-        public ExternalApiException(String message, int statusCode) {
-            super(message);
-            this.statusCode = statusCode;
-        }
+        var symbol = service.getClass()
+                .getDeclaredMethod("extractSymbolFromTitle", String.class)
+                .invoke(service, "Binance Will List Bubblemaps (BMT)");
 
-        public int getStatusCode() {
-            return statusCode;
-        }
+        assertThat(symbol).isEqualTo("BMT");
+    }
+
+    @Test
+    public void testExtractSymbolFromTitle_returnsUnknownWhenMalformed() throws Exception {
+        var service = new AnnouncementCallingService(null, null, null);
+
+        var symbol = service.getClass()
+                .getDeclaredMethod("extractSymbolFromTitle", String.class)
+                .invoke(service, "Binance Lists Coin Without Parentheses");
+
+        assertThat(symbol).isEqualTo("UNKNOWN");
+    }
+
+    @Test
+    public void testIsDelisting_trueCases() throws Exception {
+        var service = new AnnouncementCallingService(null, null, null);
+
+        assertThat(service.getClass().getDeclaredMethod("isDelisting", String.class)
+                .invoke(service, "Delisting XYZ Coin")).isEqualTo(true);
+
+        assertThat(service.getClass().getDeclaredMethod("isDelisting", String.class)
+                .invoke(service, "Token Removal Notice")).isEqualTo(true);
+    }
+
+    @Test
+    public void testIsDelisting_falseCase() throws Exception {
+        var service = new AnnouncementCallingService(null, null, null);
+
+        assertThat(service.getClass().getDeclaredMethod("isDelisting", String.class)
+                .invoke(service, "Binance Lists New Coin")).isEqualTo(false);
+    }
+
+    @Test
+    public void testPollBinanceAnnouncements_unexpectedErrorIsPropagated() {
+        service = new AnnouncementCallingService(config, announcementRepository, errorRepository) {
+            public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
+                return Flux.error(new RuntimeException("Unexpected error"));
+            }
+        };
+
+        StepVerifier.create(service.callBinanceAnnouncements(1, 1, 10))
+                .expectErrorMessage("Unexpected error")
+                .verify();
+
+        verifyNoInteractions(errorRepository);
+    }
+
+    @Test
+    public void testPollBinanceAnnouncements_errorRepoFails_gracefullyContinues() {
+        when(errorRepository.save(any())).thenReturn(Mono.error(new RuntimeException("DB failure")));
+
+        service = new AnnouncementCallingService(config, announcementRepository, errorRepository) {
+            public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
+                return Flux.<CoinAnnouncementRecord>error(new ExternalApiException("Simulated", 500))
+                        .onErrorResume(ExternalApiException.class, ex -> {
+                            ErrorResponseRecord error = ErrorResponseRecord.builder()
+                                    .source("Binance")
+                                    .errorMessage(ex.getMessage())
+                                    .statusCode(ex.getStatusCode())
+                                    .timestamp(Instant.now())
+                                    .build();
+                            return errorResponseRepository.save(error).onErrorResume(e -> Mono.empty()).thenMany(Flux.empty());
+                        });
+            }
+        };
+
+        StepVerifier.create(service.callBinanceAnnouncements(1, 1, 10))
+                .verifyComplete();
     }
 }

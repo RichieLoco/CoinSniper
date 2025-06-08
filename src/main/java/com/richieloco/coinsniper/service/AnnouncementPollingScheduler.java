@@ -16,9 +16,9 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class AnnouncementPollingScheduler {
 
-    private final AnnouncementCallingService service;
-    private final AnnouncementPollingConfig config;
-    private final CoinSniperConfig coinSniperConfig;
+    protected final AnnouncementCallingService service;
+    protected final AnnouncementPollingConfig config;
+    protected final CoinSniperConfig coinSniperConfig;
 
     private Disposable pollingSubscription;
 
