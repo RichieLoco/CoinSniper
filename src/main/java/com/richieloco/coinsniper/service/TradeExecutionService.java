@@ -21,17 +21,27 @@ public class TradeExecutionService {
     private final CoinSniperConfig config;
 
     public Mono<TradeDecisionRecord> evaluateAndTrade(CoinAnnouncementRecord announcement) {
-        ExchangeSelectorContext context =
-                ExchangeSelectorContext.from(config, announcement.getCoinSymbol());
+        if (announcement.isDelisting()) return Mono.empty();
+
+        ExchangeSelectorContext context = ExchangeSelectorContext.from(config, announcement.getCoinSymbol());
 
         return exchangeAssessor.assess(context)
-                .map(assessment -> TradeDecisionRecord.builder()
-                        .coinSymbol(announcement.getCoinSymbol())
-                        .exchange(assessment.getExchange())
-                        .riskScore(assessment.getOverallRiskScore())
-                        .tradeExecuted(assessment.getOverallRiskScore() < 5.0) // TODO: Simplified logic
-                        .timestamp(Instant.now())
-                        .build())
-                .flatMap(repository::save);
+                .flatMap(assessment -> {
+                    // Safely skip unsupported exchanges
+                    if (assessment == null || !config.getSupported().getExchanges().contains(assessment.getExchange())) {
+                        return Mono.empty();
+                    }
+
+                    TradeDecisionRecord record = TradeDecisionRecord.builder()
+                            .coinSymbol(announcement.getCoinSymbol())
+                            .exchange(assessment.getExchange())
+                            .riskScore(assessment.getOverallRiskScore())
+                            .tradeExecuted(assessment.getOverallRiskScore() < 5.0) //TODO simplified...
+                            .timestamp(Instant.now())
+                            .build();
+
+                    return repository.save(record);
+                });
     }
+
 }

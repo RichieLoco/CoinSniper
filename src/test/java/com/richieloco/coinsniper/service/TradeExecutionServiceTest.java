@@ -61,4 +61,86 @@ public class TradeExecutionServiceTest {
                 .expectNextMatches(trade -> trade.getExchange().equals("Binance") && trade.isTradeExecuted())
                 .verifyComplete();
     }
+
+    @Test
+    public void testEvaluateAndTrade_unsupportedExchange_skipsTrade() {
+        CoinAnnouncementRecord announcement = CoinAnnouncementRecord.builder()
+                .coinSymbol("XYZ")
+                .announcedAt(Instant.now())
+                .delisting(false)
+                .build();
+
+        ExchangeAssessmentRecord unsupportedAssessment = ExchangeAssessmentRecord.builder()
+                .exchange("UnknownExchange")
+                .coinListing("XYZUSDT")
+                .overallRiskScore(3)
+                .assessedAt(Instant.now())
+                .contextType("Exchange")
+                .build();
+
+        when(assessor.assess(any())).thenReturn(Mono.just(unsupportedAssessment));
+
+        TradeExecutionService service = new TradeExecutionService(assessor, repo, config);
+
+        StepVerifier.create(service.evaluateAndTrade(announcement))
+                .expectComplete()
+                .verify();
+
+        verify(repo, never()).save(any());
+    }
+
+    @Test
+    public void testEvaluateAndTrade_delisting_skipsTrade() {
+        CoinAnnouncementRecord delistingAnnouncement = CoinAnnouncementRecord.builder()
+                .coinSymbol("ABC")
+                .delisting(true)
+                .announcedAt(Instant.now())
+                .build();
+
+        // Ensure a mock Mono is returned
+        when(assessor.assess(any())).thenReturn(Mono.empty());
+
+        TradeExecutionService service = new TradeExecutionService(assessor, repo, config);
+
+        StepVerifier.create(service.evaluateAndTrade(delistingAnnouncement))
+                .verifyComplete();
+
+        verifyNoInteractions(repo);
+    }
+
+    @Test
+    public void testEvaluateAndTrade_nullAssessment_skipsTrade() {
+        CoinAnnouncementRecord announcement = CoinAnnouncementRecord.builder()
+                .coinSymbol("DEF")
+                .delisting(false)
+                .announcedAt(Instant.now())
+                .build();
+
+        when(assessor.assess(any())).thenReturn(Mono.empty());
+
+        TradeExecutionService service = new TradeExecutionService(assessor, repo, config);
+
+        StepVerifier.create(service.evaluateAndTrade(announcement))
+                .expectComplete()
+                .verify();
+
+        verify(repo, never()).save(any());
+    }
+
+    @Test
+    public void testEvaluateAndTrade_assessmentFails_propagatesError() {
+        CoinAnnouncementRecord announcement = CoinAnnouncementRecord.builder()
+                .coinSymbol("FAIL")
+                .delisting(false)
+                .announcedAt(Instant.now())
+                .build();
+
+        when(assessor.assess(any())).thenReturn(Mono.error(new RuntimeException("Assessment error")));
+
+        TradeExecutionService service = new TradeExecutionService(assessor, repo, config);
+
+        StepVerifier.create(service.evaluateAndTrade(announcement))
+                .expectErrorMessage("Assessment error")
+                .verify();
+    }
 }
