@@ -12,8 +12,10 @@ import org.springframework.ui.Model;
 import reactor.core.publisher.Flux;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 public class BacktestingControllerTest {
@@ -46,4 +48,46 @@ public class BacktestingControllerTest {
         verify(djlTrainingService).logToFile(Collections.singletonList(record));
     }
 
+    @Test
+    public void backtesting_shouldHandleEmptyData() {
+        Model model = new ConcurrentModel();
+        when(repository.findAll()).thenReturn(Flux.empty());
+
+        String view = controller.backtesting(model).block();
+
+        assertEquals("backtesting", view);
+        verify(djlTrainingService).train(Collections.emptyList());
+        verify(djlTrainingService).logToFile(Collections.emptyList());
+
+        Object attr = model.getAttribute("history");
+        assertEquals(Collections.emptyList(), attr);
+    }
+
+    @Test
+    public void backtesting_shouldNotFailIfTrainingThrows() {
+        Model model = new ConcurrentModel();
+        TradeDecisionRecord record = TradeDecisionRecord.builder().coinSymbol("XYZ").build();
+
+        when(repository.findAll()).thenReturn(Flux.just(record));
+        doThrow(new RuntimeException("Training failed")).when(djlTrainingService).train(any());
+        doThrow(new RuntimeException("Log failed")).when(djlTrainingService).logToFile(any());
+
+        String view = controller.backtesting(model).block();
+
+        assertEquals("backtesting", view); // controller should not fail
+        assertEquals(List.of(record), model.getAttribute("history"));
+    }
+
+    @Test
+    public void backtesting_shouldPropagateRepositoryError() {
+        Model model = new ConcurrentModel();
+
+        when(repository.findAll()).thenReturn(Flux.error(new RuntimeException("Repo failure")));
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            controller.backtesting(model).block();
+        });
+
+        assertEquals("Repo failure", exception.getMessage());
+    }
 }
