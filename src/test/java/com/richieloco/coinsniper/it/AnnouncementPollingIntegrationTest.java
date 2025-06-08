@@ -57,6 +57,48 @@ public class AnnouncementPollingIntegrationTest {
                 });
     }
 
+    @Test
+    void testDoubleStartDoesNotError() {
+        client.post().uri("/api/announcements/poll/start").exchange().expectStatus().isOk();
+        client.post().uri("/api/announcements/poll/start").exchange().expectStatus().isOk();
+
+        client.get().uri("/api/announcements/poll/status")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .consumeWith(result -> {
+                    String body = result.getResponseBody();
+                    assert body != null && body.contains("active");
+                });
+    }
+
+    @Test
+    void testDoubleStopDoesNotError() {
+        client.post().uri("/api/announcements/poll/start").exchange().expectStatus().isOk();
+        client.post().uri("/api/announcements/poll/stop").exchange().expectStatus().isOk();
+        client.post().uri("/api/announcements/poll/stop").exchange().expectStatus().isOk();
+
+        client.get().uri("/api/announcements/poll/status")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .consumeWith(result -> {
+                    String body = result.getResponseBody();
+                    assert body != null && body.contains("stopped");
+                });
+    }
+
+    @Test
+    void testStatusBeforeStartShouldBeStopped() {
+        client.get().uri("/api/announcements/poll/status")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(String.class)
+                .consumeWith(result -> {
+                    String body = result.getResponseBody();
+                    assert body != null && body.contains("stopped");
+                });
+    }
 
     @TestConfiguration
     static class MockWebClientConfig {
