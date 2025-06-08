@@ -5,10 +5,8 @@ import com.richieloco.coinsniper.config.CoinSniperMockTestConfig;
 import com.richieloco.coinsniper.entity.CoinAnnouncementRecord;
 import com.richieloco.coinsniper.service.AnnouncementCallingService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -21,17 +19,14 @@ import static org.mockito.Mockito.*;
 @Import(CoinSniperMockTestConfig.class)
 public class AnnouncementCallControllerTest {
 
-    @MockBean
-    private AnnouncementCallingService announcementCallingService;
-
     @Autowired
     private CoinSniperConfig coinSniperConfig;
 
-    @Autowired
-    private AnnouncementCallController controller;
-
     @Test
     public void callBinance_shouldReturnAnnouncements() {
+        // 👇 Manual mock
+        AnnouncementCallingService announcementCallingService = mock(AnnouncementCallingService.class);
+
         CoinAnnouncementRecord mockRecord = CoinAnnouncementRecord.builder()
                 .title("XYZ Listing")
                 .coinSymbol("XYZ")
@@ -42,8 +37,14 @@ public class AnnouncementCallControllerTest {
         when(announcementCallingService.callBinanceAnnouncements(1, 1, 10))
                 .thenReturn(Flux.just(mockRecord));
 
+        // 👇 Manual injection — no @Autowired
+        AnnouncementCallController controller = new AnnouncementCallController(announcementCallingService, coinSniperConfig);
+
         StepVerifier.create(controller.callBinance(1, 1, 10))
-                .expectNextMatches(record -> "XYZ Listing".equals(record.getTitle()))
+                .expectNextMatches(record ->
+                        "XYZ Listing".equals(record.getTitle()) &&
+                                "XYZ".equals(record.getCoinSymbol()) &&
+                                !record.isDelisting())
                 .verifyComplete();
     }
 }

@@ -6,7 +6,7 @@ Based on similar trading logic written into the tool here: [CyberPunkMetalHead/n
 
 📈 History tells us that coins newly announced on Binance often enjoy a short-term spike in buying activity, causing a sharp rise in price! This bot aims to catch that momentum.
 
-🧠 Unlike the original, this version introduces AI-based decision making and supports a wide range of exchanges. It also reacts to delisting announcements by preparing to short the delisted coin.
+🧠 Unlike the original, this version introduces AI-based decision-making and supports a wide range of exchanges. It also reacts to delisting announcements by preparing to short the delisted coin.
 
 ## 🤖 AI-based Filtering
 

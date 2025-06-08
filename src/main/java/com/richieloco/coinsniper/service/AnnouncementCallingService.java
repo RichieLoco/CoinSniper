@@ -70,7 +70,7 @@ public class AnnouncementCallingService {
     }
 
     private String extractSymbolFromTitle(String title) {
-        // TODO a very naive symbol extractor — you may replace with smarter regex or API mapping
+        // TODO a very naive symbol extractor;... may replace with smarter regex or API mapping
         // e.g., "Binance Will List Bubblemaps (BMT)" => BMT
         if (title.contains("(") && title.contains(")")) {
             return title.substring(title.indexOf('(') + 1, title.indexOf(')')).trim();
