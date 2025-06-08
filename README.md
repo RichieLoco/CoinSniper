@@ -1,4 +1,6 @@
-# 🚀 Coin Sniper
+# 🧠📈 Coin Sniper – Trade Smart on New Listings
+
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ## 📝 Description
 
@@ -7,6 +9,35 @@ Based on similar trading logic written into the tool here: [CyberPunkMetalHead/n
 📈 History tells us that coins newly announced on Binance often enjoy a short-term spike in buying activity, causing a sharp rise in price! This bot aims to catch that momentum.
 
 🧠 Unlike the original, this version introduces AI-based decision-making and supports a wide range of exchanges. It also reacts to delisting announcements by preparing to short the delisted coin.
+
+---
+
+## 📁 Project Structure
+
+```
+src
+├── main
+│   ├── java
+│   │   └── com.richieloco.coinsniper
+│   │       ├── config              # YAML & AI model config
+│   │       ├── controller          # API & dashboard controllers
+│   │       ├── entity              # TradeDecisionRecord, etc.
+│   │       ├── ex                  # Custom exceptions
+│   │       ├── model               # Binance API response DTOs
+│   │       ├── repository          # Reactive R2DBC repositories
+│   │       └── service             # AI, polling, and training services
+│   └── resources
+│       └── application.yml         # Config file
+└── test
+    └── java
+        └── com.richieloco.coinsniper
+            ├── config              # Test configuration
+            ├── controller          # Controller unit tests
+            ├── it                  # Integration tests
+            └── service             # Service layer logic tests
+```
+
+---
 
 ## 🤖 AI-based Filtering
 
@@ -17,7 +48,6 @@ The bot polls Binance's Announcement API and then intelligently filters down pot
 ➡️ From:
 
 ```
-
 <Configured supported exchanges>
 ```
 
@@ -51,6 +81,8 @@ The bot polls Binance's Announcement API and then intelligently filters down pot
 <Reinforcement learning module input>
 ```
 
+---
+
 ## 💾 Persistence Layer
 
 The bot persists trade decisions and API responses into a database so it can track outcomes and serve them via:
@@ -59,9 +91,13 @@ The bot persists trade decisions and API responses into a database so it can tra
 * `/backtesting` (visual charts + history)
 * `/actuator/configprops` (Spring Boot insights)
 
+---
+
 ## 🧠 Deep Learning (Planned Feature)
 
 Using [Deep Java Library (DJL)](https://djl.ai/), the bot will analyze historical trades and optimize future strategies through on-device reinforcement learning.
+
+---
 
 ## 🔁 Continuous Polling
 
@@ -71,6 +107,19 @@ The app supports live polling of the Binance announcements endpoint. Use the API
 * `POST /api/announcements/poll/stop` ➡️ Stop polling
 * `GET /api/announcements/poll/status` ➡️ Check polling status
 
+---
+
+## 🌱 Spring Profiles
+
+Use `SPRING_PROFILES_ACTIVE=prod` to activate production-grade polling.
+
+Other profiles:
+
+- `test` ➡️ Used for unit/integration tests with `NoSecurityTestConfig`
+- `dev`  ➡️ Hot reload and debug-friendly configuration
+
+---
+
 ## 🌐 Thymeleaf Dashboard Access
 
 Access UI pages at:
@@ -78,21 +127,32 @@ Access UI pages at:
 * `http://localhost:8080/dashboard` ➡️ 📊 Recent trades
 * `http://localhost:8080/backtesting` ➡️ 📉 Backtesting results chart
 
-## 🧪 API & Swagger UI
+---
 
-Springdoc OpenAPI 3 integration allows exploration of endpoints via Swagger UI:
+## 🧪 Running Tests
 
-* `http://localhost:8080/swagger-ui.html` ➡️ 🔍 API explorer
-* `http://localhost:8080/v3/api-docs` ➡️ 📃 OpenAPI JSON
+Unit and integration tests use JUnit 5 + StepVerifier for reactive flows.
 
-## 🐳 Docker Deployment
-
-Ensure environment variables are passed correctly. Build & run:
+To run all tests:
 
 ```bash
-docker build -t coin-sniper .
-docker run -e SPRING_PROFILES_ACTIVE=prod -e OPENAI_API_KEY=sk-xxxxxxxx -p 8080:8080 coin-sniper
+./mvnw test
 ```
+
+To view test coverage (if JaCoCo is configured):
+
+```bash
+./mvnw jacoco:report
+open target/site/jacoco/index.html
+```
+
+Notable test coverage includes:
+
+- `AnnouncementCallingServiceTest` ➡️ Mocked and real failure scenarios
+- `AnnouncementPollingSchedulerTest` ➡️ Poll lifecycle logic
+- `DJLTrainingServiceTest` ➡️ Basic training pipeline
+
+---
 
 ## 🧩 Kubernetes Deployment
 
@@ -114,6 +174,8 @@ Visit: `http://<k8s-node-ip>:<nodePort>`
 
 ✅ Add `Ingress` and `Secret` for external TLS access as needed.
 
+---
+
 ## 🍓 Raspberry Pi Deployment
 
 ### 📦 Steps:
@@ -130,6 +192,19 @@ You may also build for ARM:
 ./mvnw clean package
 scp target/coin-sniper.jar pi@raspberrypi:/home/pi
 ```
+
+---
+
+## 🐳 Docker Deployment
+
+Ensure environment variables are passed correctly. Build & run:
+
+```bash
+docker build -t coin-sniper .
+docker run -e SPRING_PROFILES_ACTIVE=prod -e OPENAI_API_KEY=sk-xxxxxxxx -p 8080:8080 coin-sniper
+```
+
+---
 
 ## 🔧 Configuration Example (application.yml)
 
@@ -155,7 +230,9 @@ coin-sniper:
     interval-seconds: 30
 ```
 
-### 🔐 Set Your API Key Securely
+---
+
+## 🔐 Set Your API Key Securely
 
 Set the `OPENAI_API_KEY` environment variable in your terminal or CI environment:
 
@@ -179,6 +256,23 @@ $env:OPENAI_API_KEY = "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 ---
 
-🧠 Built with Spring Boot WebFlux, R2DBC, DJL, Spring AI, and OpenAPI 3
+## 🤝 Contributing
 
+Contributions are welcome!
+
+1. Fork the repo
+2. Create your feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request 🚀
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+🧠 Built with Spring Boot WebFlux, R2DBC, DJL, Spring AI, and OpenAPI 3  
 💬 Suggestions and contributions welcome!
