@@ -16,6 +16,9 @@ public class TradeController {
 
     @PostMapping("/execute")
     public Mono<TradeDecisionRecord> trade(@RequestBody CoinAnnouncementRecord announcement) {
+        if (announcement == null) {
+            return Mono.error(new IllegalArgumentException("Announcement cannot be null"));
+        }
         return tradeExecutionService.evaluateAndTrade(announcement);
     }
 }

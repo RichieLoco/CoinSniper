@@ -93,4 +93,50 @@ public class TradeControllerTest {
                 .expectErrorMessage("Service failure")
                 .verify();
     }
+
+    @Test
+    public void trade_shouldRejectNullInput() {
+        StepVerifier.create(controller.trade(null))
+                .expectErrorMessage("Announcement cannot be null")
+                .verify();
+    }
+
+    @Test
+    public void trade_shouldNotCallServiceOnNullInput() {
+        try {
+            controller.trade(null).subscribe();
+        } catch (Exception ignored) {}
+
+        verify(tradeExecutionService, never()).evaluateAndTrade(any());
+    }
+
+    @Test
+    public void trade_shouldHandleInvalidAnnouncementStructure() {
+        CoinAnnouncementRecord incomplete = CoinAnnouncementRecord.builder().build();
+
+        when(tradeExecutionService.evaluateAndTrade(incomplete)).thenReturn(Mono.empty());
+
+        StepVerifier.create(controller.trade(incomplete))
+                .verifyComplete();
+    }
+
+    @Test
+    public void trade_shouldReturnDifferentDecisionsPerCoin() {
+        CoinAnnouncementRecord input1 = CoinAnnouncementRecord.builder().coinSymbol("AAA").build();
+        CoinAnnouncementRecord input2 = CoinAnnouncementRecord.builder().coinSymbol("BBB").build();
+
+        TradeDecisionRecord result1 = TradeDecisionRecord.builder().coinSymbol("AAA").build();
+        TradeDecisionRecord result2 = TradeDecisionRecord.builder().coinSymbol("BBB").build();
+
+        when(tradeExecutionService.evaluateAndTrade(input1)).thenReturn(Mono.just(result1));
+        when(tradeExecutionService.evaluateAndTrade(input2)).thenReturn(Mono.just(result2));
+
+        StepVerifier.create(controller.trade(input1))
+                .expectNext(result1)
+                .verifyComplete();
+
+        StepVerifier.create(controller.trade(input2))
+                .expectNext(result2)
+                .verifyComplete();
+    }
 }
