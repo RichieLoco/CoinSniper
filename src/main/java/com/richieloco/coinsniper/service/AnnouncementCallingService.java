@@ -3,6 +3,9 @@ package com.richieloco.coinsniper.service;
 import com.richieloco.coinsniper.config.CoinSniperConfig;
 import com.richieloco.coinsniper.entity.CoinAnnouncementRecord;
 import com.richieloco.coinsniper.entity.ErrorResponseRecord;
+import com.richieloco.coinsniper.ex.ExternalApiException;
+import com.richieloco.coinsniper.model.BinanceApiResponse;
+import com.richieloco.coinsniper.model.BinanceCatalog;
 import com.richieloco.coinsniper.repository.CoinAnnouncementRepository;
 import com.richieloco.coinsniper.repository.ErrorResponseRepository;
 import lombok.Getter;
@@ -45,15 +48,15 @@ public class AnnouncementCallingService {
                                         "Binance API error: " + errorBody,
                                         clientResponse.statusCode().value())))
                 )
-                .bodyToMono(String.class)
-                .flatMapMany(body -> Flux.just(
-                        CoinAnnouncementRecord.builder()
-                                .title("Example Coin Listing")
-                                .coinSymbol("XYZ")
-                                .announcedAt(Instant.now())
-                                .delisting(false)
-                                .build()
-                ))
+                .bodyToMono(BinanceApiResponse.class)
+                .flatMapMany(response -> Flux.fromIterable(response.getData().getCatalogs()))
+                .flatMapIterable(BinanceCatalog::getArticles)
+                .map(article -> CoinAnnouncementRecord.builder()
+                        .title(article.getTitle())
+                        .coinSymbol(extractSymbolFromTitle(article.getTitle()))
+                        .announcedAt(Instant.ofEpochMilli(article.getReleaseDate()))
+                        .delisting(isDelisting(article.getTitle()))
+                        .build())
                 .flatMap(repository::save)
                 .onErrorResume(ExternalApiException.class, ex -> {
                     ErrorResponseRecord error = ErrorResponseRecord.builder()
@@ -66,15 +69,16 @@ public class AnnouncementCallingService {
                 });
     }
 
-    @Getter
-    @SuppressWarnings("serial")
-    private static class ExternalApiException extends RuntimeException {
-        private final int statusCode;
-
-        public ExternalApiException(String message, int statusCode) {
-            super(message);
-            this.statusCode = statusCode;
+    private String extractSymbolFromTitle(String title) {
+        // TODO a very naive symbol extractor — you may replace with smarter regex or API mapping
+        // e.g., "Binance Will List Bubblemaps (BMT)" => BMT
+        if (title.contains("(") && title.contains(")")) {
+            return title.substring(title.indexOf('(') + 1, title.indexOf(')')).trim();
         }
+        return "UNKNOWN";
+    }
 
+    private boolean isDelisting(String title) {
+        return title.toLowerCase().contains("delist") || title.toLowerCase().contains("removal");
     }
 }

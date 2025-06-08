@@ -15,31 +15,35 @@ class AnnouncementPollingSchedulerTest {
 
     @Test
     void pollingStarts_whenEnabled() {
+        // Setup config with fast interval
         var pollingConfig = new AnnouncementPollingConfig();
         pollingConfig.setEnabled(true);
-        pollingConfig.setIntervalSeconds(1); // fast polling for test
+        pollingConfig.setIntervalSeconds(1);
 
+        // Mock the AnnouncementCallingService
         var callingService = mock(AnnouncementCallingService.class);
         when(callingService.callBinanceAnnouncements(anyInt(), anyInt(), anyInt()))
                 .thenReturn(Flux.empty());
 
+        // Setup config stubs
         var coinSniperConfig = mock(CoinSniperConfig.class);
-        var announcementConfig = new Announcement();
-        announcementConfig.setType(1);
-        announcementConfig.setPageNo(1);
-        announcementConfig.setPageSize(10);
-
-        var binance = new CoinSniperConfig.Api.Binance();
-        binance.setAnnouncement(announcementConfig);
-
-        var api = new CoinSniperConfig.Api();
-        api.setBinance(binance);
+        var api = mock(CoinSniperConfig.Api.class);
+        var binance = mock(CoinSniperConfig.Api.Binance.class);
+        var announcement = new Announcement();
+        announcement.setType(1);
+        announcement.setPageNo(1);
+        announcement.setPageSize(10);
 
         when(coinSniperConfig.getApi()).thenReturn(api);
-
+        when(api.getBinance()).thenReturn(binance);
+        when(binance.getAnnouncement()).thenReturn(announcement);
+        // Create scheduler manually (not as Spring bean)
         var scheduler = new AnnouncementPollingScheduler(callingService, pollingConfig, coinSniperConfig);
+
+        // Run the scheduler logic
         scheduler.startPolling();
 
+        // Await and verify interaction with the mocked service
         await().atMost(Duration.ofSeconds(3)).untilAsserted(() ->
                 verify(callingService, atLeastOnce()).callBinanceAnnouncements(1, 1, 10)
         );
@@ -53,24 +57,9 @@ class AnnouncementPollingSchedulerTest {
         var callingService = mock(AnnouncementCallingService.class);
         var coinSniperConfig = mock(CoinSniperConfig.class);
 
-        // Full mock chain to avoid NPEs
-        var announcement = new Announcement();
-        announcement.setType(1);
-        announcement.setPageNo(1);
-        announcement.setPageSize(10);
-
-        var binance = mock(CoinSniperConfig.Api.Binance.class);
-        when(binance.getAnnouncement()).thenReturn(announcement);
-
-        var api = mock(CoinSniperConfig.Api.class);
-        when(api.getBinance()).thenReturn(binance);
-
-        when(coinSniperConfig.getApi()).thenReturn(api);
-
         var scheduler = new AnnouncementPollingScheduler(callingService, pollingConfig, coinSniperConfig);
         scheduler.startPolling();
 
         verifyNoInteractions(callingService);
     }
-
 }

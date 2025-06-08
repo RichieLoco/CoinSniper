@@ -17,9 +17,9 @@ public class AnnouncementCallController {
 
     @GetMapping("/call")
     public Flux<CoinAnnouncementRecord> callBinance(
-            @RequestParam(required = false) Integer type,
-            @RequestParam(required = false) Integer pageNo,
-            @RequestParam(required = false) Integer pageSize
+            @RequestParam Integer type,
+            @RequestParam Integer pageNo,
+            @RequestParam Integer pageSize
     ) {
         var announcementCfg = config.getApi().getBinance().getAnnouncement();
 

@@ -2,12 +2,18 @@ package com.richieloco.coinsniper.config;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @TestConfiguration
 public class CoinSniperMockTestConfig {
+
+    @Bean
+    public WebClient webClient() {
+        return WebClient.create();
+    }
 
     @Bean
     public CoinSniperConfig coinSniperConfig() {

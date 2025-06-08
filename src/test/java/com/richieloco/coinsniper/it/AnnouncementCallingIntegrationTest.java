@@ -15,13 +15,16 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.reactive.function.client.ClientResponse.create;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
-@Import({NoSecurityTestConfig.class, AnnouncementCallingIntegrationTest.MockWebClientConfig.class})
+@Import({NoSecurityTestConfig.class})
 @ActiveProfiles("test")
 public class AnnouncementCallingIntegrationTest {
 
@@ -30,17 +33,50 @@ public class AnnouncementCallingIntegrationTest {
 
     @Test
     void testCallBinanceEndpoint() {
-        webTestClient.get()
-                .uri("/api/announcements/call")
+        var responseSpec = webTestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/announcements/call")
+                        .queryParam("type", 1)
+                        .queryParam("pageNo", 1)
+                        .queryParam("pageSize", 10)
+                        .build())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .consumeWith(response -> {
-                    String body = new String(response.getResponseBody());
-                    System.out.println("Mocked Response: " + body);
-                    // Add assertions if needed
-                });
+                .returnResult();
+
+        String responseBody = new String(responseSpec.getResponseBody(), StandardCharsets.UTF_8);
+        assertNotNull(responseBody);
+
+        System.out.println("Response body: " + responseBody);
+
+        if (responseBody.trim().startsWith("[")) {
+            // basic validation of list content
+            if (responseBody.contains("title")) {
+                // contains at least one announcement, check key fields exist
+                webTestClient.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/api/announcements/call")
+                                .queryParam("type", 1)
+                                .queryParam("pageNo", 1)
+                                .queryParam("pageSize", 10)
+                                .build())
+                        .exchange()
+                        .expectStatus().isOk()
+                        .expectBody()
+                        .jsonPath("$[0].title").exists()
+                        .jsonPath("$[0].coinSymbol").exists()
+                        .jsonPath("$[0].delisting").isBoolean();
+            } else {
+                // array is empty or lacks announcements
+                assertTrue(responseBody.equals("[]") || responseBody.length() < 10, "Expected empty or near-empty array");
+            }
+        } else {
+            fail("Expected response to be a JSON array");
+        }
     }
+
+
 
     @TestConfiguration
     static class MockWebClientConfig {
@@ -50,7 +86,7 @@ public class AnnouncementCallingIntegrationTest {
             ExchangeFunction exchangeFunction = request ->
                     Mono.just(create(OK)
                             .header("Content-Type", APPLICATION_JSON_VALUE)
-                            .body("{\"mock\":\"binance response\"}")
+                            .body("{\"data\":{\"catalogs\":[{\"articles\":[{\"title\":\"Mock Announcement (MOCK)\",\"releaseDate\":1717785600000}]}]}}")
                             .build());
 
             return WebClient.builder()

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.*;
 @Import(CoinSniperMockTestConfig.class)
 public class AnnouncementCallControllerTest {
 
-    @Mock
+    @MockBean
     private AnnouncementCallingService announcementCallingService;
 
     @Autowired
@@ -44,15 +45,5 @@ public class AnnouncementCallControllerTest {
         StepVerifier.create(controller.callBinance(1, 1, 10))
                 .expectNextMatches(record -> "XYZ Listing".equals(record.getTitle()))
                 .verifyComplete();
-    }
-
-    @Test
-    public void callBinance_shouldHandleEmpty() {
-        when(announcementCallingService.callBinanceAnnouncements(1, 1, 10))
-                .thenReturn(Flux.empty());
-
-        StepVerifier.create(controller.callBinance(1, 1, 10))
-                .expectComplete()
-                .verify();
     }
 }

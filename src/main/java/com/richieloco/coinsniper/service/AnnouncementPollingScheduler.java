@@ -22,7 +22,6 @@ public class AnnouncementPollingScheduler {
 
     private Disposable pollingSubscription;
 
-    @PostConstruct
     public void initializePolling() {
         if (config.isEnabled()) {
             startPolling();
@@ -30,6 +29,8 @@ public class AnnouncementPollingScheduler {
     }
 
     public synchronized void startPolling() {
+        if (!config.isEnabled()) return;
+
         if (pollingSubscription != null && !pollingSubscription.isDisposed()) return;
 
         var announcementCfg = coinSniperConfig.getApi().getBinance().getAnnouncement();
