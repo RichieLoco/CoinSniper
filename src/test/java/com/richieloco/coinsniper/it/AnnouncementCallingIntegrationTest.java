@@ -118,6 +118,5 @@ public class AnnouncementCallingIntegrationTest {
                     .exchangeStrategies(ExchangeStrategies.withDefaults())
                     .build();
         }
-
     }
 }
