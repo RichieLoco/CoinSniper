@@ -8,7 +8,6 @@ import com.richieloco.coinsniper.model.BinanceApiResponse;
 import com.richieloco.coinsniper.model.BinanceCatalog;
 import com.richieloco.coinsniper.repository.CoinAnnouncementRepository;
 import com.richieloco.coinsniper.repository.ErrorResponseRepository;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -18,10 +17,7 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,11 +30,11 @@ public class AnnouncementCallingService {
     protected final ErrorResponseRepository errorResponseRepository;
 
     public static final String UNKNOWN_COIN = "UNKNOWN";
+    private static final Set<String> ALLOWED_CATALOGS = Set.of("New Cryptocurrency Listing", "Delisting");
 
     private final WebClient webClient = WebClient.create();
 
     public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
-        // Construct the URI with query parameters
         URI uri = UriComponentsBuilder.fromUriString(config.getApi().getBinance().getAnnouncement().getBaseUrl())
                 .queryParam("type", type)
                 .queryParam("pageNo", pageNo)
@@ -58,18 +54,27 @@ public class AnnouncementCallingService {
                 )
                 .bodyToMono(BinanceApiResponse.class)
                 .flatMapMany(response -> Flux.fromIterable(response.getData().getCatalogs()))
-                .flatMapIterable(BinanceCatalog::getArticles)
-                .flatMap(article -> {
+                .filter(catalog -> ALLOWED_CATALOGS.contains(catalog.getCatalogName()))
+                .flatMap(catalog ->
+                        Flux.fromIterable(catalog.getArticles())
+                                .map(article -> Map.entry(article, catalog.getCatalogName()))
+                )
+                .flatMap(entry -> {
+                    var article = entry.getKey();
+                    var catalogName = entry.getValue();
                     List<String> symbols = extractSymbolsFromTitle(article.getTitle());
+                    boolean isDelisting = isDelisting(article.getTitle(), catalogName);
+
                     return Flux.fromIterable(symbols)
+                            .filter(symbol -> !UNKNOWN_COIN.equalsIgnoreCase(symbol))
                             .map(symbol -> CoinAnnouncementRecord.builder()
                                     .title(article.getTitle())
                                     .coinSymbol(symbol)
                                     .announcedAt(Instant.ofEpochMilli(article.getReleaseDate()))
-                                    .delisting(isDelisting(article.getTitle()))
+                                    .delisting(isDelisting)
                                     .build());
                 })
-                .flatMap(repository::save)  // ✅ now properly chained
+                .flatMap(repository::save)
                 .onErrorResume(ExternalApiException.class, ex -> {
                     ErrorResponseRecord error = ErrorResponseRecord.builder()
                             .source("Binance")
@@ -84,7 +89,6 @@ public class AnnouncementCallingService {
     protected List<String> extractSymbolsFromTitle(String title) {
         Set<String> symbols = new LinkedHashSet<>();
 
-        // Match symbols in parentheses (e.g. (XUSD), (FORM))
         Matcher parens = Pattern.compile("\\(([A-Z0-9]{2,10})\\)").matcher(title);
         while (parens.find()) {
             String symbol = parens.group(1).trim();
@@ -93,7 +97,6 @@ public class AnnouncementCallingService {
             }
         }
 
-        // Match structured listing/delisting/support phrases, but avoid generic marketing
         Matcher structured = Pattern.compile(
                 "(?i)binance (will|has) (list|add|delist|support|complete|launch|introduce)\\s+(.*?)\\b([A-Z0-9]{2,10})\\b"
         ).matcher(title);
@@ -104,7 +107,6 @@ public class AnnouncementCallingService {
             }
         }
 
-        // Fallback to "UNKNOWN" if nothing valid was found
         if (symbols.isEmpty()) {
             symbols.add(UNKNOWN_COIN);
         }
@@ -114,13 +116,15 @@ public class AnnouncementCallingService {
 
     private boolean isValidSymbol(String symbol) {
         return symbol.matches("^[A-Z0-9]{2,10}$") &&
-                !symbol.matches("^\\d{4}-\\d{2}-\\d{2}$") && // exclude dates
+                !symbol.matches("^\\d{4}-\\d{2}-\\d{2}$") &&
                 !symbol.equalsIgnoreCase("USD") &&
                 !symbol.equalsIgnoreCase("USDT") &&
-                !symbol.equalsIgnoreCase("BNB"); // optional common tokens to skip
+                !symbol.equalsIgnoreCase("BNB");
     }
 
-    protected boolean isDelisting(String title) {
-        return title.toLowerCase().contains("delist") || title.toLowerCase().contains("removal");
+    protected boolean isDelisting(String title, String catalogName) {
+        return "Delisting".equalsIgnoreCase(catalogName) ||
+                title.toLowerCase().contains("delist") ||
+                title.toLowerCase().contains("removal");
     }
 }

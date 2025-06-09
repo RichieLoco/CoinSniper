@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.STRING;
 import static org.mockito.Mockito.*;
 
 public class AnnouncementCallingServiceTest {
@@ -143,19 +144,21 @@ public class AnnouncementCallingServiceTest {
     public void testIsDelisting_trueCases() throws Exception {
         var service = new AnnouncementCallingService(null, null, null);
 
-        assertThat(service.getClass().getDeclaredMethod("isDelisting", String.class)
-                .invoke(service, "Delisting XYZ Coin")).isEqualTo(true);
+        var method = service.getClass().getDeclaredMethod("isDelisting", String.class, String.class);
+        method.setAccessible(true);
 
-        assertThat(service.getClass().getDeclaredMethod("isDelisting", String.class)
-                .invoke(service, "Token Removal Notice")).isEqualTo(true);
+        assertThat(method.invoke(service, "Delisting XYZ Coin", "New Cryptocurrency Listing")).isEqualTo(true);
+        assertThat(method.invoke(service, "Token Removal Notice", "Delisting")).isEqualTo(true);
     }
 
     @Test
     public void testIsDelisting_falseCase() throws Exception {
         var service = new AnnouncementCallingService(null, null, null);
 
-        assertThat(service.getClass().getDeclaredMethod("isDelisting", String.class)
-                .invoke(service, "Binance Lists New Coin")).isEqualTo(false);
+        var method = service.getClass().getDeclaredMethod("isDelisting", String.class, String.class);
+        method.setAccessible(true);
+
+        assertThat(method.invoke(service, "Binance Lists New Coin", "Promotions")).isEqualTo(false);
     }
 
     @Test
