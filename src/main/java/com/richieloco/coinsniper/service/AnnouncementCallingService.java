@@ -64,17 +64,29 @@ public class AnnouncementCallingService {
                     var catalogName = entry.getValue();
                     List<String> symbols = extractSymbolsFromTitle(article.getTitle());
                     boolean isDelisting = isDelisting(article.getTitle(), catalogName);
+                    Instant announcedAt = Instant.ofEpochMilli(article.getReleaseDate());
 
                     return Flux.fromIterable(symbols)
                             .filter(symbol -> !UNKNOWN_COIN.equalsIgnoreCase(symbol))
-                            .map(symbol -> CoinAnnouncementRecord.builder()
-                                    .title(article.getTitle())
-                                    .coinSymbol(symbol)
-                                    .announcedAt(Instant.ofEpochMilli(article.getReleaseDate()))
-                                    .delisting(isDelisting)
-                                    .build());
+                            .flatMap(symbol -> {
+                                // Check if record already exists
+                                return repository.findByCoinSymbolAndAnnouncedAt(symbol, announcedAt)
+                                        .hasElement()
+                                        .flatMapMany(exists -> {
+                                            if (exists) {
+                                                return Flux.empty(); // skip duplicates
+                                            } else {
+                                                CoinAnnouncementRecord record = CoinAnnouncementRecord.builder()
+                                                        .title(article.getTitle())
+                                                        .coinSymbol(symbol)
+                                                        .announcedAt(announcedAt)
+                                                        .delisting(isDelisting)
+                                                        .build();
+                                                return repository.save(record).flux();
+                                            }
+                                        });
+                            });
                 })
-                .flatMap(repository::save)
                 .onErrorResume(ExternalApiException.class, ex -> {
                     ErrorResponseRecord error = ErrorResponseRecord.builder()
                             .source("Binance")
