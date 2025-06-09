@@ -5,6 +5,14 @@ spring:
   ai:
     openai:
       api-key: ${OPENAI_KEY}
+  r2dbc:
+    url: r2dbc:h2:mem:///coinsniperdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: sa
+    password:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
 
 logging:
   level:

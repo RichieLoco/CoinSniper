@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Instant;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -111,25 +112,31 @@ public class AnnouncementCallingServiceTest {
     }
 
     @Test
-    public void testExtractSymbolFromTitle_parsesCorrectly() throws Exception {
+    public void testExtractSymbolsFromTitle_parsesCorrectly() throws Exception {
         var service = new AnnouncementCallingService(null, null, null);
 
-        var symbol = service.getClass()
-                .getDeclaredMethod("extractSymbolFromTitle", String.class)
-                .invoke(service, "Binance Will List Bubblemaps (BMT)");
+        var method = service.getClass()
+                .getDeclaredMethod("extractSymbolsFromTitle", String.class);
+        method.setAccessible(true);
 
-        assertThat(symbol).isEqualTo("BMT");
+        @SuppressWarnings("unchecked")
+        List<String> result = (List<String>) method.invoke(service, "Binance Will List Bubblemaps (BMT)");
+
+        assertThat(result).containsExactly("BMT");
     }
 
     @Test
-    public void testExtractSymbolFromTitle_returnsUnknownWhenMalformed() throws Exception {
+    public void testExtractSymbolsFromTitle_returnsUnknownWhenMalformed() throws Exception {
         var service = new AnnouncementCallingService(null, null, null);
 
-        var symbol = service.getClass()
-                .getDeclaredMethod("extractSymbolFromTitle", String.class)
-                .invoke(service, "Binance Lists Coin Without Parentheses");
+        var method = service.getClass()
+                .getDeclaredMethod("extractSymbolsFromTitle", String.class);
+        method.setAccessible(true);
 
-        assertThat(symbol).isEqualTo("UNKNOWN");
+        @SuppressWarnings("unchecked")
+        List<String> result = (List<String>) method.invoke(service, "Binance Lists Coin Without Parentheses");
+
+        assertThat(result).containsExactly("UNKNOWN");
     }
 
     @Test

@@ -18,6 +18,12 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +32,8 @@ public class AnnouncementCallingService {
     protected final CoinSniperConfig config;
     protected final CoinAnnouncementRepository repository;
     protected final ErrorResponseRepository errorResponseRepository;
+
+    public static final String UNKNOWN_COIN = "UNKNOWN";
 
     private final WebClient webClient = WebClient.create();
 
@@ -51,13 +59,17 @@ public class AnnouncementCallingService {
                 .bodyToMono(BinanceApiResponse.class)
                 .flatMapMany(response -> Flux.fromIterable(response.getData().getCatalogs()))
                 .flatMapIterable(BinanceCatalog::getArticles)
-                .map(article -> CoinAnnouncementRecord.builder()
-                        .title(article.getTitle())
-                        .coinSymbol(extractSymbolFromTitle(article.getTitle()))
-                        .announcedAt(Instant.ofEpochMilli(article.getReleaseDate()))
-                        .delisting(isDelisting(article.getTitle()))
-                        .build())
-                .flatMap(repository::save)
+                .flatMap(article -> {
+                    List<String> symbols = extractSymbolsFromTitle(article.getTitle());
+                    return Flux.fromIterable(symbols)
+                            .map(symbol -> CoinAnnouncementRecord.builder()
+                                    .title(article.getTitle())
+                                    .coinSymbol(symbol)
+                                    .announcedAt(Instant.ofEpochMilli(article.getReleaseDate()))
+                                    .delisting(isDelisting(article.getTitle()))
+                                    .build());
+                })
+                .flatMap(repository::save)  // ✅ now properly chained
                 .onErrorResume(ExternalApiException.class, ex -> {
                     ErrorResponseRecord error = ErrorResponseRecord.builder()
                             .source("Binance")
@@ -69,13 +81,43 @@ public class AnnouncementCallingService {
                 });
     }
 
-    protected String extractSymbolFromTitle(String title) {
-        // TODO a very naive symbol extractor;... may replace with smarter regex or API mapping
-        // e.g., "Binance Will List Bubblemaps (BMT)" => BMT
-        if (title.contains("(") && title.contains(")")) {
-            return title.substring(title.indexOf('(') + 1, title.indexOf(')')).trim();
+    protected List<String> extractSymbolsFromTitle(String title) {
+        Set<String> symbols = new LinkedHashSet<>();
+
+        // Match symbols in parentheses (e.g. (XUSD), (FORM))
+        Matcher parens = Pattern.compile("\\(([A-Z0-9]{2,10})\\)").matcher(title);
+        while (parens.find()) {
+            String symbol = parens.group(1).trim();
+            if (isValidSymbol(symbol)) {
+                symbols.add(symbol);
+            }
         }
-        return "UNKNOWN";
+
+        // Match structured listing/delisting/support phrases, but avoid generic marketing
+        Matcher structured = Pattern.compile(
+                "(?i)binance (will|has) (list|add|delist|support|complete|launch|introduce)\\s+(.*?)\\b([A-Z0-9]{2,10})\\b"
+        ).matcher(title);
+        while (structured.find()) {
+            String candidate = structured.group(4).trim();
+            if (isValidSymbol(candidate)) {
+                symbols.add(candidate);
+            }
+        }
+
+        // Fallback to "UNKNOWN" if nothing valid was found
+        if (symbols.isEmpty()) {
+            symbols.add(UNKNOWN_COIN);
+        }
+
+        return new ArrayList<>(symbols);
+    }
+
+    private boolean isValidSymbol(String symbol) {
+        return symbol.matches("^[A-Z0-9]{2,10}$") &&
+                !symbol.matches("^\\d{4}-\\d{2}-\\d{2}$") && // exclude dates
+                !symbol.equalsIgnoreCase("USD") &&
+                !symbol.equalsIgnoreCase("USDT") &&
+                !symbol.equalsIgnoreCase("BNB"); // optional common tokens to skip
     }
 
     protected boolean isDelisting(String title) {

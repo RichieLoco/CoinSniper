@@ -11,6 +11,8 @@ import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 
+import static com.richieloco.coinsniper.service.AnnouncementCallingService.UNKNOWN_COIN;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -45,6 +47,8 @@ public class AnnouncementPollingScheduler {
                             announcementCfg.getPageSize()
                     );
                 })
+
+                .filter(record -> !UNKNOWN_COIN.equalsIgnoreCase(record.getCoinSymbol()))
                 .onErrorContinue((ex, obj) -> log.error("Polling error: {}", ex.getMessage()))
                 .subscribe(record -> log.info("Saved: {}", record.getCoinSymbol()));
     }
