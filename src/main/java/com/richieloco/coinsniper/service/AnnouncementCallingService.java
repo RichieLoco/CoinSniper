@@ -28,6 +28,7 @@ public class AnnouncementCallingService {
     protected final CoinSniperConfig config;
     protected final CoinAnnouncementRepository repository;
     protected final ErrorResponseRepository errorResponseRepository;
+    protected final TradeExecutionService tradeExecutionService;
 
     public static final String UNKNOWN_COIN = "UNKNOWN";
     private static final Set<String> ALLOWED_CATALOGS = Set.of("New Cryptocurrency Listing", "Delisting");
@@ -74,7 +75,7 @@ public class AnnouncementCallingService {
                                         .hasElement()
                                         .flatMapMany(exists -> {
                                             if (exists) {
-                                                return Flux.empty(); // skip duplicates
+                                                return Flux.empty();
                                             } else {
                                                 CoinAnnouncementRecord record = CoinAnnouncementRecord.builder()
                                                         .title(article.getTitle())
@@ -82,9 +83,13 @@ public class AnnouncementCallingService {
                                                         .announcedAt(announcedAt)
                                                         .delisting(isDelisting)
                                                         .build();
-                                                return repository.save(record).flux();
+
+                                                return repository.save(record)
+                                                        .flatMap(saved -> tradeExecutionService.evaluateAndTrade(saved).thenReturn(saved))
+                                                        .flux();
                                             }
                                         });
+
                             });
                 })
                 .onErrorResume(ExternalApiException.class, ex -> {
