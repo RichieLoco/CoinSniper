@@ -31,7 +31,7 @@ public abstract class BaseAssessor<T, R> implements AssessmentFunction<T, R> {
         return Mono.fromCallable(() -> {
             Prompt prompt = new Prompt(List.of(new UserMessage(generatePrompt(context))));
 
-            ChatResponse chatResponse = chatModel.call(prompt); // ✅ synchronous
+            ChatResponse chatResponse = chatModel.call(prompt);
 
             List<Generation> generations = chatResponse.getResults();
             if (generations == null || generations.isEmpty()) {

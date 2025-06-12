@@ -1,0 +1,502 @@
+{
+  "code": "000000",
+  "message": null,
+  "messageDetail": null,
+  "data": {
+    "catalogs": [
+      {
+        "catalogId": 48,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/d3201bf0be35bb246b65a767221410e0.png",
+        "catalogName": "New Cryptocurrency Listing",
+        "description": null,
+        "catalogType": 1,
+        "total": 1805,
+        "articles": [
+          {
+            "id": 231037,
+            "code": "3175d8e47b044b48be5439c14f32b194",
+            "title": "Binance Futures Will Launch USDⓈ-Margined WALUSDT Perpetual Contract",
+            "type": 1,
+            "releaseDate": 1743083983691
+          },
+          {
+            "id": 231008,
+            "code": "d9d307783a144d9b81772bc690454ba3",
+            "title": "Introducing GUNZ (GUN) on Binance Launchpool! Farm GUN by Locking BNB, FDUSD and USDC",
+            "type": 1,
+            "releaseDate": 1743082161025
+          },
+          {
+            "id": 230982,
+            "code": "407190c3e5894c679fb4dc1cd7de5982",
+            "title": "Binance Futures Will Launch USDⓈ-Margined PAXGUSDT Perpetual Contract",
+            "type": 1,
+            "releaseDate": 1743059245182
+          },
+          {
+            "id": 230941,
+            "code": "815acb27cc2146d2b3f2a4fe933f11d9",
+            "title": "Binance Futures Will Launch USDⓈ-Margined JELLYJELLYUSDT and MAVIAUSDT Perpetual Contracts",
+            "type": 1,
+            "releaseDate": 1743002170581
+          },
+          {
+            "id": 230771,
+            "code": "fece84a5029b41519f4b837ae9e1f7ab",
+            "title": "Binance Will Add Particle Network (PARTI) on Earn, Buy Crypto, Convert, Margin & Futures",
+            "type": 1,
+            "releaseDate": 1742905804808
+          },
+          {
+            "id": 230645,
+            "code": "3ec6cdfea3394ffa9ce6bfeabe8191e5",
+            "title": "Introducing  Particle Network (PARTI) on Binance HODLer Airdrops! Earn PARTI With Retroactive BNB Simple Earn Subscriptions",
+            "type": 1,
+            "releaseDate": 1742831808230
+          },
+          {
+            "id": 230595,
+            "code": "6ddc69d48ff34b26b906f492e0794e22",
+            "title": "Binance Will Add Nillion (NIL) on Earn, Buy Crypto, Convert, Margin & Futures",
+            "type": 1,
+            "releaseDate": 1742819418720
+          },
+          {
+            "id": 230563,
+            "code": "d47d09515317401c90baead0a01fd38a",
+            "title": "Notice on New Trading Pairs & Trading Bots Services on Binance Spot - 2025-03-25",
+            "type": 1,
+            "releaseDate": 1742806808667
+          },
+          {
+            "id": 230352,
+            "code": "35c693260c6b44169e7dfbc40f454cca",
+            "title": "Binance Futures Will Launch USDⓈ-Margined BRUSDT and PLUMEUSDT Perpetual Contracts With up to 25x Leverage",
+            "type": 1,
+            "releaseDate": 1742553975638
+          },
+          {
+            "id": 230201,
+            "code": "03d4fc147cd5421681219eac7ac8eea9",
+            "title": "Binance Futures Will List USDⓈ-M & COIN-M Quarterly 0926 Delivery Contracts",
+            "type": 1,
+            "releaseDate": 1742522417107
+          }
+        ],
+        "catalogs": []
+      },
+      {
+        "catalogId": 49,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/1c644f6be4cad5a1c149e7318d85e9ff.png",
+        "catalogName": "Latest Binance News",
+        "description": null,
+        "catalogType": 1,
+        "total": 3854,
+        "articles": [
+          {
+            "id": 232870,
+            "code": "b731b3cc752c4c98b38332e772b006f4",
+            "title": "Updates on Funding Rate Settlement Frequency of USDⓈ-M TROYUSDT and GASUSDT Perpetual Contracts (2025-04-10)",
+            "type": 1,
+            "releaseDate": 1744271111674
+          },
+          {
+            "id": 232793,
+            "code": "b5317290025c41ab8e902b9d7798eff5",
+            "title": "Binance Adds RIF on Simple Earn Locked Products",
+            "type": 1,
+            "releaseDate": 1744264801578
+          },
+          {
+            "id": 232822,
+            "code": "e9940634c3884379bf37907193305f96",
+            "title": "Notice on Distribution of Binance Earn Babylon BTC Staking Airdrop Rewards",
+            "type": 1,
+            "releaseDate": 1744261207933
+          },
+          {
+            "id": 232692,
+            "code": "562332a340474eda890417685ebbb26b",
+            "title": "Binance Introduces the 2nd Batch of Vote to Delist on 2025-04-10",
+            "type": 1,
+            "releaseDate": 1744255873621
+          },
+          {
+            "id": 232708,
+            "code": "d2ab2ec1e96f4fc281a02932b57a3f83",
+            "title": "Updates on Step Size for Spot Trading Pairs (2025-04-17)",
+            "type": 1,
+            "releaseDate": 1744254034503
+          },
+          {
+            "id": 232695,
+            "code": "79ab34d7b21f47bfa03150dd63aabb62",
+            "title": "Binance P2P Upgrades “P2P Hot Token Converter” Feature",
+            "type": 1,
+            "releaseDate": 1744250403745
+          },
+          {
+            "id": 232237,
+            "code": "536a32d64d8e43d2b148ab2b93b30b67",
+            "title": "Binance Will Launch LDUSDT for Futures Trading with APR Rewards",
+            "type": 1,
+            "releaseDate": 1744200012685
+          },
+          {
+            "id": 232635,
+            "code": "2d258573e6d746cfbcc3deeecc1129b5",
+            "title": "Updates on Funding Rate Settlement Frequency of USDⓈ-M VIDTUSDT Perpetual Contract (2025-04-09)",
+            "type": 1,
+            "releaseDate": 1744187416260
+          },
+          {
+            "id": 232586,
+            "code": "d4a6c1a2cd004f6b8bba78c2df6c276e",
+            "title": "Binance Adds BANANAS31 and MUBARAK as New Loanable Assets on VIP Loan - 2025-04-09",
+            "type": 1,
+            "releaseDate": 1744178405035
+          },
+          {
+            "id": 232544,
+            "code": "8434597f600049d5a142dd22167c1efa",
+            "title": "Binance Earn Yield Arena: Enjoy Up to 19.9% APR With This Week’s New Limited-Time Offers! (2025-04-09)",
+            "type": 1,
+            "releaseDate": 1744171203812
+          }
+        ],
+        "catalogs": []
+      },
+      {
+        "catalogId": 93,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/e15292967d819d422e0bab0a6389797b.png",
+        "catalogName": "Latest Activities",
+        "description": null,
+        "catalogType": 1,
+        "total": 2128,
+        "articles": [
+          {
+            "id": 233808,
+            "code": "36d44cfeeb73411a9050c534d9c997f3",
+            "title": "Binance Earn: Enjoy 29.65% APR or More and Up to 1,300 USDC Referral Rewards on Dual Investment",
+            "type": 1,
+            "releaseDate": 1744878612411
+          },
+          {
+            "id": 233782,
+            "code": "d3369520369b42fea9e0019ed7438ee4",
+            "title": "Limited-Time Promotion: Buy USDC with USD at 1:1 Exchange Rate For VIP and Non-VIP Corporate Users",
+            "type": 1,
+            "releaseDate": 1744869608508
+          },
+          {
+            "id": 233717,
+            "code": "e08e8de65e5e4cbe8c4c82482d8fe373",
+            "title": "Africa Exclusive Special Offer: Subscribe to USDT Locked Products and Enjoy Up to 100% Boosted APR Rewards",
+            "type": 1,
+            "releaseDate": 1744797609862
+          },
+          {
+            "id": 233709,
+            "code": "4168e206311c4d09936052e39c0e7f15",
+            "title": "Buy USDC and Allocate USDC to Binance Earn to Win a Share of 50,000 USDC",
+            "type": 1,
+            "releaseDate": 1744794017627
+          },
+          {
+            "id": 233563,
+            "code": "ae77d17d00aa43198570a689ec05e23f",
+            "title": "Binance Futures Masters Arena: Climb the Master Ranking and Join Futures Trading Competitions to Win Up to 450,000 USDT & Multiple Token Rewards!",
+            "type": 1,
+            "releaseDate": 1744761600000
+          },
+          {
+            "id": 233415,
+            "code": "edf136c281644fef883a6cd22ae05873",
+            "title": "Binance Earn: Enjoy 15.6% Bonus Tiered APR on BEL and Get Up to 100 BEL in Giveaway!",
+            "type": 1,
+            "releaseDate": 1744686001638
+          },
+          {
+            "id": 233196,
+            "code": "6c80efe99a714b5dbfad3adc684afe08",
+            "title": "Word of the Day: Test Your Knowledge on “Passkeys” to Earn Binance Points and More!",
+            "type": 1,
+            "releaseDate": 1744596014598
+          },
+          {
+            "id": 233192,
+            "code": "d5916583e9a948459ec23b05c9a392e8",
+            "title": "MENASA April: Buy Crypto on Binance to Share 30,000 USDT in Rewards!",
+            "type": 1,
+            "releaseDate": 1744592405040
+          },
+          {
+            "id": 233127,
+            "code": "467c8405782e4afdb24cd9b8205240ce",
+            "title": "Cricket Red Packet Referral: Invite Friends to Claim $5,000 in Crypto Rewards and Exclusive VIP Tickets",
+            "type": 1,
+            "releaseDate": 1744387200000
+          },
+          {
+            "id": 233126,
+            "code": "14a0f73398334a32b8d08e5760dc57a4",
+            "title": "Pakistan User Exclusive - Cricket Trading Battle: Trade on Binance Spot or Futures to Win BNB Rewards & VIP Tickets!",
+            "type": 1,
+            "releaseDate": 1744385400000
+          }
+        ],
+        "catalogs": []
+      },
+      {
+        "catalogId": 50,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/0740492d102095f580ba46a2aa056bb8.png",
+        "catalogName": "New Fiat Listings",
+        "description": null,
+        "catalogType": 1,
+        "total": 203,
+        "articles": [
+          {
+            "id": 43054,
+            "code": "1928d02e3a6444cb8b8a13b0aa33307a",
+            "title": "Zero Maker Fee Promotion for GBP trading pairs on Binance",
+            "type": 1,
+            "releaseDate": 1609243435840
+          },
+          {
+            "id": 43047,
+            "code": "ab7d06ddfeca4515b56fddd91deb53e5",
+            "title": "Zero Fees on International USD Bank Transfers via SWIFT",
+            "type": 1,
+            "releaseDate": 1609241399116
+          },
+          {
+            "id": 43046,
+            "code": "cbe011667ecf4542b89f2754557881bc",
+            "title": "$20,000 New Year Giveaway: Top Prize of 2,000 BUSD. Buy Crypto or Deposit and Trade Fiat to Enter!",
+            "type": 1,
+            "releaseDate": 1609237205116
+          },
+          {
+            "id": 42639,
+            "code": "2195b2db3324477ca914162e7369db5e",
+            "title": "ZERO FEES for Buy Crypto, Fiat Deposits & Withdrawals - Three Days Only!",
+            "type": 1,
+            "releaseDate": 1608776260425
+          },
+          {
+            "id": 42456,
+            "code": "e5310a87913346bcb384896d8233c2e0",
+            "title": "GBP Holidays Trading Competition - 20,000 BUSD Prize Pool to Be Won!",
+            "type": 1,
+            "releaseDate": 1608537359937
+          },
+          {
+            "id": 42244,
+            "code": "b19653030b2a4e7cb6a0ff4439003e0a",
+            "title": "Complete Your First Fiat Deposit or Card Transaction to Receive 7 BUSD Cashback!",
+            "type": 1,
+            "releaseDate": 1608120225556
+          },
+          {
+            "id": 42150,
+            "code": "e084909adee1446d8fa69132cf361575",
+            "title": "Binance Futures Adds EUR to Cross Collateral",
+            "type": 1,
+            "releaseDate": 1608016328434
+          },
+          {
+            "id": 42128,
+            "code": "3bf9db50129c4812afd7a35917584c47",
+            "title": "BRL Trading Pair Competition - 46,338 BRL in BUSD to Be Won!",
+            "type": 1,
+            "releaseDate": 1607954475566
+          },
+          {
+            "id": 42119,
+            "code": "0c309eca906441bfbaae6492c48bcce4",
+            "title": "Deposit Brazilan Reals (BRL) Instantly via PIX ",
+            "type": 1,
+            "releaseDate": 1607950996485
+          },
+          {
+            "id": 42110,
+            "code": "8e6a8e58b1cf4a4b81fc794345134555",
+            "title": "EUR Holidays Trading Competition - 40,000 BUSD to Be Won!",
+            "type": 1,
+            "releaseDate": 1607936501840
+          }
+        ],
+        "catalogs": []
+      },
+      {
+        "catalogId": 161,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/a6322b2e7d81faf3f65a6d14c372995e.png",
+        "catalogName": "Delisting",
+        "description": null,
+        "catalogType": 1,
+        "total": 261,
+        "articles": [
+          {
+            "id": 193722,
+            "code": "cee8c1f17df34b91a73ae1dbba456a41",
+            "title": "Notice of Removal of Spot Trading Pairs - 2024-03-08",
+            "type": 1,
+            "releaseDate": 1709702704796
+          },
+          {
+            "id": 193657,
+            "code": "ebbb63034b374abd94a534cdeead44a6",
+            "title": "Notice of Removal of Margin Trading Pairs - 2024-03-15",
+            "type": 1,
+            "releaseDate": 1709692203976
+          },
+          {
+            "id": 192862,
+            "code": "a4a8fe7c7d734cc4a31b7a24ff717621",
+            "title": "Notice of Removal of Spot Trading Pairs - 2024-03-01",
+            "type": 1,
+            "releaseDate": 1709098527711
+          },
+          {
+            "id": 191209,
+            "code": "425f0d86cc044d77ab76476f2cb75115",
+            "title": "Notice of Removal of Spot Trading Pairs - 2024-02-09",
+            "type": 1,
+            "releaseDate": 1707293403373
+          },
+          {
+            "id": 191138,
+            "code": "772c3895550d4b858e4747030c9a6068",
+            "title": "Notice of Removal of Margin Trading Pairs - 2024-02-16",
+            "type": 1,
+            "releaseDate": 1707275704155
+          },
+          {
+            "id": 190856,
+            "code": "f73b083ba6834771b07dbe5319917ae5",
+            "title": "Binance Will Delist ANT, MULTI, VAI, XMR on 2024-02-20",
+            "type": 1,
+            "releaseDate": 1707202812575
+          },
+          {
+            "id": 190150,
+            "code": "b003f46ecdf44015b84fbe4128193085",
+            "title": "Notice of Removal of Spot Trading Pairs - 2024-02-02",
+            "type": 1,
+            "releaseDate": 1706679003694
+          },
+          {
+            "id": 189612,
+            "code": "f515cfd05a084b8e983ee2488b6242c2",
+            "title": "Notice of Removal of Spot Trading Pairs - 2024-01-26",
+            "type": 1,
+            "releaseDate": 1706082908910
+          },
+          {
+            "id": 188989,
+            "code": "44f3c7f4136b40dda2c93ad0ecc2c0a9",
+            "title": "Notice of Removal of Spot Trading Pairs - 2024-01-19",
+            "type": 1,
+            "releaseDate": 1705400725138
+          },
+          {
+            "id": 188372,
+            "code": "f7e3c64aa763470980050f3b823b8ccd",
+            "title": "Notice of Removal of Spot Trading Pairs - 2024-01-12",
+            "type": 1,
+            "releaseDate": 1704873005010
+          }
+        ],
+        "catalogs": []
+      },
+      {
+        "catalogId": 157,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/e4eea861bcbce3a1333de7cb07bdb059.png",
+        "catalogName": "Maintenance Updates",
+        "description": null,
+        "catalogType": 1,
+        "total": 381,
+        "articles": [
+          {
+            "id": 213159,
+            "code": "066ba1773ce4480492b983f8d4764c91",
+            "title": "Binance Will Support the Orion (ORN) Mainnet Swap and Rebranding to Lumia (LUMIA)",
+            "type": 1,
+            "releaseDate": 1727676004882
+          },
+          {
+            "id": 212042,
+            "code": "bd3763c27ee8492380ff1d11b4495fed",
+            "title": "Binance Will Support the EOS (EOS) Network Upgrade & Hard Fork",
+            "type": 1,
+            "releaseDate": 1726804800000
+          },
+          {
+            "id": 212015,
+            "code": "cd1e039064474422adb075dbe43d42cc",
+            "title": "Binance Will Support the BNB Smart Chain (BEP20) and opBNB Chain (opBNB) Network Upgrade & Hard Fork",
+            "type": 1,
+            "releaseDate": 1726801220222
+          },
+          {
+            "id": 211880,
+            "code": "8b9328395d2b4c0390d1bd4d29fa21ef",
+            "title": "Binance Will Support the Manta (MANTA) Network Upgrade & Hard Fork",
+            "type": 1,
+            "releaseDate": 1726718400000
+          },
+          {
+            "id": 211700,
+            "code": "2ec26abeeb6a436194ed8982357ad801",
+            "title": "Binance Will Support the Terra Classic (LUNC) Network Upgrade",
+            "type": 1,
+            "releaseDate": 1726632024024
+          },
+          {
+            "id": 211351,
+            "code": "ef6026cab9b1488ca5f14c8eb05c01df",
+            "title": "Binance Will Support the Sei (SEI) Network Upgrade",
+            "type": 1,
+            "releaseDate": 1726459201202
+          },
+          {
+            "id": 211236,
+            "code": "619c4929fc3f4a0d9df7f9ae1d4519a5",
+            "title": "Binance Has Completed the Polygon (MATIC) Token Upgrade to Polygon (POL)",
+            "type": 1,
+            "releaseDate": 1726225525025
+          },
+          {
+            "id": 211021,
+            "code": "d23542587a414d3f99b9640995353c35",
+            "title": "Binance Will Support the Firo (FIRO) Network Upgrade & Hard Fork",
+            "type": 1,
+            "releaseDate": 1726113604229
+          },
+          {
+            "id": 210700,
+            "code": "8bfb9470435847ac8b04293a94a29c42",
+            "title": "Binance Will Support the Enjin Coin (ENJ) Network Upgrade",
+            "type": 1,
+            "releaseDate": 1725854406869
+          },
+          {
+            "id": 210266,
+            "code": "e470c47567a64b4ba42cded18ceda5e1",
+            "title": "Binance Will Support the Optimism (OP) Network Upgrade & Hard Fork",
+            "type": 1,
+            "releaseDate": 1725508803087
+          }
+        ],
+        "catalogs": []
+      }
+    ]
+  },
+  "success": true
+}

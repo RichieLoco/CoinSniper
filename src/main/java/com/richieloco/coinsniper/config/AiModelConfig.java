@@ -14,16 +14,28 @@ public class AiModelConfig {
     @Value("${spring.ai.openai.api-key}")
     private String apiKey;
 
+    @Value("${spring.ai.openai.base-url}")
+    private String baseUrl;
+
+    @Value("${spring.ai.openai.chat.options.model}")
+    private String model;
+
+    @Value("${spring.ai.openai.chat.options.temperature}")
+    private String temperature;
+
     @Bean
     public OpenAiApi openAiApi() {
-        return new OpenAiApi.Builder().apiKey(apiKey).build();
+        return new OpenAiApi.Builder()
+                .apiKey(apiKey)
+                .baseUrl(baseUrl)
+                .build();
     }
 
     @Bean
     public OpenAiChatOptions openAiChatOptions() {
         return OpenAiChatOptions.builder()
-                .model("gpt-4-turbo") //TODO may need to switch to "gpt-3.5-turbo" whilst testing
-                .temperature(0.7D) // balanced between randomness and focussed, so a semi-random output
+                .model(model)
+                .temperature(Double.parseDouble(temperature)) // balanced between randomness and focussed, so a semi-random output
                 .build();
     }
 

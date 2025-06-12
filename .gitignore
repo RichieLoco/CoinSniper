@@ -39,3 +39,4 @@ build/
 .mvn
 mvnw
 mvnw.cmd
+src/main/resources/api-keys.properties

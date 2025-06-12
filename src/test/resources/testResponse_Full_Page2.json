@@ -1,0 +1,666 @@
+{
+  "code": "000000",
+  "message": null,
+  "messageDetail": null,
+  "data": {
+    "catalogs": [
+      {
+        "catalogId": 48,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/d3201bf0be35bb246b65a767221410e0.png",
+        "catalogName": "New Cryptocurrency Listing",
+        "description": null,
+        "catalogType": 1,
+        "total": 1805,
+        "articles": [
+          {
+            "id": 238183,
+            "code": "4ae9af04809c438599cadcae36513033",
+            "title": "Resolv (RESOLV) Will Be Available on Binance Alpha and Binance Futures (2025-06-10)",
+            "type": 1,
+            "releaseDate": 1749020402873
+          },
+          {
+            "id": 238037,
+            "code": "85203b0d244841839bd77d3fc829d02e",
+            "title": "Binance Futures Will Launch USDⓈ-Margined PUFFERUSDT and PORT3USDT Perpetual Contracts",
+            "type": 1,
+            "releaseDate": 1748942076886
+          },
+          {
+            "id": 237999,
+            "code": "eb0e2df45b4746bd83fe7d477ecc8621",
+            "title": "Notice on New Trading Pairs & Trading Bots Services on Binance Spot - 2025-06-03",
+            "type": 1,
+            "releaseDate": 1748851201988
+          },
+          {
+            "id": 237861,
+            "code": "2dae21629d644e7695f9570769bbdd44",
+            "title": "Bondex (BDXN) Will Be Available on Binance Alpha and Binance Futures",
+            "type": 1,
+            "releaseDate": 1748597702121
+          },
+          {
+            "id": 237844,
+            "code": "9166fe6f7b8a4b438262df3a040b007b",
+            "title": "Binance Futures Will Launch USDⓈ-Margined HYPEUSDT Perpetual Contract",
+            "type": 1,
+            "releaseDate": 1748594200290
+          },
+          {
+            "id": 237646,
+            "code": "df7fe0571e074bfa8ebd0a2757537461",
+            "title": "Binance Will Add Sophon (SOPH) on Earn, Buy Crypto, Convert & Margin",
+            "type": 1,
+            "releaseDate": 1748435408399
+          },
+          {
+            "id": 237629,
+            "code": "90c9ef3a52a4420b8b8480dd9aeecc9b",
+            "title": "Binance Futures Will Launch USDⓈ-Margined MERLUSDT Perpetual Contract",
+            "type": 1,
+            "releaseDate": 1748428430236
+          },
+          {
+            "id": 237546,
+            "code": "099cc488ede44c64b51a454410c49d4e",
+            "title": "Binance Will Add Vaulta (A) on Earn, Buy Crypto, Convert, Margin & Futures",
+            "type": 1,
+            "releaseDate": 1748417407244
+          },
+          {
+            "id": 237571,
+            "code": "8ef18cf913ce42278b67f4cbe161a062",
+            "title": "Introducing Sophon (SOPH) on Binance HODLer Airdrops! Earn SOPH With Retroactive BNB Simple Earn Subscriptions",
+            "type": 1,
+            "releaseDate": 1748416616367
+          },
+          {
+            "id": 237406,
+            "code": "e3840e610d3c4b4db5816e0abfc33f9e",
+            "title": "Binance Will Add Huma Finance (HUMA) on Earn, Buy Crypto, Convert, Margin & Futures",
+            "type": 1,
+            "releaseDate": 1748262601620
+          }
+        ],
+        "catalogs": []
+      },
+      {
+        "catalogId": 49,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/1c644f6be4cad5a1c149e7318d85e9ff.png",
+        "catalogName": "Latest Binance News",
+        "description": null,
+        "catalogType": 1,
+        "total": 3854,
+        "articles": [
+          {
+            "id": 238293,
+            "code": "74103b430fbe40438e59a5c0e1b5b201",
+            "title": "Binance Will Extend the Monitoring Tag to Include BIFI, FIS, KMD & MDT on 2025-06-05",
+            "type": 1,
+            "releaseDate": 1749099618433
+          },
+          {
+            "id": 238221,
+            "code": "a3df928f353c4893907a26544cd33d99",
+            "title": "Binance Introduces Spot Altcoin LiquidityBoost Program",
+            "type": 1,
+            "releaseDate": 1749034808825
+          },
+          {
+            "id": 238201,
+            "code": "7431e2a8dfce46faa33855b26388a086",
+            "title": "Binance Alpha Points Bot Violation Notice",
+            "type": 1,
+            "releaseDate": 1749024001462
+          },
+          {
+            "id": 238139,
+            "code": "4fd53f8c804f4dbcba644f016caa497a",
+            "title": "Binance Earn Yield Arena: Enjoy 20.9% APR With This Week’s New Limited-Time Offers! (2025-06-04)",
+            "type": 1,
+            "releaseDate": 1749016801880
+          },
+          {
+            "id": 238118,
+            "code": "15282c02d9a2464fac3f5dd0501d6561",
+            "title": "Binance Adds HAEDAL, HUMA, SOPH, A, and USD1 as Loanable Asset on Binance Loans - 2025-06-04",
+            "type": 1,
+            "releaseDate": 1749015007959
+          },
+          {
+            "id": 237984,
+            "code": "d37dfd0d0107454b9d3a98ce25a11f07",
+            "title": "Binance Traders League Season 2: Compete in the Regional Competitions and Win a Share of $100,000 in BNB!",
+            "type": 1,
+            "releaseDate": 1748847611462
+          },
+          {
+            "id": 237886,
+            "code": "ca87a6cd735b4beb8c0e78ef6a98afc9",
+            "title": "Update on the Collateral Ratio Under Portfolio Margin and the Leverage & Margin Tiers of USDⓈ-M Perpetual Contracts (2025-06-06)",
+            "type": 1,
+            "releaseDate": 1748750099988
+          },
+          {
+            "id": 237778,
+            "code": "479888a1983040ee8414aedc573de8fb",
+            "title": "Binance Extends BRL, ARS, MXN and COP Fiat Liquidity Provider Program (2025-05-30)",
+            "type": 1,
+            "releaseDate": 1748574020484
+          },
+          {
+            "id": 237696,
+            "code": "e3a913d38af94454a4cd6a729588a332",
+            "title": "Binance Adds Babylon (BABY) on Simple Earn Locked Products",
+            "type": 1,
+            "releaseDate": 1748494809328
+          },
+          {
+            "id": 237543,
+            "code": "85aefd05ddd7462495bc42931515027b",
+            "title": "Binance Earn Yield Arena: Enjoy 25% Bonus Tiered APR With This Week’s New Limited-Time Offers! (2025-05-28)",
+            "type": 1,
+            "releaseDate": 1748415619605
+          }
+        ],
+        "catalogs": []
+      },
+      {
+        "catalogId": 93,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/e15292967d819d422e0bab0a6389797b.png",
+        "catalogName": "Latest Activities",
+        "description": null,
+        "catalogType": 1,
+        "total": 2128,
+        "articles": [
+          {
+            "id": 238382,
+            "code": "ddaebd21557143788fe838e3b2fd1840",
+            "title": "Join Binance Traders League Discord Challenges & Share 4,000 USDC in Rewards!",
+            "type": 1,
+            "releaseDate": 1749198605883
+          },
+          {
+            "id": 238354,
+            "code": "72f4f77bcdd64609847e4b611416056c",
+            "title": "MENA Exclusive: Binance Alpha Fest – 1.4 Billion PEPE Rewards, Web3 Insights & Creator Challenge!",
+            "type": 1,
+            "releaseDate": 1749124806729
+          },
+          {
+            "id": 238337,
+            "code": "b5214052835b4277873af77b9c615bab",
+            "title": "Learn & Earn: Complete the Quiz to Earn WalletConnect (WCT) Rewards! (2025-06-05)",
+            "type": 1,
+            "releaseDate": 1749114005437
+          },
+          {
+            "id": 238244,
+            "code": "9c9834186af44169aac94beda79fcedd",
+            "title": "Refer and Earn Now: 25,000 USDC Up for Grabs!",
+            "type": 1,
+            "releaseDate": 1749081600000
+          },
+          {
+            "id": 238117,
+            "code": "75a14fee485644558f7d6885534ec8ab",
+            "title": "Trade & Win: Balkan Run - Grab a Share of the 12,655 USDC Reward Pool!",
+            "type": 1,
+            "releaseDate": 1749013210518
+          },
+          {
+            "id": 238098,
+            "code": "bbe5abd97bbe48e0a7c958860bb41c9a",
+            "title": "The Bitcoin Promotion Is Back: Earn 1% Cashback in Bitcoin",
+            "type": 1,
+            "releaseDate": 1748998800948
+          },
+          {
+            "id": 238069,
+            "code": "16f7859de0944856a2bd090d7700ddec",
+            "title": "Unlock a Share of $50,000 in Rewards in the Futures Showdown: Live Trading Competition",
+            "type": 1,
+            "releaseDate": 1748955603232
+          },
+          {
+            "id": 238034,
+            "code": "1439f54addb64f9a915bf8eb8a09875a",
+            "title": "Zircuit Trading Competition: Trade Zircuit (ZRC) and Share about $1M of Rewards",
+            "type": 1,
+            "releaseDate": 1748939401417
+          },
+          {
+            "id": 237781,
+            "code": "3582f9deb035479b91d8c1a8ad2b9875",
+            "title": "Binance Traders League 2025: Be a Team Leader and Share $57,000 from the Affiliate Exclusive Prize Pool!",
+            "type": 1,
+            "releaseDate": 1748937609431
+          },
+          {
+            "id": 238022,
+            "code": "59c02c4fc7f34551a9d630029123cdae",
+            "title": "Subsquid Trading Competition: Trade Subsquid (SQD) and Share about $1M of Rewards",
+            "type": 1,
+            "releaseDate": 1748869212531
+          }
+        ],
+        "catalogs": []
+      },
+      {
+        "catalogId": 50,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/0740492d102095f580ba46a2aa056bb8.png",
+        "catalogName": "New Fiat Listings",
+        "description": null,
+        "catalogType": 1,
+        "total": 203,
+        "articles": [
+          {
+            "id": 98414,
+            "code": "e5bba4a3296e4e669a3cda14f64c54c6",
+            "title": "FIRO & LEVER Available via Credit/Debit Card",
+            "type": 1,
+            "releaseDate": 1658486764902
+          },
+          {
+            "id": 97855,
+            "code": "fa09d80447924415af0c8dc3590f0d84",
+            "title": "WNXM Available via Credit/Debit Card",
+            "type": 1,
+            "releaseDate": 1658136647161
+          },
+          {
+            "id": 96567,
+            "code": "3b72dabb097d4e07880bf08597608322",
+            "title": "STORJ, T, WING & More Tokens Available via Credit/Debit Card, and OP on Recurring Buy",
+            "type": 1,
+            "releaseDate": 1656593799314
+          },
+          {
+            "id": 95842,
+            "code": "d6d2ef179f8c403e800de7e69811c77c",
+            "title": "OP, RUNE, UNFI & More Tokens Available via Credit/Debit Card",
+            "type": 1,
+            "releaseDate": 1655974284199
+          },
+          {
+            "id": 94475,
+            "code": "f06778dd9aa44b1ea4729dffc87b0eb4",
+            "title": "Buy LUNA, MATIC, PEOPLE & More Directly Using Your Credit/Debit Card, and JASMY on Recurring Buy",
+            "type": 1,
+            "releaseDate": 1654765223793
+          },
+          {
+            "id": 93954,
+            "code": "8be5d31e276240f18b151246badbe33f",
+            "title": "Buy STEPN (GMT), JASMY, LDO & More Directly Using Your Credit/Debit Card",
+            "type": 1,
+            "releaseDate": 1654158302471
+          },
+          {
+            "id": 93136,
+            "code": "9c757295e132447fbbe3560e2dbdf6d0",
+            "title": "Buy CAKE, DAI, DAR, FIL, FTM & More Directly Using Your Credit/Debit Card, and ALGO, APE, BSW & More on Recurring Buy",
+            "type": 1,
+            "releaseDate": 1653537608581
+          },
+          {
+            "id": 92410,
+            "code": "79ffa48e07c944a19e6889f6f378bc0b",
+            "title": "Buy ALGO, ALPINE, APE, GAL & More Directly Using Your Credit/Debit Card",
+            "type": 1,
+            "releaseDate": 1652853623786
+          },
+          {
+            "id": 91648,
+            "code": "24a722348ed34a269215d00f49fd5c86",
+            "title": "Buy MOB, NEXO & More Directly Using Your Credit/Debit Card, and ZIL, RUNE & More on Recurring Buy",
+            "type": 1,
+            "releaseDate": 1652335524875
+          },
+          {
+            "id": 90234,
+            "code": "e00b226cadd0402a895d84f786787d74",
+            "title": "Buy PROM & More Directly Using Your Credit/Debit Card",
+            "type": 1,
+            "releaseDate": 1651119001451
+          }
+        ],
+        "catalogs": []
+      },
+      {
+        "catalogId": 161,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/a6322b2e7d81faf3f65a6d14c372995e.png",
+        "catalogName": "Delisting",
+        "description": null,
+        "catalogType": 1,
+        "total": 261,
+        "articles": [
+          {
+            "id": 230166,
+            "code": "db7ad1c7aa6248cda735102cdcdc4b8d",
+            "title": "Binance Will Delist AERGO, AST, BURGER, COMBO, LINA on 2025-03-28",
+            "type": 1,
+            "releaseDate": 1742536220352
+          },
+          {
+            "id": 229830,
+            "code": "69ff9abd38ad4cfcbe4521f654278a7d",
+            "title": "Notice of Removal of Spot Trading Pairs - 2025-03-21",
+            "type": 1,
+            "releaseDate": 1742356810621
+          },
+          {
+            "id": 229618,
+            "code": "edf76712d2ea48f8916a32cfe1b82fb9",
+            "title": "Notice of Removal of Margin Trading Pairs - 2025-03-25",
+            "type": 1,
+            "releaseDate": 1742266815394
+          },
+          {
+            "id": 228973,
+            "code": "4b88b1f8848444d9ad7af3d406bff72e",
+            "title": "Notice of Removal of Spot Trading Pairs - 2025-03-14",
+            "type": 1,
+            "releaseDate": 1741770011825
+          },
+          {
+            "id": 228025,
+            "code": "820e86ea4d5145a1bc357682394552ba",
+            "title": "Notice of Removal of Spot Trading Pairs - 2025-03-07",
+            "type": 1,
+            "releaseDate": 1741140001767
+          },
+          {
+            "id": 227872,
+            "code": "487e8345ab8146bba30ce251e2f9f974",
+            "title": "Notice of Removal of Margin Trading Pairs - 2025-03-11",
+            "type": 1,
+            "releaseDate": 1741060808105
+          },
+          {
+            "id": 227184,
+            "code": "7600776423b74af5a8716354b0cdef8b",
+            "title": "Notice of Removal of Spot Trading Pairs - 2025-02-28",
+            "type": 1,
+            "releaseDate": 1740546019347
+          },
+          {
+            "id": 226679,
+            "code": "0d93139d71c64f74bd63749c141842fb",
+            "title": "Binance Earn: Notice on Removal of Dual Investment Token Pairs - 2025-02-21",
+            "type": 1,
+            "releaseDate": 1740027606855
+          },
+          {
+            "id": 226537,
+            "code": "d3f0e61ac6d942c98ede2cfeade10314",
+            "title": "Notice of Removal of Spot Trading Pairs - 2025-02-21",
+            "type": 1,
+            "releaseDate": 1739937608036
+          },
+          {
+            "id": 226076,
+            "code": "f3cc64a8758d4bb394e0830e5b31da97",
+            "title": "Binance Will Delist AMB, CLV, STMX, VITE on 2025-02-24",
+            "type": 1,
+            "releaseDate": 1739775624287
+          }
+        ],
+        "catalogs": []
+      },
+      {
+        "catalogId": 157,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/e4eea861bcbce3a1333de7cb07bdb059.png",
+        "catalogName": "Maintenance Updates",
+        "description": null,
+        "catalogType": 1,
+        "total": 381,
+        "articles": [
+          {
+            "id": 235996,
+            "code": "596788e36c9e46f0b2f67445941d8701",
+            "title": "Binance Completes Integration of Hyperlane (HYPER) on Arbitrum One, Base, and Optimism Networks, Opens Deposits - 2025-05-09",
+            "type": 1,
+            "releaseDate": 1746756001309
+          },
+          {
+            "id": 235918,
+            "code": "d22e3beee0b94c6b82d365d67b1268bd",
+            "title": "Binance Will Support the eCash (XEC) Network Upgrade & Hard Fork - 2025-05-15",
+            "type": 1,
+            "releaseDate": 1746676801677
+          },
+          {
+            "id": 235895,
+            "code": "204ef5df4edc4830b562081b38a02cec",
+            "title": "Wallet Maintenance for Tron Network (TRX) - 2025-05-09",
+            "type": 1,
+            "releaseDate": 1746669601986
+          },
+          {
+            "id": 235742,
+            "code": "f653fab995c348f8a7d510354f475023",
+            "title": "Binance Will Support the Standard Tokenization Protocol (STPT) Token Swap and Rebranding to AWE Network (AWE)",
+            "type": 1,
+            "releaseDate": 1746597602721
+          },
+          {
+            "id": 235694,
+            "code": "b08bebb48a1949e181439e839b6c5069",
+            "title": "Binance Will Support the Optimism (OP) & Metal DAO (MTL) Network Upgrades & Hard Forks - 2025-05-09",
+            "type": 1,
+            "releaseDate": 1746583202073
+          },
+          {
+            "id": 235672,
+            "code": "900616e2daa64b0bbeff1fee0c000119",
+            "title": "Binance Will Support the Ethereum (ETH) Network Upgrade & Hard Fork - 2025-05-07",
+            "type": 1,
+            "releaseDate": 1746579602371
+          },
+          {
+            "id": 235087,
+            "code": "b8d4d371855a4acfb1f92432ea988cf2",
+            "title": "Binance Will Support the THORChain (RUNE) Network Upgrade & Hard Fork - 2025-05-01",
+            "type": 1,
+            "releaseDate": 1745992803758
+          },
+          {
+            "id": 235015,
+            "code": "a18db274720642c0a0c20d477a431ad6",
+            "title": "Binance Will Support the IOTA (IOTA) Network Upgrade & Hard Fork - 2025-05-05",
+            "type": 1,
+            "releaseDate": 1745978412898
+          },
+          {
+            "id": 234983,
+            "code": "68c0c8c0f7834c7895eb3a5c440db329",
+            "title": "Binance Completes Integration of USDC (USDC) on Sonic Network and Opens Deposits - 2025-04-29",
+            "type": 1,
+            "releaseDate": 1745928000000
+          },
+          {
+            "id": 234763,
+            "code": "cb689bb65a1c423f8fc850df4e7c56fb",
+            "title": "Wallet Maintenance for Ethereum Network (ETH) - 2025-04-30",
+            "type": 1,
+            "releaseDate": 1745802000000
+          }
+        ],
+        "catalogs": []
+      },
+      {
+        "catalogId": 51,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/2831e38ac3f498dab0516159076eafa6.png",
+        "catalogName": "API Updates",
+        "description": null,
+        "catalogType": 1,
+        "total": 77,
+        "articles": [
+          {
+            "id": 202232,
+            "code": "93735c55146340468e4f4550b0f32fba",
+            "title": "Binance Spot API Service Upgrade (2024-06-06)",
+            "type": 1,
+            "releaseDate": 1717641002689
+          },
+          {
+            "id": 198254,
+            "code": "e889594b0ed34b6e982239830a70959d",
+            "title": "Binance USDⓈ-M Futures WebSocket System Upgrade Notice (2024-04-23)",
+            "type": 1,
+            "releaseDate": 1713420003078
+          },
+          {
+            "id": 196380,
+            "code": "82cac9341a4246b1adc5668033a4eebf",
+            "title": "Binance Spot API to Increase Request Weight Limits (2024-04-04)",
+            "type": 1,
+            "releaseDate": 1712058361680
+          },
+          {
+            "id": 195155,
+            "code": "249d2626215a4c2b8c447f48ad2fce07",
+            "title": "Binance Spot API Service Upgrade (2024-03-20)",
+            "type": 1,
+            "releaseDate": 1710831639063
+          },
+          {
+            "id": 192788,
+            "code": "4e547a89eea644d8b6c678f6fb400c01",
+            "title": "Updates on Binance Loans SAPI Endpoints (2024-02-27)",
+            "type": 1,
+            "releaseDate": 1709028614914
+          },
+          {
+            "id": 192700,
+            "code": "a354b8f234e54477b088536aa1d3fe4e",
+            "title": "Binance Dual Investment Enables API Functionality",
+            "type": 1,
+            "releaseDate": 1709010910265
+          },
+          {
+            "id": 191488,
+            "code": "016d12d087b0405e9d3c0e7f5a9696ab",
+            "title": "Updates on Binance Futures WebSocket Domains (2024-02-29)",
+            "type": 1,
+            "releaseDate": 1707891002899
+          },
+          {
+            "id": 188209,
+            "code": "a1868c686ce7448da8c3061a82a87b0c",
+            "title": "Updates on Binance Margin SAPI Endpoints (2024-03-31)",
+            "type": 1,
+            "releaseDate": 1704771003861
+          },
+          {
+            "id": 187207,
+            "code": "d098c1f6c844488d947b475c7ee620ba",
+            "title": "Binance Margin Adds New WebSocket Domain (2023-12-27)",
+            "type": 1,
+            "releaseDate": 1703652902669
+          },
+          {
+            "id": 186934,
+            "code": "f67bd5ba9a4a424fbae268c4c9725f8a",
+            "title": "Updates on Binance ETH Staking SAPI Endpoints",
+            "type": 1,
+            "releaseDate": 1703559914502
+          }
+        ],
+        "catalogs": []
+      },
+      {
+        "catalogId": 128,
+        "parentCatalogId": null,
+        "icon": "https://public.bnbstatic.com/image/cms/content/body/202505/f3881542ca77a32715dca40926277add.png",
+        "catalogName": "Crypto Airdrop",
+        "description": null,
+        "catalogType": 1,
+        "total": 48,
+        "articles": [
+          {
+            "id": 145471,
+            "code": "6c9ca64a94064973a273328edc99019a",
+            "title": "Binance Completes Second Round of Terra (LUNA) Airdrop Distribution to Terra Classic (LUNC) and TerraClassicUSD (USTC) Holders",
+            "type": 1,
+            "releaseDate": 1671678019660
+          },
+          {
+            "id": 142704,
+            "code": "56a05e56e1f441d9b11865ca97fc62fd",
+            "title": "Binance Completes 15th Round of APENFT (NFT) Airdrop Distribution to TRON (TRX), BitTorrent OLD (BTTOLD), BitTorrent (BTTC), JUST (JST), and WINkLink (WIN) Holders",
+            "type": 1,
+            "releaseDate": 1669345503457
+          },
+          {
+            "id": 140963,
+            "code": "a8ba16c0d502446788da7aa19eb4c2da",
+            "title": "Binance Will Support the pNetwork (PNT) Recovery Plan to Airdrop BNB (BEP20) to pGALA (BEP20) Holders",
+            "type": 1,
+            "releaseDate": 1667883022959
+          },
+          {
+            "id": 123377,
+            "code": "a1f73dfec7854bf9a83c4a268dda305e",
+            "title": "Binance Completes 14th Round of APENFT (NFT) Airdrop Distribution to TRON (TRX), BitTorrent OLD (BTTOLD), BitTorrent (BTTC), JUST (JST), and WINkLink (WIN) Holders",
+            "type": 1,
+            "releaseDate": 1665457503105
+          },
+          {
+            "id": 101289,
+            "code": "14cf3c58a62e4dcc9400cc285a960555",
+            "title": "Binance Completes 13th Round of APENFT (NFT) Airdrop Distribution to TRON (TRX), BitTorrent OLD (BTTOLD), BitTorrent (BTTC), JUST (JST), and WINkLink (WIN) Holders",
+            "type": 1,
+            "releaseDate": 1661938203041
+          },
+          {
+            "id": 100824,
+            "code": "d4b2e1f7153c43db94d389715f055823",
+            "title": "Binance Completes the Eighth Round of BEL Airdrop Distribution",
+            "type": 1,
+            "releaseDate": 1661404201452
+          },
+          {
+            "id": 99362,
+            "code": "a09cf8d4c5a946d38ebd443c9e51ea22",
+            "title": "Binance Completes the Twelfth Round of APENFT (NFT) Airdrop Distribution to TRON (TRX), BitTorrent OLD (BTTOLD), BitTorrent (BTTC), JUST (JST), and WINkLink (WIN) Holders",
+            "type": 1,
+            "releaseDate": 1659931377403
+          },
+          {
+            "id": 98126,
+            "code": "661e62a9b62643189d354839c4bd40f8",
+            "title": "Binance Completes the Eleventh Round of APENFT (NFT) Airdrop Distribution to TRON (TRX), BitTorrent OLD (BTTOLD), BitTorrent (BTTC), JUST (JST), and WINkLink (WIN) Holders",
+            "type": 1,
+            "releaseDate": 1658304603875
+          },
+          {
+            "id": 97749,
+            "code": "4468892a6c494657b9f65bb9d546bd7b",
+            "title": "Binance Completes the Origin Dollar Governance (OGV) Airdrop Distribution to Origin Protocol (OGN) Holders",
+            "type": 1,
+            "releaseDate": 1657854012013
+          },
+          {
+            "id": 97258,
+            "code": "169cdbcb76ea4dd5a8e99e13e7ca157b",
+            "title": "Binance Completes the Seventh Round of BEL Airdrop Distribution",
+            "type": 1,
+            "releaseDate": 1657250403959
+          }
+        ],
+        "catalogs": []
+      }
+    ]
+  },
+  "success": true
+}
