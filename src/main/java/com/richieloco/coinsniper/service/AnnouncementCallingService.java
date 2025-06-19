@@ -5,17 +5,15 @@ import com.richieloco.coinsniper.entity.CoinAnnouncementRecord;
 import com.richieloco.coinsniper.entity.ErrorResponseRecord;
 import com.richieloco.coinsniper.ex.ExternalApiException;
 import com.richieloco.coinsniper.model.BinanceApiResponse;
-import com.richieloco.coinsniper.model.BinanceCatalog;
 import com.richieloco.coinsniper.repository.CoinAnnouncementRepository;
 import com.richieloco.coinsniper.repository.ErrorResponseRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
 import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -29,22 +27,32 @@ public class AnnouncementCallingService {
     protected final CoinAnnouncementRepository repository;
     protected final ErrorResponseRepository errorResponseRepository;
     protected final TradeExecutionService tradeExecutionService;
+    protected final WebClient binanceWebClient;
+
+    private static final List<String> USER_AGENTS = List.of(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+            "Mozilla/5.0 (X11; Linux x86_64)",
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 16_4 like Mac OS X)",
+            "Mozilla/5.0 (Windows NT 10.0; rv:115.0) Gecko/20100101 Firefox/115.0"
+    );
+
 
     public static final String UNKNOWN_COIN = "UNKNOWN";
     private static final Set<String> ALLOWED_CATALOGS = Set.of("New Cryptocurrency Listing", "Delisting");
 
-    private final WebClient webClient = WebClient.create();
-
     public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
-        URI uri = UriComponentsBuilder.fromUriString(config.getApi().getBinance().getAnnouncement().getBaseUrl())
-                .queryParam("type", type)
-                .queryParam("pageNo", pageNo)
-                .queryParam("pageSize", pageSize)
-                .build()
-                .toUri();
 
-        return webClient.get()
-                .uri(uri)
+        String userAgent = USER_AGENTS.get(new Random().nextInt(USER_AGENTS.size()));
+
+
+        return binanceWebClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .queryParam("type", type)
+                        .queryParam("pageNo", pageNo)
+                        .queryParam("pageSize", pageSize)
+                        .build())
+                .header(HttpHeaders.USER_AGENT, userAgent) //FIXME hack...
                 .retrieve()
                 .onStatus(
                         status -> status.is4xxClientError() || status.is5xxServerError(),
@@ -69,28 +77,25 @@ public class AnnouncementCallingService {
 
                     return Flux.fromIterable(symbols)
                             .filter(symbol -> !UNKNOWN_COIN.equalsIgnoreCase(symbol))
-                            .flatMap(symbol -> {
-                                // Check if record already exists
-                                return repository.findByCoinSymbolAndAnnouncedAt(symbol, announcedAt)
-                                        .hasElement()
-                                        .flatMapMany(exists -> {
-                                            if (exists) {
-                                                return Flux.empty();
-                                            } else {
-                                                CoinAnnouncementRecord record = CoinAnnouncementRecord.builder()
-                                                        .title(article.getTitle())
-                                                        .coinSymbol(symbol)
-                                                        .announcedAt(announcedAt)
-                                                        .delisting(isDelisting)
-                                                        .build();
+                            .flatMap(symbol ->
+                                    repository.findByCoinSymbolAndAnnouncedAt(symbol, announcedAt)
+                                            .hasElement()
+                                            .flatMapMany(exists -> {
+                                                if (exists) {
+                                                    return Flux.empty();
+                                                } else {
+                                                    CoinAnnouncementRecord record = CoinAnnouncementRecord.builder()
+                                                            .title(article.getTitle())
+                                                            .coinSymbol(symbol)
+                                                            .announcedAt(announcedAt)
+                                                            .delisting(isDelisting)
+                                                            .build();
 
-                                                return repository.save(record)
-                                                        .flatMap(saved -> tradeExecutionService.evaluateAndTrade(saved).thenReturn(saved))
-                                                        .flux();
-                                            }
-                                        });
-
-                            });
+                                                    return repository.save(record)
+                                                            .flatMap(saved -> tradeExecutionService.evaluateAndTrade(saved).thenReturn(saved))
+                                                            .flux();
+                                                }
+                                            }));
                 })
                 .onErrorResume(ExternalApiException.class, ex -> {
                     ErrorResponseRecord error = ErrorResponseRecord.builder()

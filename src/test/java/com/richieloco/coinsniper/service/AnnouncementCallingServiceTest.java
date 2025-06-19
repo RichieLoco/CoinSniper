@@ -1,6 +1,7 @@
 package com.richieloco.coinsniper.service;
 
 import com.richieloco.coinsniper.config.CoinSniperConfig;
+import com.richieloco.coinsniper.config.WebClientConfig;
 import com.richieloco.coinsniper.entity.CoinAnnouncementRecord;
 import com.richieloco.coinsniper.entity.ErrorResponseRecord;
 import com.richieloco.coinsniper.entity.TradeDecisionRecord;
@@ -10,6 +11,7 @@ import com.richieloco.coinsniper.repository.ErrorResponseRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -26,6 +28,7 @@ public class AnnouncementCallingServiceTest {
     protected CoinSniperConfig config;
     protected TradeExecutionService tradeExecutionService;
     protected AnnouncementCallingService service;
+    protected WebClient webClient;
 
     @BeforeEach
     public void setUp() {
@@ -33,7 +36,9 @@ public class AnnouncementCallingServiceTest {
         errorRepository = mock(ErrorResponseRepository.class);
         config = mock(CoinSniperConfig.class);
         tradeExecutionService = mock(TradeExecutionService.class);
+        webClient = mock(WebClient.class); // Add this line
     }
+
 
     @Test
     public void testPollBinanceAnnouncements_isSuccessful() {
@@ -57,7 +62,7 @@ public class AnnouncementCallingServiceTest {
         when(announcementRepository.save(any())).thenReturn(Mono.just(expectedRecord));
         when(tradeExecutionService.evaluateAndTrade(any())).thenReturn(Mono.just(mock(TradeDecisionRecord.class)));
 
-        service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService) {
+        service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService, webClient) {
             public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
                 return Flux.just(expectedRecord).flatMap(announcementRepository::save);
             }
@@ -81,7 +86,7 @@ public class AnnouncementCallingServiceTest {
         when(config.getApi()).thenReturn(api);
         when(errorRepository.save(any())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
-        service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService) {
+        service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService, webClient) {
             public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
                 return Flux.<CoinAnnouncementRecord>error(new ExternalApiException("Simulated error", 500))
                         .onErrorResume(ExternalApiException.class, ex -> {
@@ -129,7 +134,7 @@ public class AnnouncementCallingServiceTest {
         when(announcementRepository.save(any())).thenReturn(Mono.just(savedRecord));
         when(tradeExecutionService.evaluateAndTrade(any())).thenReturn(Mono.just(mock(TradeDecisionRecord.class)));
 
-        service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService) {
+        service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService, webClient) {
             @Override
             public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
                 return announcementRepository.save(savedRecord)
@@ -164,7 +169,7 @@ public class AnnouncementCallingServiceTest {
         when(announcementRepository.save(any())).thenReturn(Mono.just(savedRecord));
         when(tradeExecutionService.evaluateAndTrade(any())).thenReturn(Mono.error(new RuntimeException("Trade failed")));
 
-        service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService) {
+        service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService, webClient) {
             @Override
             public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
                 return announcementRepository.save(savedRecord)
@@ -196,7 +201,7 @@ public class AnnouncementCallingServiceTest {
         api.setBinance(binance);
         when(config.getApi()).thenReturn(api);
 
-        service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService) {
+        service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService, webClient) {
             @Override
             public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
                 return Flux.just(record1, record2).flatMap(rec -> announcementRepository.save(rec)

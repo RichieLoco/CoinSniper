@@ -55,7 +55,7 @@ coin-sniper:
       - "USD"
   announcement-polling:
     enabled: true
-    interval-seconds: 30
+    interval-seconds: 60
   api:
     binance:
       announcement:
