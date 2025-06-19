@@ -146,6 +146,12 @@ To view test coverage (if JaCoCo is configured):
 open target/site/jacoco/index.html
 ```
 
+To run integration tests (e.g. classes in com.richieloco.coinsniper.it), use the integration-tests Maven profile:
+
+```bash
+./mvnw verify -Pintegration-tests
+```
+
 Notable test coverage includes:
 
 - `AnnouncementCallingServiceTest` ➡️ Mocked and real failure scenarios
