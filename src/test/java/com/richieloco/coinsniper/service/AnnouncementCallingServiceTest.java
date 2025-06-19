@@ -1,7 +1,6 @@
 package com.richieloco.coinsniper.service;
 
 import com.richieloco.coinsniper.config.CoinSniperConfig;
-import com.richieloco.coinsniper.config.WebClientConfig;
 import com.richieloco.coinsniper.entity.CoinAnnouncementRecord;
 import com.richieloco.coinsniper.entity.ErrorResponseRecord;
 import com.richieloco.coinsniper.entity.TradeDecisionRecord;
@@ -36,9 +35,8 @@ public class AnnouncementCallingServiceTest {
         errorRepository = mock(ErrorResponseRepository.class);
         config = mock(CoinSniperConfig.class);
         tradeExecutionService = mock(TradeExecutionService.class);
-        webClient = mock(WebClient.class); // Add this line
+        webClient = mock(WebClient.class);
     }
-
 
     @Test
     public void testPollBinanceAnnouncements_isSuccessful() {

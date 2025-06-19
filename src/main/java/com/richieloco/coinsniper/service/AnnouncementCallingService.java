@@ -37,22 +37,22 @@ public class AnnouncementCallingService {
             "Mozilla/5.0 (Windows NT 10.0; rv:115.0) Gecko/20100101 Firefox/115.0"
     );
 
-
     public static final String UNKNOWN_COIN = "UNKNOWN";
     private static final Set<String> ALLOWED_CATALOGS = Set.of("New Cryptocurrency Listing", "Delisting");
 
     public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
 
         String userAgent = USER_AGENTS.get(new Random().nextInt(USER_AGENTS.size()));
-
-
         return binanceWebClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .queryParam("type", type)
                         .queryParam("pageNo", pageNo)
                         .queryParam("pageSize", pageSize)
                         .build())
-                .header(HttpHeaders.USER_AGENT, userAgent) //FIXME hack...
+                // FIXME... adding below headers in an attempt for bapi assuming browser caller(!!)
+                .header(HttpHeaders.USER_AGENT, userAgent)
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.9")
+                .header(HttpHeaders.ACCEPT, "application/json")
                 .retrieve()
                 .onStatus(
                         status -> status.is4xxClientError() || status.is5xxServerError(),
