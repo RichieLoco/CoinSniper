@@ -8,6 +8,7 @@ import com.richieloco.coinsniper.model.BinanceApiResponse;
 import com.richieloco.coinsniper.repository.CoinAnnouncementRepository;
 import com.richieloco.coinsniper.repository.ErrorResponseRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,6 +20,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AnnouncementCallingService {
@@ -41,15 +43,14 @@ public class AnnouncementCallingService {
     private static final Set<String> ALLOWED_CATALOGS = Set.of("New Cryptocurrency Listing", "Delisting");
 
     public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
-
         String userAgent = USER_AGENTS.get(new Random().nextInt(USER_AGENTS.size()));
+
         return binanceWebClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .queryParam("type", type)
                         .queryParam("pageNo", pageNo)
                         .queryParam("pageSize", pageSize)
                         .build())
-                // FIXME... adding below headers in an attempt for bapi assuming browser caller(!!)
                 .header(HttpHeaders.USER_AGENT, userAgent)
                 .header(HttpHeaders.ACCEPT_LANGUAGE, "en-US,en;q=0.9")
                 .header(HttpHeaders.ACCEPT, "application/json")
@@ -71,9 +72,18 @@ public class AnnouncementCallingService {
                 .flatMap(entry -> {
                     var article = entry.getKey();
                     var catalogName = entry.getValue();
+                    Instant announcedAt = Instant.ofEpochMilli(article.getReleaseDate());
+
+                    int intervalSeconds = config.getAnnouncementPolling().getIntervalSeconds();
+                    Instant announcedAtCutoff = Instant.now().minusSeconds(intervalSeconds);
+
+                    if (announcedAt.isBefore(announcedAtCutoff)) {
+                        log.debug("⏱ Announcement date/time is older than {} seconds... Skipping further processing of announcement '{}'...", intervalSeconds, article.getTitle());
+                        return Flux.empty();
+                    }
+
                     List<String> symbols = extractSymbolsFromTitle(article.getTitle());
                     boolean isDelisting = isDelisting(article.getTitle(), catalogName);
-                    Instant announcedAt = Instant.ofEpochMilli(article.getReleaseDate());
 
                     return Flux.fromIterable(symbols)
                             .filter(symbol -> !UNKNOWN_COIN.equalsIgnoreCase(symbol))
@@ -82,6 +92,7 @@ public class AnnouncementCallingService {
                                             .hasElement()
                                             .flatMapMany(exists -> {
                                                 if (exists) {
+                                                    log.debug("🔁 Skipping '{}': already exists in DB for symbol '{}' at {}...", article.getTitle(), symbol, announcedAt);
                                                     return Flux.empty();
                                                 } else {
                                                     CoinAnnouncementRecord record = CoinAnnouncementRecord.builder()

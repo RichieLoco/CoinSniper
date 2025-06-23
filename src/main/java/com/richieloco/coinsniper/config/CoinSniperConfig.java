@@ -13,11 +13,18 @@ import java.util.Map;
 public class CoinSniperConfig {
     private Supported supported;
     private Api api;
+    private AnnouncementPolling announcementPolling;
 
     @Data
     public static class Supported {
         private List<String> exchanges;
         private List<String> stableCoins;
+    }
+
+    @Data
+    public static class AnnouncementPolling {
+        private boolean enabled;
+        private int intervalSeconds;
     }
 
     @Data
