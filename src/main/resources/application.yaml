@@ -2,6 +2,11 @@ server:
   port: 8080
 
 spring:
+  security:
+    user:
+      name: admin
+      password: changeme
+
   ai:
     openai:
       api-key: ${OPENAI_KEY}
@@ -54,7 +59,7 @@ coin-sniper:
       - "USDC"
       - "USD"
   announcement-polling:
-    enabled: true
+    enabled: false
     interval-seconds: 60
   api:
     binance:
