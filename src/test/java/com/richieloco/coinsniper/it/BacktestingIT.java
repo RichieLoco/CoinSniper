@@ -15,7 +15,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.Instant;
@@ -24,14 +23,13 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
-@ActiveProfiles("test")
-@Import({
-        NoSecurityTestConfig.class,
-        BacktestingIntegrationTest.TestMockConfig.class
-})
 @SpringBootTest
 @AutoConfigureWebTestClient
-public class BacktestingIntegrationTest {
+@Import({
+        NoSecurityTestConfig.class,
+        BacktestingIT.TestMockConfig.class
+})
+public class BacktestingIT {
 
     @Autowired
     private WebTestClient webTestClient;

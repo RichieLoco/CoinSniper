@@ -17,7 +17,7 @@ import static org.mockito.Mockito.*;
 public class CoinSniperMockTestConfig {
 
     @Bean
-    public WebClient webClient() {
+    public WebClient testWebClient() {
         return WebClient.create();
     }
 

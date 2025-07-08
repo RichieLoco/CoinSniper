@@ -4,6 +4,8 @@ import com.richieloco.coinsniper.config.NoSecurityTestConfig;
 import com.richieloco.coinsniper.entity.CoinAnnouncementRecord;
 import com.richieloco.coinsniper.entity.TradeDecisionRecord;
 import com.richieloco.coinsniper.service.TradeExecutionService;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -11,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -26,20 +27,19 @@ import static org.springframework.web.reactive.function.client.ClientResponse.cr
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
-@Import({NoSecurityTestConfig.class, AnnouncementPollingIntegrationTest.MockWebClientConfig.class})
-@ActiveProfiles("test")
-public class AnnouncementPollingIntegrationTest {
+@Import({NoSecurityTestConfig.class, AnnouncementPollingIT.MockWebClientConfig.class})
+public class AnnouncementPollingIT {
 
     @Autowired
-    private WebTestClient client;
+    private WebTestClient webTestClient;
 
     @Test
     void testStartStopStatus() {
-        client.post().uri("/api/announcements/poll/start")
+        webTestClient.post().uri("/api/announcements/poll/start")
                 .exchange()
                 .expectStatus().isOk();
 
-        client.get().uri("/api/announcements/poll/status")
+        webTestClient.get().uri("/api/announcements/poll/status")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(String.class)
@@ -48,11 +48,11 @@ public class AnnouncementPollingIntegrationTest {
                     assert response != null && response.contains("active");
                 });
 
-        client.post().uri("/api/announcements/poll/stop")
+        webTestClient.post().uri("/api/announcements/poll/stop")
                 .exchange()
                 .expectStatus().isOk();
 
-        client.get().uri("/api/announcements/poll/status")
+        webTestClient.get().uri("/api/announcements/poll/status")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(String.class)
@@ -64,10 +64,10 @@ public class AnnouncementPollingIntegrationTest {
 
     @Test
     void testDoubleStartDoesNotError() {
-        client.post().uri("/api/announcements/poll/start").exchange().expectStatus().isOk();
-        client.post().uri("/api/announcements/poll/start").exchange().expectStatus().isOk();
+        webTestClient.post().uri("/api/announcements/poll/start").exchange().expectStatus().isOk();
+        webTestClient.post().uri("/api/announcements/poll/start").exchange().expectStatus().isOk();
 
-        client.get().uri("/api/announcements/poll/status")
+        webTestClient.get().uri("/api/announcements/poll/status")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(String.class)
@@ -79,11 +79,11 @@ public class AnnouncementPollingIntegrationTest {
 
     @Test
     void testDoubleStopDoesNotError() {
-        client.post().uri("/api/announcements/poll/start").exchange().expectStatus().isOk();
-        client.post().uri("/api/announcements/poll/stop").exchange().expectStatus().isOk();
-        client.post().uri("/api/announcements/poll/stop").exchange().expectStatus().isOk();
+        webTestClient.post().uri("/api/announcements/poll/start").exchange().expectStatus().isOk();
+        webTestClient.post().uri("/api/announcements/poll/stop").exchange().expectStatus().isOk();
+        webTestClient.post().uri("/api/announcements/poll/stop").exchange().expectStatus().isOk();
 
-        client.get().uri("/api/announcements/poll/status")
+        webTestClient.get().uri("/api/announcements/poll/status")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(String.class)
@@ -95,7 +95,7 @@ public class AnnouncementPollingIntegrationTest {
 
     @Test
     void testStatusBeforeStartShouldBeStopped() {
-        client.get().uri("/api/announcements/poll/status")
+        webTestClient.get().uri("/api/announcements/poll/status")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(String.class)
@@ -114,7 +114,7 @@ public class AnnouncementPollingIntegrationTest {
                 .delisting(false)
                 .build();
 
-        client.post()
+        webTestClient.post()
                 .uri("/api/trade/execute")
                 .bodyValue(announcement)
                 .exchange()
@@ -128,7 +128,7 @@ public class AnnouncementPollingIntegrationTest {
     static class MockWebClientConfig {
 
         @Bean
-        public WebClient webClient() {
+        public WebClient announcementPollingWebClient() {
             ExchangeFunction exchangeFunction = request ->
                     Mono.just(create(OK)
                             .header("Content-Type", APPLICATION_JSON_VALUE)

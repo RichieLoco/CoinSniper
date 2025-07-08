@@ -1,6 +1,8 @@
 package com.richieloco.coinsniper.it;
 
 import com.richieloco.coinsniper.config.NoSecurityTestConfig;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -8,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -25,8 +26,7 @@ import static org.springframework.web.reactive.function.client.ClientResponse.cr
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @Import({NoSecurityTestConfig.class})
-@ActiveProfiles("test")
-public class AnnouncementCallingIntegrationTest {
+public class AnnouncementCallingIT {
 
     @Autowired
     private WebTestClient webTestClient;
@@ -106,7 +106,7 @@ public class AnnouncementCallingIntegrationTest {
     static class MockWebClientConfig {
 
         @Bean
-        public WebClient webClient() {
+        public WebClient announcementCallingWebClient() {
             ExchangeFunction exchangeFunction = request ->
                     Mono.just(create(OK)
                             .header("Content-Type", APPLICATION_JSON_VALUE)

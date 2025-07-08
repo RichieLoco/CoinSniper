@@ -157,9 +157,23 @@
 			<build>
 				<plugins>
 					<plugin>
+						<!-- Failsafe for integration tests -->
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-failsafe-plugin</artifactId>
 						<version>3.5.3</version>
+						<executions>
+							<execution>
+								<id>integration-tests</id>
+								<phase>integration-test</phase>
+								<goals>
+									<goal>integration-test</goal>
+									<goal>verify</goal>
+								</goals>
+								<configuration>
+									<groups>integration</groups>
+								</configuration>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>
@@ -196,34 +210,8 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.5.3</version>
 				<configuration>
-					<includes>
-						<include>**/*Test.java</include>
-					</includes>
-					<excludes>
-						<exclude>**/it/**</exclude>
-					</excludes>
+					<excludedGroups>integration</excludedGroups>
 				</configuration>
-			</plugin>
-			<!-- Failsafe for integration tests -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>3.5.3</version>
-				<executions>
-					<execution>
-						<id>integration-tests</id>
-						<phase>integration-test</phase>
-						<goals>
-							<goal>integration-test</goal>
-							<goal>verify</goal>
-						</goals>
-						<configuration>
-							<includes>
-								<include>**/it/**/*.java</include>
-							</includes>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
