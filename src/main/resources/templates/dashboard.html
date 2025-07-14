@@ -2,12 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Coin Sniper Dashboard</title>
+    <meta charset="UTF-8">
 </head>
 <body>
 
 <p><a href="/swagger-ui.html" target="_blank">View API Documentation</a></p>
 <br/>
 <br/>
+
 <h1>Recent Trades</h1>
 
 <p><strong>Dashboard Settings:</strong></p>
@@ -17,10 +19,17 @@
     <li>Default Exchange: <span th:text="${dashboard.defaultExchange}">Binance</span></li>
 </ul>
 
-<table>
+<table border="1">
+    <thead>
     <tr>
-        <th>Coin</th><th>Exchange</th><th>Risk Score</th><th>Executed</th><th>Time</th>
+        <th>Coin</th>
+        <th>Exchange</th>
+        <th>Risk Score</th>
+        <th>Executed</th>
+        <th>Time</th>
     </tr>
+    </thead>
+    <tbody>
     <tr th:each="trade : ${trades}">
         <td th:text="${trade.coinSymbol}"></td>
         <td th:text="${trade.exchange}"></td>
@@ -28,6 +37,81 @@
         <td th:text="${trade.tradeExecuted}"></td>
         <td th:text="${trade.timestamp}"></td>
     </tr>
+    </tbody>
 </table>
+
+<br/>
+<h1>Coin Announcements</h1>
+<table border="1">
+    <thead>
+    <tr>
+        <th>Coin Symbol</th><th>Title</th><th>Announced At</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="a : ${announcements}">
+        <td th:text="${a.coinSymbol}"></td>
+        <td th:text="${a.title}"></td>
+        <td th:text="${a.announcedAt}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<br/>
+<h1>Exchange Assessments</h1>
+<table border="1">
+    <thead>
+    <tr>
+        <th>Exchange</th>
+        <th>Coin Listing</th>
+        <th>Risk Score</th>
+        <th>Context</th>
+        <th>Assessed At</th>
+        <th>Volume</th>
+        <th>Liquidity</th>
+        <th>Fees</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="ea : ${assessments}">
+        <td th:text="${ea.exchange}"></td>
+        <td th:text="${ea.coinListing}"></td>
+        <td th:text="${ea.overallRiskScore}"></td>
+        <td th:text="${ea.contextDescription}"></td>
+        <td th:text="${ea.assessedAt}"></td>
+        <td th:text="${ea.tradingVolume}"></td>
+        <td th:text="${ea.liquidity}"></td>
+        <td th:text="${ea.tradingFees}"></td>
+    </tr>
+    </tbody>
+</table>
+
+
+<br/>
+<h1>Error Responses</h1>
+<table border="1">
+    <thead>
+    <tr>
+        <th>Source</th>
+        <th>Status Code</th>
+        <th>Error Message</th>
+        <th>Timestamp</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="er : ${errors}">
+        <td th:text="${er.source}"></td>
+        <td th:text="${er.statusCode}"></td>
+        <td th:text="${er.errorMessage}"></td>
+        <td th:text="${er.timestamp}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<script>
+    // auto-refresh the dashboard every 50 seconds
+    setTimeout(() => window.location.reload(), 5000);
+</script>
+
 </body>
 </html>

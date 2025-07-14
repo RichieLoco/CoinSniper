@@ -28,3 +28,21 @@ CREATE TABLE error_responses (
     status_code INT,
     timestamp TIMESTAMP
 );
+
+DROP TABLE IF EXISTS exchange_assessments;
+
+CREATE TABLE exchange_assessments (
+  id UUID PRIMARY KEY,
+  context_type VARCHAR(255),
+  context_description VARCHAR(255),
+  exchange VARCHAR(255),
+  coin_listing VARCHAR(255),
+  overall_risk_score INT,
+  trading_volume VARCHAR(255),
+  liquidity VARCHAR(255),
+  trading_fees VARCHAR(255),
+  assessed_at TIMESTAMP
+);
+
+-- Add other tables: trade_decision, coin_announcements, error_responses, etc.
+
