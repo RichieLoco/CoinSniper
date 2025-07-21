@@ -70,7 +70,7 @@ public class ExchangeAssessorTest {
     }
 
     @Test
-    public void testAssess_handlesMalformedResponse() {
+    public void testAssess_handlesMalformedResponseWithRuntimeException() {
         String malformedResponse = "Something unexpected with no structure";
         ExchangeSelectorContext context = new ExchangeSelectorContext("Binance", "XYZ", "USDT");
 
@@ -82,9 +82,12 @@ public class ExchangeAssessorTest {
         when(repository.save(any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
 
         StepVerifier.create(assessor.assess(context))
-                .expectNextMatches(result -> result.getExchange() == null || result.getCoinListing() == null)
-                .verifyComplete(); // Should not throw, just parse with missing fields
+                .expectErrorMatches(error ->
+                        error instanceof RuntimeException &&
+                                error.getMessage().contains("Failed to map LLM response"))
+                .verify();
     }
+
 
     @Test
     public void testAssess_handlesNullGeneration() {

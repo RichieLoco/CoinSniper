@@ -7,6 +7,8 @@ import com.richieloco.coinsniper.service.AnnouncementCallingService;
 import com.richieloco.coinsniper.service.AnnouncementPollingScheduler;
 import com.richieloco.coinsniper.service.risk.ExchangeAssessor;
 import com.richieloco.coinsniper.service.risk.context.ExchangeSelectorContext;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -29,6 +31,24 @@ public class CoinSniperMockTestConfig {
     public WebClient testWebClient() {
         return WebClient.create();
     }
+
+    @Bean
+    public ChatModel chatModel() {
+        return mock(ChatModel.class);
+    }
+
+    @Bean
+    public AiPromptConfig aiPromptConfig() {
+        AiPromptConfig config = mock(AiPromptConfig.class);
+        PromptTemplate mockTemplate = mock(PromptTemplate.class);
+        when(mockTemplate.render(anyMap())).thenReturn("Exchange: Binance, Coin Listing: XYZUSDT, Overall Risk Score: 3, Liquidity: HIGH, Trading Volume: MEDIUM, Trading Fees: LOW");
+
+        when(config.exchangeCoinAvailabilityPromptTemplate()).thenReturn(mockTemplate);
+        when(config.exchangeCoinRiskPromptTemplate()).thenReturn(mockTemplate);
+
+        return config;
+    }
+
 
     @Bean
     public CoinSniperConfig coinSniperConfig() {

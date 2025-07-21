@@ -1,8 +1,9 @@
 package com.richieloco.coinsniper.service.risk;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.richieloco.coinsniper.config.AiPromptConfig;
 import com.richieloco.coinsniper.entity.ExchangeAssessmentRecord;
-import com.richieloco.coinsniper.entity.RiskLevel;
+import com.richieloco.coinsniper.model.ExchangeAssessmentResponse;
 import com.richieloco.coinsniper.repository.ExchangeAssessmentRepository;
 import com.richieloco.coinsniper.service.risk.context.BaseAssessor;
 import com.richieloco.coinsniper.service.risk.context.ExchangeSelectorContext;
@@ -12,13 +13,14 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.UUID;
 
 @Component
 public class ExchangeAssessor extends BaseAssessor<ExchangeSelectorContext, ExchangeAssessmentRecord> {
 
     private final ExchangeAssessmentRepository repository;
     private final AiPromptConfig aiPromptConfig;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ExchangeAssessor(ChatModel chatModel, ExchangeAssessmentRepository repository, AiPromptConfig aiPromptConfig) {
         super(chatModel);
@@ -44,40 +46,34 @@ public class ExchangeAssessor extends BaseAssessor<ExchangeSelectorContext, Exch
 
     @Override
     protected ExchangeAssessmentRecord parseAssessmentOutput(ExchangeSelectorContext context, String response) {
-        String[] parts = response.split(",\\s*");
-        String exchange = null;
-        String coinListing = null;
-        int overallRiskScore = 0;
-        RiskLevel liquidity = null;
-        RiskLevel tradingVolume = null;
-        RiskLevel tradingFees = null;
-
-        for (String part : parts) {
-            String[] keyValue = part.split(":\\s*", 2);
-            if (keyValue.length < 2) continue;
-
-            switch (keyValue[0]) {
-                case "Exchange" -> exchange = keyValue[1];
-                case "Coin Listing" -> coinListing = keyValue[1];
-                case "Overall Risk Score" -> overallRiskScore = Integer.parseInt(keyValue[1]);
-                case "Liquidity" -> liquidity = RiskLevel.valueOf(keyValue[1]);
-                case "Trading Volume" -> tradingVolume = RiskLevel.valueOf(keyValue[1]);
-                case "Trading Fees" -> tradingFees = RiskLevel.valueOf(keyValue[1]);
-            }
+        // Check if response contains at least one colon — minimal requirement for key:value pairs
+        if (!response.contains(":")) {
+            throw new RuntimeException("Failed to map LLM response: " + response);
         }
 
-        return ExchangeAssessmentRecord.builder()
-                .contextType(contextType())
-                .contextDescription(context.toString())
-                .exchange(exchange)
-                .coinListing(coinListing)
-                .overallRiskScore(overallRiskScore)
-                .liquidity(String.valueOf(liquidity))
-                .tradingVolume(String.valueOf(tradingVolume))
-                .tradingFees(String.valueOf(tradingFees))
-                .assessedAt(Instant.now())
-                .build();
+        // Convert LLM string to JSON-style format first (if needed)
+        String jsonLike = response.replaceAll("(\\w[\\w ]*): ([\\w\\d .-]+)", "\"$1\": \"$2\"")
+                                  .replaceAll(",\\s*", ", ");
+        jsonLike = "{" + jsonLike + "}";
+        try {
+            ExchangeAssessmentResponse dto = objectMapper.readValue(jsonLike, ExchangeAssessmentResponse.class);
+
+            return ExchangeAssessmentRecord.builder()
+                    .contextType(contextType())
+                    .contextDescription(context.toString())
+                    .exchange(dto.exchange())
+                    .coinListing(dto.coinListing())
+                    .overallRiskScore(dto.overallRiskScore())
+                    .liquidity(dto.liquidity())
+                    .tradingVolume(dto.tradingVolume())
+                    .tradingFees(dto.tradingFees())
+                    .assessedAt(Instant.now())
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to map LLM response: " + response, e);
+        }
     }
+
 
     @Override
     protected void logAssessment(ExchangeSelectorContext context, ExchangeAssessmentRecord record) {

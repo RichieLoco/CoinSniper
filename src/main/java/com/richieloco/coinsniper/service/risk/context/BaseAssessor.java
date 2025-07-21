@@ -30,18 +30,15 @@ public abstract class BaseAssessor<T, R> implements AssessmentFunction<T, R> {
     public Mono<R> assess(T context) {
         return Mono.fromCallable(() -> {
             Prompt prompt = new Prompt(List.of(new UserMessage(generatePrompt(context))));
+            ChatResponse response = chatModel.call(prompt);
 
-            ChatResponse chatResponse = chatModel.call(prompt);
-
-            List<Generation> generations = chatResponse.getResults();
+            List<Generation> generations = response.getResults();
             if (generations == null || generations.isEmpty()) {
                 throw new IllegalStateException("No generations returned by model");
             }
 
-            String content = generations.getFirst().getOutput().getText();
-            R result = parseAssessmentOutput(context, content.trim());
-            logAssessment(context, result);
-            return result;
-        }).subscribeOn(Schedulers.boundedElastic()); // offload to reactive thread
+            // Structured output deserialization
+            return parseAssessmentOutput(context, generations.getFirst().getOutput().getText());
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 }

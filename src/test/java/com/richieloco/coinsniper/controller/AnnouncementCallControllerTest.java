@@ -15,7 +15,7 @@ import java.time.Instant;
 
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.main.allow-bean-definition-overriding=true")
 @Import(CoinSniperMockTestConfig.class)
 public class AnnouncementCallControllerTest {
 
