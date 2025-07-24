@@ -33,11 +33,6 @@ public class CoinSniperMockTestConfig {
     }
 
     @Bean
-    public ChatModel chatModel() {
-        return mock(ChatModel.class);
-    }
-
-    @Bean
     public AiPromptConfig aiPromptConfig() {
         AiPromptConfig config = mock(AiPromptConfig.class);
         PromptTemplate mockTemplate = mock(PromptTemplate.class);
