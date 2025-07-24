@@ -3,15 +3,66 @@
 <head>
     <title>Coin Sniper Dashboard</title>
     <meta charset="UTF-8">
+
+    <style>
+        body {
+            background-color: #e8f5e9; /* light green */
+            font-family: Arial, sans-serif;
+            color: #333;
+            margin: 20px;
+        }
+
+        h1, h2 {
+            color: #2e7d32; /* darker green */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            background-color: #ffffff;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #bdbdbd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #c8e6c9; /* light green header */
+            font-weight: bold;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+
+        a {
+            color: #2e7d32;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 
-<p><a href="/swagger-ui.html" target="_blank">View API Documentation</a></p>
+<h1>Coin Sniper Dashboard</h1>
+
+<h2>OpenApi 3.0 Spec</h2>
+<p><a href="/webjars/swagger-ui/index.html" target="_blank">View API Documentation</a></p>
 <br/>
 <br/>
 
-<h1>Recent Trades</h1>
-
+<h2>Recent Trades</h2>
 <p><strong>Dashboard Settings:</strong></p>
 <ul>
     <li>Enabled: <span th:text="${dashboard.enabled}">true</span></li>
@@ -41,7 +92,7 @@
 </table>
 
 <br/>
-<h1>Coin Announcements</h1>
+<h2>Coin Announcements</h2>
 <table border="1">
     <thead>
     <tr>
@@ -58,7 +109,7 @@
 </table>
 
 <br/>
-<h1>Exchange Assessments</h1>
+<h2>Exchange Assessments</h2>
 <table border="1">
     <thead>
     <tr>
@@ -88,7 +139,7 @@
 
 
 <br/>
-<h1>Error Responses</h1>
+<h2>Error Responses</h2>
 <table border="1">
     <thead>
     <tr>
@@ -109,8 +160,8 @@
 </table>
 
 <script>
-    // auto-refresh the dashboard every 50 seconds
-    setTimeout(() => window.location.reload(), 5000);
+    // auto-refresh the dashboard every 30 seconds
+    setTimeout(() => window.location.reload(), 30000);
 </script>
 
 </body>

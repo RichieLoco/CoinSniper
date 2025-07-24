@@ -4,6 +4,8 @@
 * Need to check that data persists and can be viewed in tables when app runs = DONE
 * Need to check that thymeleaf view and other endpoints displays = DONE
 * Refine ChatGPT risk management? Use MCP? = DONE, MCP-like json format as MCP not supported in Spring AI yet...
+* Finish up dashboard page = DONE
+* Use OpenAPI spec as means to test service calls
 * Need to start thinking about mock service for new announcements
 * ... and new trades with the result of position (successful or not, being logged)
 * Need to start testing these mock services and ensuring DJL model is trained
