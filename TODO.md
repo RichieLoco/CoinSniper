@@ -12,7 +12,3 @@
 * Finally, need to factor this model into future decision-making
 
 Currently...
-1. Favicon?
-2. Style login page?
-3. Ensure backtesting endpoint is picked up by swagger
-   - Same for all DB schemas...
