@@ -56,7 +56,7 @@ public class DashboardIT {
                         ExchangeAssessmentRecord.builder()
                                 .coinListing("XYZUSDT")
                                 .exchange("Binance")
-                                .overallRiskScore(3)
+                                .overallRiskScore("MEDIUM")
                                 .assessedAt(now)
                                 .build()
                 )

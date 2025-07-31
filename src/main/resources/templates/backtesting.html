@@ -2,12 +2,134 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Backtesting Results</title>
+    <meta charset="UTF-8">
+
+    <!-- 🪙 Emoji favicon as SVG -->
+    <link rel="icon" href="data:image/svg+xml,
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+      <text y='0.9em' font-size='90'>🪙</text>
+    </svg>">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        body {
+            background-color: #e8f5e9; /* light green background */
+            font-family: Arial, sans-serif;
+            color: #333;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #B59410; /* gold */
+            margin-bottom: 20px;
+        }
+
+        /* Navigation button */
+        .back-button {
+            display: inline-block;
+            background-color: #2e7d32; /* green */
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+        }
+
+        .back-button:hover {
+            background-color: #1b5e20; /* darker green */
+            transform: scale(1.03);
+        }
+
+        /* Card-style containers for sections */
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        /* Chart section styling */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        /* Table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        th, td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #c8e6c9; /* light green header */
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9fbe7; /* subtle alternate color */
+        }
+
+        tr:hover {
+            background-color: #f1f8e9; /* highlight on hover */
+            transition: background-color 0.2s ease-in-out;
+        }
+    </style>
 </head>
 <body>
+
 <h1>AI Backtesting Results</h1>
 
-<canvas id="riskChart" width="800" height="400"></canvas>
+<!-- Back to Dashboard Button -->
+<a href="/dashboard" class="back-button">🏠 Back to Dashboard</a>
+
+<div class="card">
+    <div class="chart-container">
+        <canvas id="riskChart"></canvas>
+    </div>
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+        <tr>
+            <th>Coin</th>
+            <th>Exchange</th>
+            <th>Risk Score</th>
+            <th>Executed</th>
+            <th>Time</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="trade : ${history}">
+            <td th:text="${trade.coinSymbol}"></td>
+            <td th:text="${trade.exchange}"></td>
+            <td th:text="${trade.riskScore}"></td>
+            <td th:text="${trade.tradeExecuted}"></td>
+            <td th:text="${trade.timestamp}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
 
 <script th:inline="javascript">
     const tradeData = [[${history}]];
@@ -22,32 +144,28 @@
             datasets: [{
                 label: 'Risk Score',
                 data: data,
-                backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderRadius: 6
             }]
         },
         options: {
             responsive: true,
+            plugins: {
+                legend: { labels: { color: '#2e7d32' } }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 10
+                    max: 10,
+                    ticks: { color: '#2e7d32' }
+                },
+                x: {
+                    ticks: { color: '#2e7d32' }
                 }
             }
         }
     });
 </script>
 
-<table>
-    <tr>
-        <th>Coin</th><th>Exchange</th><th>Risk Score</th><th>Executed</th><th>Time</th>
-    </tr>
-    <tr th:each="trade : ${history}">
-        <td th:text="${trade.coinSymbol}"></td>
-        <td th:text="${trade.exchange}"></td>
-        <td th:text="${trade.riskScore}"></td>
-        <td th:text="${trade.tradeExecuted}"></td>
-        <td th:text="${trade.timestamp}"></td>
-    </tr>
-</table>
 </body>
 </html>

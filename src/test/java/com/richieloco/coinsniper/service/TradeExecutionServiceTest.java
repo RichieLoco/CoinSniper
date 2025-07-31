@@ -45,7 +45,7 @@ public class TradeExecutionServiceTest {
         ExchangeAssessmentRecord assessment = ExchangeAssessmentRecord.builder()
                 .exchange("Binance")
                 .coinListing("XYZUSDT")
-                .overallRiskScore(3)
+                .overallRiskScore("MEDIUM")
                 .liquidity(RiskLevel.Medium.name())
                 .tradingFees(RiskLevel.Low.name())
                 .tradingVolume(RiskLevel.Medium.name())
@@ -74,7 +74,7 @@ public class TradeExecutionServiceTest {
         ExchangeAssessmentRecord unsupportedAssessment = ExchangeAssessmentRecord.builder()
                 .exchange("UnknownExchange")
                 .coinListing("XYZUSDT")
-                .overallRiskScore(3)
+                .overallRiskScore("MEDIUM")
                 .assessedAt(Instant.now())
                 .contextType("Exchange")
                 .build();

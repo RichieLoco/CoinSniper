@@ -48,7 +48,7 @@ public class ExchangeAssessorTest {
 
     @Test
     public void testAssess_returnsParsedAssessment() {
-        String aiResponse = "Exchange: Binance, Coin Listing: XYZUSDT, Overall Risk Score: 3, Liquidity: Low, Trading Volume: Medium, Trading Fees: Low";
+        String aiResponse = "Exchange: Binance, Coin Listing: XYZUSDT, Overall Risk Score: MEDIUM, Liquidity: Low, Trading Volume: Medium, Trading Fees: Low";
         ExchangeSelectorContext context = new ExchangeSelectorContext("Binance", "XYZ", "USDT");
 
         AssistantMessage message = new AssistantMessage(aiResponse);
@@ -63,7 +63,7 @@ public class ExchangeAssessorTest {
                     ExchangeAssessmentRecord result = list.get(0); // Or loop over all
                     return result.getExchange().equals("Binance") &&
                             result.getCoinListing().equals("XYZUSDT") &&
-                            result.getOverallRiskScore() == 3 &&
+                            result.getOverallRiskScore().equals("MEDIUM") &&
                             result.getLiquidity().equals(String.valueOf(RiskLevel.Low)) &&
                             result.getTradingVolume().equals(String.valueOf(RiskLevel.Medium)) &&
                             result.getTradingFees().equals(String.valueOf(RiskLevel.Low));
@@ -119,7 +119,7 @@ public class ExchangeAssessorTest {
 
     @Test
     public void testAssess_handlesRepositoryErrorGracefully() {
-        String aiResponse = "Exchange: Binance, Coin Listing: XYZUSDT, Overall Risk Score: 3, Liquidity: Low, Trading Volume: Medium, Trading Fees: Low";
+        String aiResponse = "Exchange: Binance, Coin Listing: XYZUSDT, Overall Risk Score: MEDIUM, Liquidity: Low, Trading Volume: Medium, Trading Fees: Low";
         ExchangeSelectorContext context = new ExchangeSelectorContext("Binance", "XYZ", "USDT");
 
         AssistantMessage message = new AssistantMessage(aiResponse);
@@ -134,7 +134,7 @@ public class ExchangeAssessorTest {
                     ExchangeAssessmentRecord result = list.get(0); // Or loop over all
                     return result.getExchange().equals("Binance") &&
                             result.getCoinListing().equals("XYZUSDT") &&
-                            result.getOverallRiskScore() == 3 &&
+                            result.getOverallRiskScore().equals("MEDIUM") &&
                             result.getLiquidity().equals(String.valueOf(RiskLevel.Low)) &&
                             result.getTradingVolume().equals(String.valueOf(RiskLevel.Medium)) &&
                             result.getTradingFees().equals(String.valueOf(RiskLevel.Low));

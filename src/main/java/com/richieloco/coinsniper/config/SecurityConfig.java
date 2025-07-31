@@ -19,7 +19,7 @@ public class SecurityConfig {
                         .anyExchange().permitAll()
                 )
                 .httpBasic(Customizer.withDefaults())
-                .formLogin(Customizer.withDefaults())
+                .formLogin(form -> form.loginPage("/login"))
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .build();
     }

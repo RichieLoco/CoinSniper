@@ -82,7 +82,7 @@ public class CoinSniperMockTestConfig {
         ExchangeAssessmentRecord record = ExchangeAssessmentRecord.builder()
                 .exchange("Binance")
                 .coinListing("XYZ")
-                .overallRiskScore(3)
+                .overallRiskScore("MEDIUM")
                 .liquidity("HIGH")
                 .tradingVolume("MEDIUM")
                 .tradingFees("LOW")

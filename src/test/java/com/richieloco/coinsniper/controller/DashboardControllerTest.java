@@ -72,7 +72,7 @@ public class DashboardControllerTest {
                 .coinSymbol("BTC").title("BTC Listing").announcedAt(now).build();
 
         ExchangeAssessmentRecord assess = ExchangeAssessmentRecord.builder()
-                .coinListing("BTCUSDT").exchange("Binance").overallRiskScore(3).assessedAt(now).build();
+                .coinListing("BTCUSDT").exchange("Binance").overallRiskScore("MEDIUM").assessedAt(now).build();
 
         ErrorResponseRecord error = ErrorResponseRecord.builder()
                 .id(UUID.randomUUID()).source("Binance").errorMessage("Timeout").statusCode(504).timestamp(now).build();

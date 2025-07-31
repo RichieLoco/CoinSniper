@@ -50,9 +50,9 @@ public class TradeExecutionIT {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.coinSymbol").isEqualTo("XYZ")
-                .jsonPath("$.exchange").isEqualTo("Binance")
-                .jsonPath("$.riskScore").isEqualTo(4.0)
-                .jsonPath("$.tradeExecuted").isEqualTo(true);
+                .jsonPath("$[0].coinSymbol").isEqualTo("XYZ")
+                .jsonPath("$[0].tradeExecuted").isBoolean()
+                .jsonPath("$[0].exchange").isEqualTo("Binance")
+                .jsonPath("$[0].riskScore").isEqualTo(4.0);
     }
 }

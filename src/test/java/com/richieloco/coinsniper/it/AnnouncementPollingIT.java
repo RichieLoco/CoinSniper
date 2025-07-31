@@ -156,8 +156,8 @@ public class AnnouncementPollingIT {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.coinSymbol").isEqualTo("MCK")
-                .jsonPath("$.tradeExecuted").isBoolean();
+                .jsonPath("$[0].coinSymbol").isEqualTo("MCK")
+                .jsonPath("$[0].tradeExecuted").isBoolean();
     }
 
     @TestConfiguration

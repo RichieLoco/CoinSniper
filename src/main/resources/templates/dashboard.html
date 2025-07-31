@@ -4,6 +4,11 @@
     <title>Coin Sniper Dashboard</title>
     <meta charset="UTF-8">
 
+    <link rel="icon" href="data:image/svg+xml,
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+      <text y='0.9em' font-size='90'>🪙</text>
+    </svg>">
+
     <style>
         body {
             background-color: #e8f5e9; /* light green */
@@ -18,7 +23,25 @@
 
         h2 {
             color: #2e7d32; /* darker green */
-            margin-top: 40px;
+        }
+
+        /* Navigation button style */
+        .nav-button {
+            display: inline-block;
+            background-color: #2e7d32; /* green */
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px 0 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+        }
+
+        .nav-button:hover {
+            background-color: #1b5e20; /* darker green */
+            transform: scale(1.03);
         }
 
         table {
@@ -32,21 +55,18 @@
         }
 
         th, td {
-            padding: 12px 14px;
-            border-bottom: 1px solid #e0e0e0;
+            padding: 10px;
+            border-bottom: 1px solid #bdbdbd;
             text-align: left;
-            font-size: 14px;
         }
 
         th {
             background-color: #c8e6c9; /* light green header */
             font-weight: bold;
-            color: #2e7d32;
-            font-size: 15px;
         }
 
         tr:nth-child(even) {
-            background-color: #f9fbe7; /* very light green */
+            background-color: #f9fbe7; /* subtle alternate color */
         }
 
         tr:hover {
@@ -78,12 +98,15 @@
 <h1>Coin Sniper Dashboard</h1>
 
 <h2>OpenApi 3.0 Spec</h2>
-<p><a href="/webjars/swagger-ui/index.html" target="_blank">View API Documentation</a></p>
+<a href="/webjars/swagger-ui/index.html" class="nav-button" target="_blank">📘 View API Documentation</a>
 <br/>
 <h2>OpenAI (Groq) Metrics</h2>
-<p><a href="https://console.groq.com/dashboard/metrics" target="_blank">View Groq Usage Metrics</a></p>
+<a href="https://console.groq.com/dashboard/metrics" class="nav-button" target="_blank">🧠 View Groq Usage Metrics</a>
 <br/>
-<h2>Recent Trades</h2>
+<h2>Backtesting Results</h2>
+<a href="/backtesting" class="nav-button" target="_blank">📊 View Backtesting Results</a>
+<br/>
+<h2>Recent Activity</h2>
 <p><strong>Dashboard Settings:</strong></p>
 <ul>
     <li>Enabled: <span th:text="${dashboard.enabled}">true</span></li>
@@ -91,7 +114,7 @@
     <li>Default Exchange: <span th:text="${dashboard.defaultExchange}">Binance</span></li>
 </ul>
 
-<table border="1">
+<table>
     <thead>
     <tr>
         <th>Coin</th>
@@ -112,9 +135,8 @@
     </tbody>
 </table>
 
-<br/>
 <h2>Coin Announcements</h2>
-<table border="1">
+<table>
     <thead>
     <tr>
         <th>Coin Symbol</th><th>Title</th><th>Announced At</th>
@@ -129,9 +151,8 @@
     </tbody>
 </table>
 
-<br/>
 <h2>Exchange Assessments</h2>
-<table border="1">
+<table>
     <thead>
     <tr>
         <th>Exchange</th>
@@ -158,10 +179,8 @@
     </tbody>
 </table>
 
-
-<br/>
 <h2>Error Responses</h2>
-<table border="1">
+<table>
     <thead>
     <tr>
         <th>Source</th>
