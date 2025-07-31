@@ -1,6 +1,7 @@
 package com.richieloco.coinsniper.service;
 
 import com.richieloco.coinsniper.config.AiPromptConfig;
+import com.richieloco.coinsniper.entity.ExchangeAssessmentRecord;
 import com.richieloco.coinsniper.entity.RiskLevel;
 import com.richieloco.coinsniper.repository.ExchangeAssessmentRepository;
 import com.richieloco.coinsniper.service.risk.ExchangeAssessor;
@@ -58,14 +59,16 @@ public class ExchangeAssessorTest {
         when(repository.save(any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
 
         StepVerifier.create(assessor.assess(context))
-                .expectNextMatches(result ->
-                        result.getExchange().equals("Binance") &&
-                                result.getCoinListing().equals("XYZUSDT") &&
-                                result.getOverallRiskScore() == 3 &&
-                                Objects.equals(result.getLiquidity(), String.valueOf(RiskLevel.Low)) &&
-                                Objects.equals(result.getTradingVolume(), String.valueOf(RiskLevel.Medium)) &&
-                                Objects.equals(result.getTradingFees(), String.valueOf(RiskLevel.Low))
-                )
+                .expectNextMatches(list -> {
+                    ExchangeAssessmentRecord result = list.get(0); // Or loop over all
+                    return result.getExchange().equals("Binance") &&
+                            result.getCoinListing().equals("XYZUSDT") &&
+                            result.getOverallRiskScore() == 3 &&
+                            result.getLiquidity().equals(String.valueOf(RiskLevel.Low)) &&
+                            result.getTradingVolume().equals(String.valueOf(RiskLevel.Medium)) &&
+                            result.getTradingFees().equals(String.valueOf(RiskLevel.Low));
+                })
+
                 .verifyComplete();
     }
 
@@ -127,7 +130,15 @@ public class ExchangeAssessorTest {
         when(repository.save(any())).thenReturn(Mono.error(new RuntimeException("DB Save Failed")));
 
         StepVerifier.create(assessor.assess(context))
-                .expectNextMatches(result -> result.getExchange().equals("Binance"))
+                .expectNextMatches(list -> {
+                    ExchangeAssessmentRecord result = list.get(0); // Or loop over all
+                    return result.getExchange().equals("Binance") &&
+                            result.getCoinListing().equals("XYZUSDT") &&
+                            result.getOverallRiskScore() == 3 &&
+                            result.getLiquidity().equals(String.valueOf(RiskLevel.Low)) &&
+                            result.getTradingVolume().equals(String.valueOf(RiskLevel.Medium)) &&
+                            result.getTradingFees().equals(String.valueOf(RiskLevel.Low));
+                })
                 .verifyComplete(); // Should still return parsed object even if save fails
     }
 }

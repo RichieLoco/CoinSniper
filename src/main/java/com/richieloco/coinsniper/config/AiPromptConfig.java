@@ -8,17 +8,40 @@ import org.springframework.context.annotation.Configuration;
 public class AiPromptConfig {
 
     /* Takes the full list of exchanges that can be traded upon to determine whether
-        the announced coin exists on it and can be traded with a provided stable coin.
+       the announced coin exists on it and can be traded with a provided stable coin.
      */
     @Bean
     public PromptTemplate exchangeCoinAvailabilityPromptTemplate() {
         String template = """
-                Given exchanges... {exchanges}... return to me a comma-delimited list (with no descriptions) of the regulated cryptocurrency
-                exchanges that list the coin {targetCoin} that can be traded with stable coin(s) {stableCoins} delimiting each exchange and
-                stable coin with a colon(:) and delimiting each supported stable coin with a forward-slash(/).
-                """;
-        return new PromptTemplate(template); // e.g. Poloniex:USDT, Bybit:USDT/USDC, KuCoin:USDT, OKX:USDC
+        Given the following:
+        
+        - Exchanges: <exchanges>
+        - Stable coins: <stableCoins>
+        - Target coin: <targetCoin>
+        
+        Return a JSON array where each object describes a listing of the target coin traded against each supported stable coin on each regulated exchange that lists it.
+
+        Do not include any explanation or text before or after the JSON.
+
+        Use this strict format:
+        [
+          {{
+            "exchange": "GateIo",
+            "coinListing": "<targetCoin>/<a stable coin from stableCoins>",
+            "overallRiskScore": "Medium",
+            "liquidity": "High",
+            "tradingVolume": "Medium",
+            "tradingFees": "Low"
+          }}
+        ]
+        
+        Only include exchanges that list <targetCoin> with at least one stable coin from the list.
+        Use exactly one object per (exchange, stable coin) pair.
+        """;
+        return new PromptTemplate(template);
     }
+
+
 
     /* Takes the full list of exchanges that can be traded upon to determine whether
         the announced coin exists on it.
@@ -33,15 +56,8 @@ public class AiPromptConfig {
                 list one-liner  - with format: "Exchange: ?, Coin Listing: ?, Overall Risk Score: ?, Liquidity: ?, Trading Volume: ?, Trading Fees: ?"
                 """;
         return new PromptTemplate(template);
-        // e.g. Exchange: Poloniex, Coin Listing: WIFUSDT, Overall Risk Score: 7, Liquidity: Low, Trading Volume: Low, Trading Fees: Low
     }
 
-    //TODO the below have been superseded by the above, and can be removed...
-
-    /* Takes the list of exchanges of which the coin exists, and determines the difference
-        in latency when trading on that exchange versus the others, and gives and overall
-        risk score.
-     */
     @Bean
     public PromptTemplate exchangeLatencyDifferencePromptTemplate() {
         String template = """
@@ -52,10 +68,6 @@ public class AiPromptConfig {
         return new PromptTemplate(template);
     }
 
-    /* Takes the list of exchanges of which the coin exists, and determines the difference
-        in liquidity when trading on that exchange versus the others, and gives and overall
-        risk score.
-     */
     @Bean
     public PromptTemplate exchangeLiquidityDifferencePromptTemplate() {
         String template = """
@@ -66,11 +78,6 @@ public class AiPromptConfig {
         return new PromptTemplate(template);
     }
 
-
-    /* Takes the list of exchanges of which the coin exists, and determines the difference
-        in fees when trading on that exchange versus the others, and gives an overall
-        risk score.
-     */
     @Bean
     public PromptTemplate exchangeFeeDifferencePromptTemplate() {
         String template = """
@@ -81,7 +88,6 @@ public class AiPromptConfig {
         return new PromptTemplate(template);
     }
 
-    //TODO might have been superseded by the above prompts
     @Bean
     public PromptTemplate exchangeRiskPromptTemplate() {
         String template = """
@@ -92,7 +98,6 @@ public class AiPromptConfig {
         return new PromptTemplate(template);
     }
 
-    //TODO might not be needed...
     @Bean
     public PromptTemplate coinRiskPromptTemplate() {
         String template = """

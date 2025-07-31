@@ -9,6 +9,7 @@ import com.richieloco.coinsniper.service.risk.ExchangeAssessor;
 import com.richieloco.coinsniper.service.risk.context.ExchangeSelectorContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -52,7 +53,7 @@ public class TradeExecutionServiceTest {
                 .contextType("Exchange")
                 .build();
 
-        when(assessor.assess(any(ExchangeSelectorContext.class))).thenReturn(Mono.just(assessment));
+        when(assessor.assess(any(ExchangeSelectorContext.class))).thenReturn(Mono.just(List.of(assessment)));
         when(repo.save(any())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
         TradeExecutionService service = new TradeExecutionService(assessor, repo, config);
@@ -78,7 +79,7 @@ public class TradeExecutionServiceTest {
                 .contextType("Exchange")
                 .build();
 
-        when(assessor.assess(any())).thenReturn(Mono.just(unsupportedAssessment));
+        when(assessor.assess(any())).thenReturn(Mono.just(List.of(unsupportedAssessment)));
 
         TradeExecutionService service = new TradeExecutionService(assessor, repo, config);
 
@@ -97,7 +98,6 @@ public class TradeExecutionServiceTest {
                 .announcedAt(Instant.now())
                 .build();
 
-        // Ensure a mock Mono is returned
         when(assessor.assess(any())).thenReturn(Mono.empty());
 
         TradeExecutionService service = new TradeExecutionService(assessor, repo, config);

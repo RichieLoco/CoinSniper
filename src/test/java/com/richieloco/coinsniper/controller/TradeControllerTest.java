@@ -7,10 +7,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.time.Instant;
+import java.util.Objects;
 
 import static org.mockito.Mockito.*;
 
@@ -41,7 +42,7 @@ public class TradeControllerTest {
                 .timestamp(Instant.now())
                 .build();
 
-        when(tradeExecutionService.evaluateAndTrade(input)).thenReturn(Mono.just(result));
+        when(tradeExecutionService.evaluateAndTrade(input)).thenReturn(Flux.just(result));
 
         StepVerifier.create(controller.trade(input))
                 .expectNext(result)
@@ -51,7 +52,7 @@ public class TradeControllerTest {
     @Test
     public void trade_shouldHandleEmptyResult() {
         CoinAnnouncementRecord input = CoinAnnouncementRecord.builder().coinSymbol("ABC").build();
-        when(tradeExecutionService.evaluateAndTrade(input)).thenReturn(Mono.empty());
+        when(tradeExecutionService.evaluateAndTrade(input)).thenReturn(Flux.empty());
 
         StepVerifier.create(controller.trade(input))
                 .verifyComplete();
@@ -62,7 +63,7 @@ public class TradeControllerTest {
         CoinAnnouncementRecord input = CoinAnnouncementRecord.builder().coinSymbol("DEF").build();
         TradeDecisionRecord result = TradeDecisionRecord.builder().coinSymbol("DEF").build();
 
-        when(tradeExecutionService.evaluateAndTrade(any())).thenReturn(Mono.just(result));
+        when(tradeExecutionService.evaluateAndTrade(any())).thenReturn(Flux.just(result));
 
         StepVerifier.create(controller.trade(input))
                 .expectNext(result)
@@ -75,8 +76,10 @@ public class TradeControllerTest {
     public void trade_shouldHandleNullMono() {
         CoinAnnouncementRecord input = CoinAnnouncementRecord.builder().coinSymbol("NULL").build();
 
-        // Simulate misbehaving service returning Mono.just(null)
-        when(tradeExecutionService.evaluateAndTrade(input)).thenReturn(Mono.justOrEmpty(null));
+        // Simulate misbehaving service returning Flux.empty()
+        when(tradeExecutionService.evaluateAndTrade(input))
+                .thenReturn(Flux.empty());
+
 
         StepVerifier.create(controller.trade(input))
                 .verifyComplete();
@@ -87,7 +90,7 @@ public class TradeControllerTest {
         CoinAnnouncementRecord input = CoinAnnouncementRecord.builder().coinSymbol("ERR").build();
 
         when(tradeExecutionService.evaluateAndTrade(input))
-                .thenReturn(Mono.error(new RuntimeException("Service failure")));
+                .thenReturn(Flux.error(new RuntimeException("Service failure")));
 
         StepVerifier.create(controller.trade(input))
                 .expectErrorMessage("Service failure")
@@ -114,7 +117,7 @@ public class TradeControllerTest {
     public void trade_shouldHandleInvalidAnnouncementStructure() {
         CoinAnnouncementRecord incomplete = CoinAnnouncementRecord.builder().build();
 
-        when(tradeExecutionService.evaluateAndTrade(incomplete)).thenReturn(Mono.empty());
+        when(tradeExecutionService.evaluateAndTrade(incomplete)).thenReturn(Flux.empty());
 
         StepVerifier.create(controller.trade(incomplete))
                 .verifyComplete();
@@ -128,8 +131,8 @@ public class TradeControllerTest {
         TradeDecisionRecord result1 = TradeDecisionRecord.builder().coinSymbol("AAA").build();
         TradeDecisionRecord result2 = TradeDecisionRecord.builder().coinSymbol("BBB").build();
 
-        when(tradeExecutionService.evaluateAndTrade(input1)).thenReturn(Mono.just(result1));
-        when(tradeExecutionService.evaluateAndTrade(input2)).thenReturn(Mono.just(result2));
+        when(tradeExecutionService.evaluateAndTrade(input1)).thenReturn(Flux.just(result1));
+        when(tradeExecutionService.evaluateAndTrade(input2)).thenReturn(Flux.just(result2));
 
         StepVerifier.create(controller.trade(input1))
                 .expectNext(result1)

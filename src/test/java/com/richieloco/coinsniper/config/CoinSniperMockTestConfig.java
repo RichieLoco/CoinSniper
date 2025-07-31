@@ -89,7 +89,9 @@ public class CoinSniperMockTestConfig {
                 .assessedAt(java.time.Instant.now())
                 .build();
 
-        when(mock.assess(any(ExchangeSelectorContext.class))).thenReturn(Mono.just(record));
+        when(mock.assess(any(ExchangeSelectorContext.class)))
+                .thenReturn(Mono.just(List.of(record)));
+
         return mock;
     }
 

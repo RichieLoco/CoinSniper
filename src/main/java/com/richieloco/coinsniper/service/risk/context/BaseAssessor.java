@@ -23,22 +23,34 @@ public abstract class BaseAssessor<T, R> implements AssessmentFunction<T, R> {
     protected abstract String contextType();
     protected abstract R parseAssessmentOutput(T context, String response);
     protected void logAssessment(T context, R assessment) {
-        // Optional hook
+        // Optional hook for persisting or logging
+    }
+
+    protected Mono<String> generateAssessment(T context) {
+        return Mono.fromCallable(() -> {
+                    String prompt = generatePrompt(context);
+                    ChatResponse chatResponse = chatModel.call(new Prompt(prompt)); // still blocking
+
+                    if (chatResponse == null
+                            || chatResponse.getResults().isEmpty()
+                            || chatResponse.getResults().getFirst().getOutput() == null
+                            || chatResponse.getResults().getFirst().getOutput().getText() == null
+                            || chatResponse.getResults().getFirst().getOutput().getText().trim().isEmpty()) {
+                        throw new NullPointerException("LLM generation contained no usable output");
+                    }
+
+                    return chatResponse.getResults().getFirst().getOutput().getText();
+                })
+                .subscribeOn(Schedulers.boundedElastic()); // move off Netty event loop
     }
 
     @Override
     public Mono<R> assess(T context) {
-        return Mono.fromCallable(() -> {
-            Prompt prompt = new Prompt(List.of(new UserMessage(generatePrompt(context))));
-            ChatResponse response = chatModel.call(prompt);
-
-            List<Generation> generations = response.getResults();
-            if (generations == null || generations.isEmpty()) {
-                throw new IllegalStateException("No generations returned by model");
-            }
-
-            // Structured output deserialization
-            return parseAssessmentOutput(context, generations.getFirst().getOutput().getText());
-        }).subscribeOn(Schedulers.boundedElastic());
+        return generateAssessment(context)
+                .map(response -> {
+                    R result = parseAssessmentOutput(context, response);
+                    logAssessment(context, result);
+                    return result;
+                });
     }
 }

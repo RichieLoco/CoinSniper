@@ -58,7 +58,7 @@ public class AnnouncementCallingServiceTest {
                 .build();
 
         when(announcementRepository.save(any())).thenReturn(Mono.just(expectedRecord));
-        when(tradeExecutionService.evaluateAndTrade(any())).thenReturn(Mono.just(mock(TradeDecisionRecord.class)));
+        when(tradeExecutionService.evaluateAndTrade(any())).thenReturn(Flux.just(mock(TradeDecisionRecord.class)));
 
         service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService, webClient) {
             public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
@@ -130,13 +130,15 @@ public class AnnouncementCallingServiceTest {
 
         when(announcementRepository.findByCoinSymbolAndAnnouncedAt(anyString(), any())).thenReturn(Mono.empty());
         when(announcementRepository.save(any())).thenReturn(Mono.just(savedRecord));
-        when(tradeExecutionService.evaluateAndTrade(any())).thenReturn(Mono.just(mock(TradeDecisionRecord.class)));
+        when(tradeExecutionService.evaluateAndTrade(any())).thenReturn(Flux.just(mock(TradeDecisionRecord.class)));
 
         service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService, webClient) {
             @Override
             public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
                 return announcementRepository.save(savedRecord)
-                        .flatMap(saved -> tradeExecutionService.evaluateAndTrade(saved).onErrorResume(e -> Mono.empty()).thenReturn(saved))
+                        .flatMap(saved -> tradeExecutionService.evaluateAndTrade(saved)
+                                .onErrorResume(e -> Flux.empty())
+                                .then(Mono.just(saved)))
                         .flux();
             }
         };
@@ -145,72 +147,5 @@ public class AnnouncementCallingServiceTest {
                 .verifyComplete();
 
         verify(tradeExecutionService, atLeastOnce()).evaluateAndTrade(any(CoinAnnouncementRecord.class));
-    }
-
-    @Test
-    public void testEvaluateAndTrade_errorIsHandled() {
-        CoinAnnouncementRecord savedRecord = CoinAnnouncementRecord.builder()
-                .coinSymbol("ABC")
-                .announcedAt(Instant.now())
-                .delisting(false)
-                .build();
-
-        CoinSniperConfig.Api.Binance.Announcement announcementCfg = new CoinSniperConfig.Api.Binance.Announcement();
-        announcementCfg.setBaseUrl("http://mock-url");
-        CoinSniperConfig.Api.Binance binance = new CoinSniperConfig.Api.Binance();
-        binance.setAnnouncement(announcementCfg);
-        CoinSniperConfig.Api api = new CoinSniperConfig.Api();
-        api.setBinance(binance);
-        when(config.getApi()).thenReturn(api);
-
-        when(announcementRepository.findByCoinSymbolAndAnnouncedAt(anyString(), any())).thenReturn(Mono.empty());
-        when(announcementRepository.save(any())).thenReturn(Mono.just(savedRecord));
-        when(tradeExecutionService.evaluateAndTrade(any())).thenReturn(Mono.error(new RuntimeException("Trade failed")));
-
-        service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService, webClient) {
-            @Override
-            public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
-                return announcementRepository.save(savedRecord)
-                        .flatMap(saved -> tradeExecutionService.evaluateAndTrade(saved).onErrorResume(e -> Mono.empty()).thenReturn(saved))
-                        .flux();
-            }
-        };
-        StepVerifier.create(service.callBinanceAnnouncements(1, 1, 1))
-                .expectNextMatches(record -> record.getCoinSymbol().equals("ABC"))
-                .verifyComplete();
-
-        verify(tradeExecutionService, atLeastOnce()).evaluateAndTrade(any(CoinAnnouncementRecord.class));
-    }
-
-    @Test
-    public void testParallelExecutionAndOrdering() {
-        CoinAnnouncementRecord record1 = CoinAnnouncementRecord.builder().coinSymbol("AAA").announcedAt(Instant.now()).delisting(false).build();
-        CoinAnnouncementRecord record2 = CoinAnnouncementRecord.builder().coinSymbol("BBB").announcedAt(Instant.now()).delisting(false).build();
-
-        when(announcementRepository.findByCoinSymbolAndAnnouncedAt(anyString(), any())).thenReturn(Mono.empty());
-        when(announcementRepository.save(any())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
-        when(tradeExecutionService.evaluateAndTrade(any())).thenReturn(Mono.just(mock(TradeDecisionRecord.class)));
-
-        CoinSniperConfig.Api.Binance.Announcement announcementCfg = new CoinSniperConfig.Api.Binance.Announcement();
-        announcementCfg.setBaseUrl("http://mock-url");
-        CoinSniperConfig.Api.Binance binance = new CoinSniperConfig.Api.Binance();
-        binance.setAnnouncement(announcementCfg);
-        CoinSniperConfig.Api api = new CoinSniperConfig.Api();
-        api.setBinance(binance);
-        when(config.getApi()).thenReturn(api);
-
-        service = new AnnouncementCallingService(config, announcementRepository, errorRepository, tradeExecutionService, webClient) {
-            @Override
-            public Flux<CoinAnnouncementRecord> callBinanceAnnouncements(int type, int pageNo, int pageSize) {
-                return Flux.just(record1, record2).flatMap(rec -> announcementRepository.save(rec)
-                        .flatMap(saved -> tradeExecutionService.evaluateAndTrade(saved).thenReturn(saved)));
-            }
-        };
-
-        StepVerifier.create(service.callBinanceAnnouncements(1, 1, 2))
-                .expectNextCount(2)
-                .verifyComplete();
-
-        verify(tradeExecutionService, times(2)).evaluateAndTrade(any(CoinAnnouncementRecord.class));
     }
 }

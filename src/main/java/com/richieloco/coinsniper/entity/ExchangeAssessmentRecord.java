@@ -21,7 +21,7 @@ public class ExchangeAssessmentRecord implements Identifiable {
     private String contextDescription;
     private String exchange;
     private String coinListing;
-    private Integer overallRiskScore;
+    private String overallRiskScore;
     private String tradingVolume;
     private String liquidity;
     private String tradingFees;

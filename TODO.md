@@ -10,3 +10,8 @@
 * ... and new trades with the result of position (successful or not, being logged)
 * Need to start testing these mock services and ensuring DJL model is trained
 * Finally, need to factor this model into future decision-making
+
+Currently...
+1. disabled the interval logic so that it pulls back values..
+2. but it looks like the calls to chatGPT to filter the results are failing
+     due to invalid api-key.  I added a logfile to /logs.  Check and fix

@@ -8,7 +8,7 @@ import com.richieloco.coinsniper.service.risk.ExchangeAssessor;
 import com.richieloco.coinsniper.service.risk.context.ExchangeSelectorContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
 import java.time.Instant;
 
@@ -20,28 +20,38 @@ public class TradeExecutionService {
     private final TradeDecisionRepository repository;
     private final CoinSniperConfig config;
 
-    public Mono<TradeDecisionRecord> evaluateAndTrade(CoinAnnouncementRecord announcement) {
-        if (announcement.isDelisting()) return Mono.empty();
+    public Flux<TradeDecisionRecord> evaluateAndTrade(CoinAnnouncementRecord announcement) {
+        if (announcement.isDelisting()) {
+            return Flux.empty();
+        }
 
         ExchangeSelectorContext context = ExchangeSelectorContext.from(config, announcement.getCoinSymbol());
 
         return exchangeAssessor.assess(context)
-                .flatMap(assessment -> {
-                    // Safely skip unsupported exchanges
-                    if (assessment == null || !config.getSupported().getExchanges().contains(assessment.getExchange())) {
-                        return Mono.empty();
-                    }
+                .flatMapMany(assessments -> Flux.fromIterable(assessments)
+                        .filter(assessment ->
+                                assessment != null &&
+                                        config.getSupported().getExchanges().contains(assessment.getExchange()))
+                        .flatMap(assessment -> {
+                            TradeDecisionRecord record = TradeDecisionRecord.builder()
+                                    .coinSymbol(announcement.getCoinSymbol())
+                                    .exchange(assessment.getExchange())
+                                    .riskScore(mapRiskToNumeric(assessment.getOverallRiskScore()))
+                                    .tradeExecuted(mapRiskToNumeric(assessment.getOverallRiskScore()) <= 5.0)
+                                    .timestamp(Instant.now())
+                                    .build();
+                            return repository.save(record);
+                        }));
+    }
 
-                    TradeDecisionRecord record = TradeDecisionRecord.builder()
-                            .coinSymbol(announcement.getCoinSymbol())
-                            .exchange(assessment.getExchange())
-                            .riskScore(assessment.getOverallRiskScore())
-                            .tradeExecuted(assessment.getOverallRiskScore() < 5.0) //TODO simplified...
-                            .timestamp(Instant.now())
-                            .build();
-
-                    return repository.save(record);
-                });
+    //TODO... perhaps chance risk to enum and remove this mapping
+    private double mapRiskToNumeric(String risk) {
+        return switch (risk.toLowerCase()) {
+            case "low" -> 2;
+            case "medium" -> 5;
+            case "high" -> 8;
+            default -> 10; // Unknown = high risk
+        };
     }
 
 }

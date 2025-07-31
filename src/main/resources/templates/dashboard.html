@@ -12,8 +12,13 @@
             margin: 20px;
         }
 
-        h1, h2 {
+        h1 {
+            color: #B59410; /* darker gold */
+        }
+
+        h2 {
             color: #2e7d32; /* darker green */
+            margin-top: 40px;
         }
 
         table {
@@ -21,17 +26,32 @@
             border-collapse: collapse;
             margin-bottom: 30px;
             background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         th, td {
-            padding: 10px;
-            border: 1px solid #bdbdbd;
+            padding: 12px 14px;
+            border-bottom: 1px solid #e0e0e0;
             text-align: left;
+            font-size: 14px;
         }
 
         th {
             background-color: #c8e6c9; /* light green header */
             font-weight: bold;
+            color: #2e7d32;
+            font-size: 15px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9fbe7; /* very light green */
+        }
+
+        tr:hover {
+            background-color: #f1f8e9; /* highlight on hover */
+            transition: background-color 0.2s ease-in-out;
         }
 
         ul {
@@ -60,8 +80,9 @@
 <h2>OpenApi 3.0 Spec</h2>
 <p><a href="/webjars/swagger-ui/index.html" target="_blank">View API Documentation</a></p>
 <br/>
+<h2>OpenAI (Groq) Metrics</h2>
+<p><a href="https://console.groq.com/dashboard/metrics" target="_blank">View Groq Usage Metrics</a></p>
 <br/>
-
 <h2>Recent Trades</h2>
 <p><strong>Dashboard Settings:</strong></p>
 <ul>

@@ -17,7 +17,7 @@ spring:
           temperature: 0.7
     groq:
       api-key: ${GROQAI_KEY}
-      base-url: "https://api.groq.com/openai/v1"
+      base-url: "https://api.groq.com/openai"
       chat:
         options:
           model: "llama3-70b-8192"
@@ -61,7 +61,8 @@ coin-sniper:
       - "USD"
   announcement-polling:
     enabled: false
-    interval-seconds: 60
+    #interval-seconds: 60
+    interval-seconds: 84600 # 1 day (for testing)
   api:
     binance:
       announcement:

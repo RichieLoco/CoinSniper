@@ -16,6 +16,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -179,8 +180,8 @@ public class AnnouncementPollingIT {
         public TradeExecutionService tradeExecutionService() {
             return new TradeExecutionService(null, null, null) {
                 @Override
-                public Mono<TradeDecisionRecord> evaluateAndTrade(CoinAnnouncementRecord announcement) {
-                    return Mono.just(
+                public Flux<TradeDecisionRecord> evaluateAndTrade(CoinAnnouncementRecord announcement) {
+                    return Flux.just(
                             TradeDecisionRecord.builder()
                                     .coinSymbol(announcement.getCoinSymbol())
                                     .exchange("Binance")
