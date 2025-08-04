@@ -39,6 +39,9 @@ public class ExchangeAssessorTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
+        when(promptTemplate.getTemplate()).thenReturn(
+                "Exchange: <exchanges>, Coin: <targetCoin>, Stables: <stableCoins>"
+        );
 
         when(promptConfig.exchangeCoinAvailabilityPromptTemplate()).thenReturn(promptTemplate);
         when(promptTemplate.render(any(Map.class))).thenReturn("Rendered Prompt");

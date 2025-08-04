@@ -23,7 +23,6 @@ public class DJLTrainingServiceTest {
     public void testTrainingAndLogging() {
         DJLTrainingService trainer = new DJLTrainingService();
 
-
         TradeDecisionRecord record = TradeDecisionRecord.builder()
                 .coinSymbol("XYZ")
                 .exchange("Binance")

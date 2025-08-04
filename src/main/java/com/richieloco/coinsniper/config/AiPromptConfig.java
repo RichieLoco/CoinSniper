@@ -27,7 +27,7 @@ public class AiPromptConfig {
         [
           {{
             "exchange": "GateIo",
-            "coinListing": "<targetCoin>/<a stable coin from stableCoins>",
+            "coinListing": "<targetCoin>/<stableCoin>",
             "overallRiskScore": "Medium",
             "liquidity": "High",
             "tradingVolume": "Medium",
@@ -40,8 +40,6 @@ public class AiPromptConfig {
         """;
         return new PromptTemplate(template);
     }
-
-
 
     /* Takes the full list of exchanges that can be traded upon to determine whether
         the announced coin exists on it.

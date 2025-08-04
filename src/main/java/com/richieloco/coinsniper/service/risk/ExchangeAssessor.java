@@ -39,11 +39,15 @@ public class ExchangeAssessor extends BaseAssessor<ExchangeSelectorContext, List
         if (prompt == null) {
             throw new NullPointerException("PromptTemplate is null for ExchangeAssessor");
         }
-        return prompt.render(Map.of(
-                "exchanges", context.exchanges(),
-                "targetCoin", context.targetCoin(),
-                "stableCoins", context.stableCoins()
-        ));
+
+        // Get raw template string
+        String template = prompt.getTemplate();
+
+        // Manually replace placeholders to avoid {var} parsing issues
+        return template
+                .replace("<exchanges>", context.exchanges())
+                .replace("<targetCoin>", context.targetCoin())
+                .replace("<stableCoins>", context.stableCoins());
     }
 
     @Override
@@ -56,7 +60,6 @@ public class ExchangeAssessor extends BaseAssessor<ExchangeSelectorContext, List
         if (response == null || response.trim().isEmpty()) {
             throw new NullPointerException("LLM response was null or empty");
         }
-
         log.debug("LLM response: '{}'", response);
 
         try {

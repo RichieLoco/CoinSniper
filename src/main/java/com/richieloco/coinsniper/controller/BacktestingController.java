@@ -1,13 +1,19 @@
 package com.richieloco.coinsniper.controller;
 
+import com.richieloco.coinsniper.dto.TrainingResult;
+import com.richieloco.coinsniper.dto.PredictionResult;
 import com.richieloco.coinsniper.repository.TradeDecisionRepository;
 import com.richieloco.coinsniper.service.DJLTrainingService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class BacktestingController {
@@ -19,18 +25,36 @@ public class BacktestingController {
     public Mono<String> backtesting(Model model) {
         return tradeDecisionRepository.findAll()
                 .collectList()
-                .doOnNext(history -> {
+                .flatMap(history -> {
+                    model.addAttribute("history", history);
+
+                    TrainingResult metrics;
                     try {
-                        djlTrainingService.train(history);
+                        metrics = djlTrainingService.train(history);
                         djlTrainingService.logToFile(history);
                     } catch (Exception e) {
-                        // log and swallow exception to prevent 500 error
-                        System.err.println("Training/logging failed: " + e.getMessage());
+                        log.error("Training failed", e);
+                        metrics = TrainingResult.builder()
+                                .lossPerEpoch(List.of())
+                                .accuracyPerEpoch(List.of())
+                                .averageAccuracy(0.0)
+                                .modelSummary("Training failed: " + e.getMessage())
+                                .build();
+                        model.addAttribute("error", "Training failed: " + e.getMessage());
                     }
-                })
-                .map(history -> {
-                    model.addAttribute("history", history);
-                    return "backtesting";
+
+                    model.addAttribute("metrics", metrics);
+                    return Mono.just("backtesting");
                 });
     }
+
+
+    @PostMapping("/backtesting/predict")
+    public String predict(@ModelAttribute("coinSymbol") String coinSymbol, Model model) {
+        log.debug("Coin Symbol received: {}", coinSymbol);
+        PredictionResult prediction = djlTrainingService.predict(coinSymbol);
+        model.addAttribute("prediction", prediction);
+        return "backtesting";
+    }
+
 }
