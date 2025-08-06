@@ -1,6 +1,7 @@
 package com.richieloco.coinsniper.controller;
 
 import com.richieloco.coinsniper.dto.TrainingResult;
+import com.richieloco.coinsniper.dto.PredictionForm;
 import com.richieloco.coinsniper.dto.PredictionResult;
 import com.richieloco.coinsniper.repository.TradeDecisionRepository;
 import com.richieloco.coinsniper.service.DJLTrainingService;
@@ -35,26 +36,35 @@ public class BacktestingController {
                     } catch (Exception e) {
                         log.error("Training failed", e);
                         metrics = TrainingResult.builder()
-                                .lossPerEpoch(List.of())
-                                .accuracyPerEpoch(List.of())
-                                .averageAccuracy(0.0)
                                 .modelSummary("Training failed: " + e.getMessage())
                                 .build();
                         model.addAttribute("error", "Training failed: " + e.getMessage());
                     }
 
-                    model.addAttribute("metrics", metrics);
+                    model.addAttribute("metrics", metrics != null ? metrics : TrainingResult.builder().build());
+                    model.addAttribute("predictionForm", new PredictionForm()); //... Add empty form
                     return Mono.just("backtesting");
                 });
     }
 
-
     @PostMapping("/backtesting/predict")
-    public String predict(@ModelAttribute("coinSymbol") String coinSymbol, Model model) {
+    public String predict(@ModelAttribute PredictionForm predictionForm, Model model) {
+        String coinSymbol = predictionForm.getCoinSymbol();
         log.debug("Coin Symbol received: {}", coinSymbol);
-        PredictionResult prediction = djlTrainingService.predict(coinSymbol);
-        model.addAttribute("prediction", prediction);
+
+        try {
+            PredictionResult prediction = djlTrainingService.predict(coinSymbol);
+            prediction.setCoinSymbol(coinSymbol);
+            model.addAttribute("prediction", prediction);
+        } catch (Exception e) {
+            log.error("Prediction failed", e);
+            model.addAttribute("predictionError", "Prediction failed: " + e.getMessage());
+        }
+
+        model.addAttribute("metrics", TrainingResult.builder().build());
+        model.addAttribute("history", List.of());
+        model.addAttribute("predictionForm", predictionForm); //... Keep form value
+
         return "backtesting";
     }
-
 }

@@ -4,12 +4,16 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
-
-@Data
 @Builder
+@Data
 public class TrainingResult {
-    private List<Double> lossPerEpoch;
-    private List<Double> accuracyPerEpoch;
-    private double averageAccuracy;
-    private String modelSummary;
+    @Builder.Default
+    private List<Double> lossPerEpoch = List.of();
+    @Builder.Default
+    private List<Double> accuracyPerEpoch = List.of();
+    @Builder.Default
+    private double averageAccuracy = 0.0;
+    @Builder.Default
+    private String modelSummary = "No model trained";
 }
+

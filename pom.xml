@@ -89,8 +89,8 @@
 			<version>${djl.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>ai.djl.tensorflow</groupId>
-			<artifactId>tensorflow-model-zoo</artifactId>
+			<groupId>ai.djl.pytorch</groupId>
+			<artifactId>pytorch-model-zoo</artifactId>
 			<version>${djl.version}</version>
 		</dependency>
 		<dependency>
@@ -98,12 +98,6 @@
 			<artifactId>pytorch-engine</artifactId>
 			<version>${djl.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>ai.djl.tensorflow</groupId>
-			<artifactId>tensorflow-engine</artifactId>
-			<version>${djl.version}</version>
-		</dependency>
-
 
 		<!-- Security -->
 		<dependency>

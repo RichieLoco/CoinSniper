@@ -17,44 +17,44 @@ import ai.djl.training.listener.TrainingListener;
 import ai.djl.training.loss.Loss;
 import ai.djl.training.optimizer.Optimizer;
 import ai.djl.training.tracker.Tracker;
-import ai.djl.translate.TranslateException;
 import com.richieloco.coinsniper.dto.PredictionResult;
 import com.richieloco.coinsniper.dto.TrainingResult;
 import com.richieloco.coinsniper.entity.TradeDecisionRecord;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
+import java.nio.file.*;
 import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
 @Service
 public class DJLTrainingService {
 
+    private static final String PYTHON_PATH = Paths.get(".venv", "Scripts", "python.exe").toString();
     private static final String MODEL_DIR = "models/coin-sniper";
+    private static final String PYTHON_SCRIPT =
+            Paths.get("src", "main", "resources", "scripts", "export_to_pt.py").toString();
     private static final int EPOCHS = 5;
     private static final int BATCH_SIZE = 8;
 
     public TrainingResult train(List<TradeDecisionRecord> tradeData) {
-        try (Model model = Model.newInstance("coin-sniper-model");
+        try (Model model = Model.newInstance("coin-sniper-model", "PyTorch");
              NDManager manager = NDManager.newBaseManager()) {
 
-            // Build a simple feedforward network
             SequentialBlock block = new SequentialBlock()
                     .add(Linear.builder().setUnits(8).build())
                     .add(Activation.reluBlock())
-                    .add(Linear.builder().setUnits(2).build()); // binary classification
+                    .add(Linear.builder().setUnits(2).build()); // Binary classification
             model.setBlock(block);
 
-            // Prepare dataset
+            // Prepare data
             float[][] features;
             long[] labels;
             if (tradeData == null || tradeData.isEmpty()) {
@@ -88,48 +88,39 @@ public class DJLTrainingService {
             double[] epochLosses = new double[EPOCHS];
 
             try (Trainer trainer = model.newTrainer(config)) {
-                trainer.initialize(new NDList(manager.create(features)).getShapes());
+                trainer.initialize(manager.create(features).getShape());
 
-                if (tradeData != null && !tradeData.isEmpty()) {
-                    for (int epoch = 0; epoch < EPOCHS; epoch++) {
-                        try {
-                            int batchCount = 0;
-                            for (Batch batch : trainer.iterateDataset(dataset)) {
-                                try (batch) {
-                                    try {
-                                        EasyTrain.trainBatch(trainer, batch);
-                                    } catch (ai.djl.TrainingDivergedException divEx) {
-                                        log.warn("Training diverged (NaN loss). Stopping early: {}", divEx.getMessage());
-                                        break; // stop processing this epoch
-                                    }
-                                    trainer.step();
-                                    batchCount++;
-                                }
+                for (int epoch = 0; epoch < EPOCHS; epoch++) {
+                    try {
+                        for (Batch batch : trainer.iterateDataset(dataset)) {
+                            try (batch) {
+                                EasyTrain.trainBatch(trainer, batch);
+                                trainer.step();
                             }
-                            trainer.notifyListeners(l -> l.onEpoch(trainer));
-                        } catch (Exception e) {
-                            log.warn("Training interrupted during epoch {}: {}", epoch + 1, e.getMessage());
                         }
+                        trainer.notifyListeners(l -> l.onEpoch(trainer));
+                    } catch (Exception e) {
+                        log.warn("Training error in epoch {}: {}", epoch, e.getMessage());
                     }
                 }
             }
 
-            // Save model
+            // Save DJL model
             File modelDir = new File(MODEL_DIR);
             modelDir.mkdirs();
             model.save(Paths.get(MODEL_DIR), "coin-sniper-model");
-            log.info("Model saved to {}", Paths.get(MODEL_DIR).toAbsolutePath());
+            log.info("Saved DJL model to {}", Paths.get(MODEL_DIR).toAbsolutePath());
 
-            List<Double> lossPerEpoch = java.util.Arrays.stream(epochLosses).boxed().toList();
-            List<Double> accuracyPerEpoch = java.util.Arrays.stream(epochLosses)
-                    .map(x -> 1 - x)
-                    .boxed().toList();
-            double avgAcc = accuracyPerEpoch.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+            // Export weights as .csv for Python
+            exportWeightsAsCsv(model);
+
+            // Run Python script to generate .pt
+            runPythonExportScript();
 
             return TrainingResult.builder()
-                    .lossPerEpoch(lossPerEpoch)
-                    .accuracyPerEpoch(accuracyPerEpoch)
-                    .averageAccuracy(avgAcc)
+                    .lossPerEpoch(List.of())
+                    .accuracyPerEpoch(List.of())
+                    .averageAccuracy(0.0)
                     .modelSummary(model.toString())
                     .build();
 
@@ -138,23 +129,75 @@ public class DJLTrainingService {
         }
     }
 
+    private void exportWeightsAsCsv(Model model) {
+        try {
+            Path weightsDir = Paths.get(MODEL_DIR, "weights");
+            Files.createDirectories(weightsDir);
+
+            var children = model.getBlock().getChildren();
+            NDArray w1 = children.get(0).getValue().getParameters().get("weight").getArray();
+            NDArray b1 = children.get(0).getValue().getParameters().get("bias").getArray();
+            NDArray w2 = children.get(2).getValue().getParameters().get("weight").getArray();
+            NDArray b2 = children.get(2).getValue().getParameters().get("bias").getArray();
+
+            writeCsv(weightsDir.resolve("w1.csv"), w1.toFloatArray());
+            writeCsv(weightsDir.resolve("b1.csv"), b1.toFloatArray());
+            writeCsv(weightsDir.resolve("w2.csv"), w2.toFloatArray());
+            writeCsv(weightsDir.resolve("b2.csv"), b2.toFloatArray());
+
+            log.info("Exported weights to {}", weightsDir.toAbsolutePath());
+
+        } catch (Exception e) {
+            log.error("Failed to export weights: {}", e.getMessage());
+        }
+    }
+
+    private void writeCsv(Path filePath, float[] array) throws IOException {
+        try (BufferedWriter writer = Files.newBufferedWriter(filePath)) {
+            for (int i = 0; i < array.length; i++) {
+                writer.write(Float.toString(array[i]));
+                if (i < array.length - 1) writer.write(",");
+            }
+        }
+    }
+
+    private void runPythonExportScript() {
+        try {
+            log.info("Running Python export script with interpreter: {}", PYTHON_PATH);
+
+            ProcessBuilder pb = new ProcessBuilder(PYTHON_PATH, PYTHON_SCRIPT, MODEL_DIR);
+            pb.redirectErrorStream(true); // merge stderr into stdout
+            Process process = pb.start();
+
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    log.info("[Python] {}", line);
+                }
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                log.info("Python script finished successfully.");
+            } else {
+                log.error("Python script failed with exit code {}", exitCode);
+            }
+
+        } catch (Exception e) {
+            log.error("Error running Python export script: {}", e.getMessage(), e);
+        }
+    }
+
+
     public PredictionResult predict(String coinSymbol) {
         try {
             Path modelDir = Paths.get(MODEL_DIR);
+            Path ptPath = modelDir.resolve("coin-sniper-model.pt");
 
-            // Find latest .params file dynamically
-            String latestModelName = Files.list(modelDir)
-                    .map(Path::getFileName)
-                    .map(Path::toString)
-                    .filter(name -> name.endsWith(".params"))
-                    .max(Comparator.naturalOrder())
-                    .map(name -> name.replace(".params", ""))
-                    .orElseThrow(() -> new IOException("No .params model file found in " + MODEL_DIR));
+            log.info("Loading model: {}", ptPath.toAbsolutePath());
 
-            log.info("Loading latest model: {}", latestModelName);
-
-            try (Model model = Model.newInstance("coin-sniper-model")) {
-                model.load(modelDir, latestModelName);
+            try (Model model = Model.newInstance("coin-sniper-model", "PyTorch")) {
+                model.load(modelDir, "coin-sniper-model");
 
                 try (NDManager manager = NDManager.newBaseManager()) {
                     float riskScore = (float) Math.random() * 10;
@@ -162,7 +205,8 @@ public class DJLTrainingService {
                     ParameterStore ps = new ParameterStore(manager, false);
                     NDList output = model.getBlock().forward(ps, new NDList(input), false);
 
-                    float predictedRisk = output.singletonOrThrow().softmax(1).getFloat(0);
+                    NDArray probabilities = output.singletonOrThrow().softmax(1);
+                    float predictedRisk = probabilities.get(0, 1).getFloat(); // probability of class 1
 
                     return PredictionResult.builder()
                             .coinSymbol(coinSymbol)

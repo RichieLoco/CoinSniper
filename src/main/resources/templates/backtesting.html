@@ -4,7 +4,7 @@
     <title>Backtesting Results</title>
     <meta charset="UTF-8">
 
-    <!-- 🪙 Emoji favicon as SVG -->
+    <!-- 🪙 Emoji favicon -->
     <link rel="icon" href="data:image/svg+xml,
     <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
       <text y='0.9em' font-size='90'>🪙</text>
@@ -14,73 +14,20 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        body {
-            background-color: #e8f5e9;
-            font-family: Arial, sans-serif;
-            color: #333;
-            margin: 20px;
-        }
-        h1 {
-            color: #B59410;
-            margin-bottom: 20px;
-        }
-        .back-button {
-            display: inline-block;
-            background-color: #2e7d32;
-            color: white;
-            padding: 10px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-            transition: background-color 0.2s ease, transform 0.1s ease;
-        }
-        .back-button:hover {
-            background-color: #1b5e20;
-            transform: scale(1.03);
-        }
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit,minmax(350px,1fr));
-            gap: 20px;
-        }
-        .card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .chart-container {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        th, td {
-            padding: 12px 14px;
-            border-bottom: 1px solid #e0e0e0;
-            text-align: left;
-            font-size: 14px;
-        }
-        th {
-            background-color: #c8e6c9;
-            font-weight: bold;
-            color: #2e7d32;
-        }
-        tr:nth-child(even) {
-            background-color: #f9fbe7;
-        }
-        tr:hover {
-            background-color: #f1f8e9;
-            transition: background-color 0.2s ease;
-        }
+        body { background-color: #e8f5e9; font-family: Arial, sans-serif; color: #333; margin: 20px; }
+        h1 { color: #B59410; margin-bottom: 20px; }
+        .back-button { display: inline-block; background-color: #2e7d32; color: white; padding: 10px 16px; border-radius: 8px;
+                       text-decoration: none; font-weight: bold; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+                       transition: background-color 0.2s ease, transform 0.1s ease; }
+        .back-button:hover { background-color: #1b5e20; transform: scale(1.03); }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(350px,1fr)); gap: 20px; }
+        .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        table { width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        th, td { padding: 12px 14px; border-bottom: 1px solid #e0e0e0; text-align: left; font-size: 14px; }
+        th { background-color: #c8e6c9; font-weight: bold; color: #2e7d32; }
+        tr:nth-child(even) { background-color: #f9fbe7; }
+        tr:hover { background-color: #f1f8e9; transition: background-color 0.2s ease; }
     </style>
 </head>
 <body>
@@ -91,19 +38,19 @@
 <div class="dashboard-grid">
 
     <!-- Risk Scores -->
-    <div class="card" th:if="${history != null and history.size() > 0}">
+    <div class="card" th:if="${history.size() > 0}">
         <h2>Historical Risk Scores</h2>
         <div class="chart-container">
             <canvas id="riskChart"></canvas>
         </div>
     </div>
-    <div class="card" th:if="${history == null or history.size() == 0}">
+    <div class="card" th:if="${history.size() == 0}">
         <h2>Historical Risk Scores</h2>
         <p>No trade history available yet.</p>
     </div>
 
     <!-- Execution Outcomes -->
-    <div class="card" th:if="${history != null and history.size() > 0}">
+    <div class="card" th:if="${history.size() > 0}">
         <h2>Trade Execution Outcomes</h2>
         <div class="chart-container">
             <canvas id="executionChart"></canvas>
@@ -111,45 +58,39 @@
     </div>
 
     <!-- Loss Curve -->
-    <div class="card" th:if="${metrics.lossPerEpoch != null and metrics.lossPerEpoch.size() > 0}">
+    <div class="card" th:if="${metrics.lossPerEpoch.size() > 0}">
         <h2>Training Loss Curve</h2>
         <div class="chart-container">
             <canvas id="lossChart"></canvas>
         </div>
     </div>
-    <div class="card" th:if="${metrics.lossPerEpoch == null or metrics.lossPerEpoch.size() == 0}">
+    <div class="card" th:if="${metrics.lossPerEpoch.size() == 0}">
         <h2>Training Loss Curve</h2>
         <p>No training data available yet.</p>
     </div>
 
     <!-- Accuracy Curve -->
-    <div class="card" th:if="${metrics.accuracyPerEpoch != null and metrics.accuracyPerEpoch.size() > 0}">
+    <div class="card" th:if="${metrics.accuracyPerEpoch.size() > 0}">
         <h2>Training Accuracy Curve</h2>
         <div class="chart-container">
             <canvas id="accuracyChart"></canvas>
         </div>
     </div>
-    <div class="card" th:if="${metrics.accuracyPerEpoch == null or metrics.accuracyPerEpoch.size() == 0}">
+    <div class="card" th:if="${metrics.accuracyPerEpoch.size() == 0}">
         <h2>Training Accuracy Curve</h2>
         <p>No training data available yet.</p>
     </div>
 
     <!-- Training Summary -->
-    <div class="card" th:if="${metrics.lossPerEpoch != null and metrics.lossPerEpoch.size() > 0}">
+    <div class="card" th:if="${metrics.lossPerEpoch.size() > 0}">
         <h2>Training Summary</h2>
         <ul>
-            <li>Final Loss:
-                <span th:text="${metrics.lossPerEpoch[metrics.lossPerEpoch.size()-1]}"></span>
-            </li>
-            <li>Final Accuracy:
-                <span th:text="${metrics.accuracyPerEpoch[metrics.accuracyPerEpoch.size()-1]}"></span>
-            </li>
-            <li>Average Accuracy:
-                <span th:text="${#numbers.formatDecimal(metrics.averageAccuracy, 1, 2)}"></span>
-            </li>
+            <li>Final Loss: <span th:text="${metrics.lossPerEpoch[metrics.lossPerEpoch.size()-1]}"></span></li>
+            <li>Final Accuracy: <span th:text="${metrics.accuracyPerEpoch[metrics.accuracyPerEpoch.size()-1]}"></span></li>
+            <li>Average Accuracy: <span th:text="${#numbers.formatDecimal(metrics.averageAccuracy, 1, 2)}"></span></li>
         </ul>
     </div>
-    <div class="card" th:if="${metrics.lossPerEpoch == null or metrics.lossPerEpoch.size() == 0}">
+    <div class="card" th:if="${metrics.lossPerEpoch.size() == 0}">
         <h2>Training Summary</h2>
         <p>No training data available yet.</p>
     </div>
@@ -166,8 +107,8 @@
     <!-- Prediction Form -->
     <div class="card">
         <h2>Predict Risk</h2>
-        <form action="/backtesting/predict" method="post" enctype="application/x-www-form-urlencoded">
-            <input type="text" name="coinSymbol" placeholder="Enter coin symbol">
+        <form th:action="@{/backtesting/predict}" th:object="${predictionForm}" method="post">
+            <input type="text" th:field="*{coinSymbol}" placeholder="Enter coin symbol">
             <button type="submit">Predict</button>
         </form>
         <div th:if="${prediction != null}">
@@ -181,7 +122,7 @@
     </div>
 
     <!-- Recent Trades Table -->
-    <div class="card" style="grid-column:1/-1;" th:if="${history != null and history.size() > 0}">
+    <div class="card" style="grid-column:1/-1;" th:if="${history.size() > 0}">
         <h2>Recent Trade History</h2>
         <table>
             <thead>
@@ -204,7 +145,7 @@
             </tbody>
         </table>
     </div>
-    <div class="card" style="grid-column:1/-1;" th:if="${history == null or history.size() == 0}">
+    <div class="card" style="grid-column:1/-1;" th:if="${history.size() == 0}">
         <h2>Recent Trade History</h2>
         <p>No trade history available yet.</p>
     </div>
@@ -214,13 +155,13 @@
 <!-- Charts Script -->
 <script th:inline="javascript">
     const tradeData = [[${history}]];
-    const hasHistory = tradeData && tradeData.length > 0;
-    const hasLossData = [[${metrics.lossPerEpoch != null and metrics.lossPerEpoch.size() > 0}]];
-    const hasAccData = [[${metrics.accuracyPerEpoch != null and metrics.accuracyPerEpoch.size() > 0}]];
+    const riskData = [[${history}]];
+    const hasLossData = [[${metrics.lossPerEpoch.size() > 0}]];
+    const hasAccData = [[${metrics.accuracyPerEpoch.size() > 0}]];
 
-    if (hasHistory) {
+    if (tradeData.length > 0) {
         const labels = tradeData.map(t => t.coinSymbol + ' @ ' + t.exchange);
-        const riskData = tradeData.map(t => t.riskScore);
+        const scores = tradeData.map(t => t.riskScore);
         const executedFlags = tradeData.map(t => t.tradeExecuted);
 
         function getRiskColor(score) {
@@ -230,23 +171,14 @@
         }
 
         const backgroundColors = executedFlags.map((executed, i) =>
-            executed ? getRiskColor(riskData[i]) : 'transparent'
+            executed ? getRiskColor(scores[i]) : 'transparent'
         );
-        const borderColors = riskData.map(score => getRiskColor(score));
+        const borderColors = scores.map(score => getRiskColor(score));
         const borderWidths = executedFlags.map(executed => executed ? 0 : 3);
 
         new Chart(document.getElementById('riskChart').getContext('2d'), {
             type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Risk Score',
-                    data: riskData,
-                    backgroundColor: backgroundColors,
-                    borderColor: borderColors,
-                    borderWidth: borderWidths
-                }]
-            },
+            data: { labels: labels, datasets: [{ label: 'Risk Score', data: scores, backgroundColor: backgroundColors, borderColor: borderColors, borderWidth: borderWidths }] },
             options: { scales: { y: { beginAtZero: true, max: 10 } } }
         });
 
@@ -254,13 +186,7 @@
         const notExecutedCount = tradeData.length - executedCount;
         new Chart(document.getElementById('executionChart').getContext('2d'), {
             type: 'pie',
-            data: {
-                labels: ['Executed', 'Not Executed'],
-                datasets: [{
-                    data: [executedCount, notExecutedCount],
-                    backgroundColor: ['#4caf50', '#ef5350']
-                }]
-            }
+            data: { labels: ['Executed', 'Not Executed'], datasets: [{ data: [executedCount, notExecutedCount], backgroundColor: ['#4caf50', '#ef5350'] }] }
         });
     }
 
@@ -269,10 +195,7 @@
         const epochLabels = lossData.map((_, i) => "Epoch " + (i+1));
         new Chart(document.getElementById('lossChart').getContext('2d'), {
             type: 'line',
-            data: {
-                labels: epochLabels,
-                datasets: [{ label: 'Loss', data: lossData, borderColor: 'red', fill: false }]
-            }
+            data: { labels: epochLabels, datasets: [{ label: 'Loss', data: lossData, borderColor: 'red', fill: false }] }
         });
     }
 
@@ -281,10 +204,7 @@
         const epochLabels = accData.map((_, i) => "Epoch " + (i+1));
         new Chart(document.getElementById('accuracyChart').getContext('2d'), {
             type: 'line',
-            data: {
-                labels: epochLabels,
-                datasets: [{ label: 'Accuracy', data: accData, borderColor: 'blue', fill: false }]
-            }
+            data: { labels: epochLabels, datasets: [{ label: 'Accuracy', data: accData, borderColor: 'blue', fill: false }] }
         });
     }
 </script>
