@@ -35,17 +35,18 @@ public class BacktestingControllerTest {
     }
 
     @Test
-    public void backtesting_shouldAddHistoryAndReturnView() {
+    public void backtesting_shouldAddHistoryAndReturnView_withoutTraining() {
         Model model = new ConcurrentModel();
 
         TradeDecisionRecord record = TradeDecisionRecord.builder().coinSymbol("XYZ").build();
         when(repository.findAll()).thenReturn(Flux.just(record));
 
-        String view = controller.backtesting(model).block(); // ✅ block to get the result
+        String view = controller.backtesting(model).block();
 
         assertEquals("backtesting", view);
-        verify(djlTrainingService).train(Collections.singletonList(record));
-        verify(djlTrainingService).logToFile(Collections.singletonList(record));
+        assertEquals(List.of(record), model.getAttribute("history"));
+
+        verifyNoInteractions(djlTrainingService);
     }
 
     @Test
@@ -56,11 +57,9 @@ public class BacktestingControllerTest {
         String view = controller.backtesting(model).block();
 
         assertEquals("backtesting", view);
-        verify(djlTrainingService).train(Collections.emptyList());
-        verify(djlTrainingService).logToFile(Collections.emptyList());
+        assertEquals(Collections.emptyList(), model.getAttribute("history"));
 
-        Object attr = model.getAttribute("history");
-        assertEquals(Collections.emptyList(), attr);
+        verifyNoInteractions(djlTrainingService);
     }
 
     @Test
@@ -69,7 +68,7 @@ public class BacktestingControllerTest {
         TradeDecisionRecord record = TradeDecisionRecord.builder().coinSymbol("XYZ").build();
 
         when(repository.findAll()).thenReturn(Flux.just(record));
-        doThrow(new RuntimeException("Training failed")).when(djlTrainingService).train(any());
+        doThrow(new RuntimeException("Training failed")).when(djlTrainingService).trainReactive(any());
         doThrow(new RuntimeException("Log failed")).when(djlTrainingService).logToFile(any());
 
         String view = controller.backtesting(model).block();

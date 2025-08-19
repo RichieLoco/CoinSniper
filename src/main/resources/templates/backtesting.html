@@ -104,6 +104,21 @@
         </details>
     </div>
 
+    <!-- Train Model -->
+    <div class="card">
+        <h2>Train Model</h2>
+        <form th:action="@{/backtesting/train}" method="post">
+            <button type="submit">Train on Current History</button>
+        </form>
+
+        <div th:if="${trainMessage != null}" style="margin-top:10px;color:#2e7d32;">
+            <p th:text="${trainMessage}"></p>
+        </div>
+        <div th:if="${trainError != null}" style="margin-top:10px;color:#d32f2f;">
+            <p th:text="${trainError}"></p>
+        </div>
+    </div>
+
     <!-- Prediction Form -->
     <div class="card">
         <h2>Predict Risk</h2>

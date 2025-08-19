@@ -3,7 +3,6 @@ package com.richieloco.coinsniper.service;
 import com.richieloco.coinsniper.entity.TradeDecisionRecord;
 import com.richieloco.coinsniper.repository.TradeDecisionRepository;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -22,6 +21,7 @@ public class DJLTrainingServiceTest {
     @BeforeAll
     public static void setUp() {
         System.setProperty("ai.djl.default_engine", "PyTorch");
+        System.setProperty("coin-sniper.export.enabled", "false");
 
         TradeDecisionRepository mockRepo = Mockito.mock(TradeDecisionRepository.class);
         trainer = new DJLTrainingService(mockRepo);
@@ -29,7 +29,6 @@ public class DJLTrainingServiceTest {
 
     @Test
     public void testTrainingAndLogging() {
-
         TradeDecisionRecord record = TradeDecisionRecord.builder()
                 .coinSymbol("XYZ")
                 .exchange("Binance")
@@ -40,22 +39,33 @@ public class DJLTrainingServiceTest {
 
         List<TradeDecisionRecord> data = List.of(record);
 
-        trainer.train(data);
+        // Reactive train — will not throw thanks to onErrorResume
+        trainer.trainReactive(data).block();
         trainer.logToFile(data);
     }
 
     @Test
     public void testTrainingAndLogging_withEmptyList() {
-
         List<TradeDecisionRecord> data = List.of();
 
-        trainer.train(data); // Should not throw
-        trainer.logToFile(data); // Should create header line only
+        // Should not throw even if DJL cannot run on CI
+        trainer.trainReactive(data).block();
+        trainer.logToFile(data);
+    }
+
+    @Test
+    public void testTrain_handlesExceptionGracefully() {
+        TradeDecisionRecord badRecord = TradeDecisionRecord.builder()
+                .riskScore(Double.NaN)
+                .tradeExecuted(true)
+                .build();
+
+        // Should not throw; onErrorResume returns a TrainingResult
+        trainer.trainReactive(List.of(badRecord)).block();
     }
 
     @Test
     public void testLogToFile_createsExpectedContent() throws IOException {
-
         TradeDecisionRecord record = TradeDecisionRecord.builder()
                 .coinSymbol("TEST")
                 .exchange("MockEx")
@@ -67,7 +77,7 @@ public class DJLTrainingServiceTest {
         List<TradeDecisionRecord> data = List.of(record);
 
         Path tempLog = Files.createTempFile("unittest_training_log", ".tsv");
-        System.setProperty("log.override.path", tempLog.toAbsolutePath().toString()); // Optional if you redirect
+        System.setProperty("log.override.path", tempLog.toAbsolutePath().toString()); // if you handle this in your code
 
         trainer.logToFile(data, tempLog.toAbsolutePath().toString());
         String output = Files.readString(tempLog);
@@ -76,20 +86,5 @@ public class DJLTrainingServiceTest {
         assertTrue(output.contains("TEST\tMockEx\t2.50\tfalse\t2024-01-01T00:00:00Z"));
 
         Files.deleteIfExists(tempLog);
-    }
-
-    @Test
-    public void testTrain_handlesExceptionGracefully() {
-
-        // Invalid block simulation (e.g., no layers)
-        TradeDecisionRecord badRecord = TradeDecisionRecord.builder()
-                .coinSymbol(null) // malformed data, although not used in this logic
-                .exchange(null)
-                .riskScore(Double.NaN)
-                .tradeExecuted(true)
-                .timestamp(null)
-                .build();
-
-        trainer.train(List.of(badRecord)); // Should not throw due to internal try-catch
     }
 }

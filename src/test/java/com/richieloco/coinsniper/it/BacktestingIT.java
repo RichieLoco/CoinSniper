@@ -80,7 +80,7 @@ public class BacktestingIT {
                     assert body.contains("XYZ");
                 });
 
-        verify(trainingService, atLeastOnce()).train(anyList());
+        verify(trainingService, atLeastOnce()).trainReactive(anyList());
         verify(trainingService, atLeastOnce()).logToFile(anyList());
 
     }
@@ -100,7 +100,7 @@ public class BacktestingIT {
                     assert !body.contains("XYZ");
                 });
 
-        verify(trainingService, atLeastOnce()).train(anyList());
+        verify(trainingService, atLeastOnce()).trainReactive(anyList());
         verify(trainingService, atLeastOnce()).logToFile(anyList());
     }
 
@@ -128,7 +128,7 @@ public class BacktestingIT {
                     assert body.contains("ETH");
                 });
 
-        verify(trainingService, atLeastOnce()).train(anyList());
+        verify(trainingService, atLeastOnce()).trainReactive(anyList());
         verify(trainingService, atLeastOnce()).logToFile(anyList());
 
     }
@@ -137,7 +137,7 @@ public class BacktestingIT {
     public void testBacktestingViewHandlesTrainingError() {
         // Simulate exception on train()
         Mockito.doThrow(new RuntimeException("Training failed"))
-                .when(trainingService).train(anyList());
+                .when(trainingService).trainReactive(anyList());
 
         webTestClient.get()
                 .uri("/backtesting")
