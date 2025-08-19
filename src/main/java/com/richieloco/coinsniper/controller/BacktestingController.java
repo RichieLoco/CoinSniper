@@ -48,23 +48,25 @@ public class BacktestingController {
     }
 
     @PostMapping("/backtesting/predict")
-    public String predict(@ModelAttribute PredictionForm predictionForm, Model model) {
+    public Mono<String> predict(@ModelAttribute PredictionForm predictionForm, Model model) {
         String coinSymbol = predictionForm.getCoinSymbol();
         log.debug("Coin Symbol received: {}", coinSymbol);
 
-        try {
-            PredictionResult prediction = djlTrainingService.predict(coinSymbol);
-            prediction.setCoinSymbol(coinSymbol);
-            model.addAttribute("prediction", prediction);
-        } catch (Exception e) {
-            log.error("Prediction failed", e);
-            model.addAttribute("predictionError", "Prediction failed: " + e.getMessage());
-        }
-
+        // Set shared model attributes early
         model.addAttribute("metrics", TrainingResult.builder().build());
         model.addAttribute("history", List.of());
-        model.addAttribute("predictionForm", predictionForm); //... Keep form value
+        model.addAttribute("predictionForm", predictionForm);
 
-        return "backtesting";
+        return djlTrainingService.predict(coinSymbol)  // Mono<PredictionResult>
+                .doOnNext(prediction -> {
+                    prediction.setCoinSymbol(coinSymbol); // optional redundancy
+                    model.addAttribute("prediction", prediction);
+                })
+                .map(result -> "backtesting")
+                .onErrorResume(e -> {
+                    log.error("Prediction failed", e);
+                    model.addAttribute("predictionError", "Prediction failed: " + e.getMessage());
+                    return Mono.just("backtesting");
+                });
     }
 }

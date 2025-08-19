@@ -1,8 +1,11 @@
 package com.richieloco.coinsniper.service;
 
 import com.richieloco.coinsniper.entity.TradeDecisionRecord;
+import com.richieloco.coinsniper.repository.TradeDecisionRepository;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,14 +17,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DJLTrainingServiceTest {
 
+    private static DJLTrainingService trainer;
+
     @BeforeAll
-    public static void setupEngine() {
+    public static void setUp() {
         System.setProperty("ai.djl.default_engine", "PyTorch");
+
+        TradeDecisionRepository mockRepo = Mockito.mock(TradeDecisionRepository.class);
+        trainer = new DJLTrainingService(mockRepo);
     }
 
     @Test
     public void testTrainingAndLogging() {
-        DJLTrainingService trainer = new DJLTrainingService();
 
         TradeDecisionRecord record = TradeDecisionRecord.builder()
                 .coinSymbol("XYZ")
@@ -39,7 +46,6 @@ public class DJLTrainingServiceTest {
 
     @Test
     public void testTrainingAndLogging_withEmptyList() {
-        DJLTrainingService trainer = new DJLTrainingService();
 
         List<TradeDecisionRecord> data = List.of();
 
@@ -49,7 +55,6 @@ public class DJLTrainingServiceTest {
 
     @Test
     public void testLogToFile_createsExpectedContent() throws IOException {
-        DJLTrainingService trainer = new DJLTrainingService();
 
         TradeDecisionRecord record = TradeDecisionRecord.builder()
                 .coinSymbol("TEST")
@@ -75,7 +80,6 @@ public class DJLTrainingServiceTest {
 
     @Test
     public void testTrain_handlesExceptionGracefully() {
-        DJLTrainingService trainer = new DJLTrainingService();
 
         // Invalid block simulation (e.g., no layers)
         TradeDecisionRecord badRecord = TradeDecisionRecord.builder()

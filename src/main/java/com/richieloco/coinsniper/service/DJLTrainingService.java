@@ -1,7 +1,7 @@
 package com.richieloco.coinsniper.service;
 
-import ai.djl.MalformedModelException;
 import ai.djl.Model;
+import ai.djl.MalformedModelException;
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
@@ -20,15 +20,13 @@ import ai.djl.training.tracker.Tracker;
 import com.richieloco.coinsniper.dto.PredictionResult;
 import com.richieloco.coinsniper.dto.TrainingResult;
 import com.richieloco.coinsniper.entity.TradeDecisionRecord;
+import com.richieloco.coinsniper.repository.TradeDecisionRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.*;
 import java.time.Instant;
 import java.util.List;
@@ -37,12 +35,17 @@ import java.util.List;
 @Service
 public class DJLTrainingService {
 
+    private final TradeDecisionRepository tradeDecisionRepository;
+
     private static final String PYTHON_PATH = Paths.get(".venv", "Scripts", "python.exe").toString();
     private static final String MODEL_DIR = "models/coin-sniper";
-    private static final String PYTHON_SCRIPT =
-            Paths.get("src", "main", "resources", "scripts", "export_to_pt.py").toString();
+    private static final String PYTHON_SCRIPT = Paths.get("src", "main", "resources", "scripts", "export_to_pt.py").toString();
     private static final int EPOCHS = 5;
     private static final int BATCH_SIZE = 8;
+
+    public DJLTrainingService(TradeDecisionRepository tradeDecisionRepository) {
+        this.tradeDecisionRepository = tradeDecisionRepository;
+    }
 
     public TrainingResult train(List<TradeDecisionRecord> tradeData) {
         try (Model model = Model.newInstance("coin-sniper-model", "PyTorch");
@@ -54,7 +57,6 @@ public class DJLTrainingService {
                     .add(Linear.builder().setUnits(2).build()); // Binary classification
             model.setBlock(block);
 
-            // Prepare data
             float[][] features;
             long[] labels;
             if (tradeData == null || tradeData.isEmpty()) {
@@ -85,8 +87,6 @@ public class DJLTrainingService {
                     .optOptimizer(optimizer)
                     .addTrainingListeners(TrainingListener.Defaults.logging());
 
-            double[] epochLosses = new double[EPOCHS];
-
             try (Trainer trainer = model.newTrainer(config)) {
                 trainer.initialize(manager.create(features).getShape());
 
@@ -105,16 +105,12 @@ public class DJLTrainingService {
                 }
             }
 
-            // Save DJL model
-            File modelDir = new File(MODEL_DIR);
-            modelDir.mkdirs();
+            // Save model and export
+            Files.createDirectories(Paths.get(MODEL_DIR));
             model.save(Paths.get(MODEL_DIR), "coin-sniper-model");
             log.info("Saved DJL model to {}", Paths.get(MODEL_DIR).toAbsolutePath());
 
-            // Export weights as .csv for Python
             exportWeightsAsCsv(model);
-
-            // Run Python script to generate .pt
             runPythonExportScript();
 
             return TrainingResult.builder()
@@ -126,6 +122,43 @@ public class DJLTrainingService {
 
         } catch (IOException e) {
             throw new RuntimeException("Training failed", e);
+        }
+    }
+
+    public Mono<PredictionResult> predict(String coinSymbol) {
+        return tradeDecisionRepository.findTopByCoinSymbolOrderByTimestampDesc(coinSymbol)
+                .switchIfEmpty(Mono.error(new IllegalArgumentException("No historical data for coin symbol: " + coinSymbol)))
+                .flatMap(record ->
+                        Mono.fromCallable(() -> runDjlPrediction(coinSymbol, record.getRiskScore()))
+                                .subscribeOn(Schedulers.boundedElastic())
+                );
+    }
+
+    private PredictionResult runDjlPrediction(String coinSymbol, Double riskScore) throws IOException, MalformedModelException {
+        Path modelDir = Paths.get(MODEL_DIR);
+        Path ptPath = modelDir.resolve("coin-sniper-model.pt");
+
+        if (!Files.exists(ptPath)) {
+            throw new IOException("Model file not found: " + ptPath.toAbsolutePath());
+        }
+
+        try (Model model = Model.newInstance("coin-sniper-model", "PyTorch")) {
+            model.load(modelDir, "coin-sniper-model");
+
+            try (NDManager manager = NDManager.newBaseManager()) {
+                NDArray input = manager.create(new float[][]{{riskScore.floatValue()}});
+                ParameterStore ps = new ParameterStore(manager, false);
+                NDList output = model.getBlock().forward(ps, new NDList(input), false);
+
+                NDArray probabilities = output.singletonOrThrow().softmax(1);
+                float predictedRisk = probabilities.get(0, 1).getFloat(); // Class 1: "execute"
+
+                return PredictionResult.builder()
+                        .coinSymbol(coinSymbol)
+                        .riskScore(predictedRisk * 10)
+                        .notes("Predicted at " + Instant.now() + " using last known risk: " + riskScore)
+                        .build();
+            }
         }
     }
 
@@ -148,7 +181,7 @@ public class DJLTrainingService {
             log.info("Exported weights to {}", weightsDir.toAbsolutePath());
 
         } catch (Exception e) {
-            log.error("Failed to export weights: {}", e.getMessage());
+            log.error("Failed to export weights: {}", e.getMessage(), e);
         }
     }
 
@@ -166,7 +199,7 @@ public class DJLTrainingService {
             log.info("Running Python export script with interpreter: {}", PYTHON_PATH);
 
             ProcessBuilder pb = new ProcessBuilder(PYTHON_PATH, PYTHON_SCRIPT, MODEL_DIR);
-            pb.redirectErrorStream(true); // merge stderr into stdout
+            pb.redirectErrorStream(true);
             Process process = pb.start();
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
@@ -185,38 +218,6 @@ public class DJLTrainingService {
 
         } catch (Exception e) {
             log.error("Error running Python export script: {}", e.getMessage(), e);
-        }
-    }
-
-
-    public PredictionResult predict(String coinSymbol) {
-        try {
-            Path modelDir = Paths.get(MODEL_DIR);
-            Path ptPath = modelDir.resolve("coin-sniper-model.pt");
-
-            log.info("Loading model: {}", ptPath.toAbsolutePath());
-
-            try (Model model = Model.newInstance("coin-sniper-model", "PyTorch")) {
-                model.load(modelDir, "coin-sniper-model");
-
-                try (NDManager manager = NDManager.newBaseManager()) {
-                    float riskScore = (float) Math.random() * 10;
-                    NDArray input = manager.create(new float[][]{{riskScore}});
-                    ParameterStore ps = new ParameterStore(manager, false);
-                    NDList output = model.getBlock().forward(ps, new NDList(input), false);
-
-                    NDArray probabilities = output.singletonOrThrow().softmax(1);
-                    float predictedRisk = probabilities.get(0, 1).getFloat(); // probability of class 1
-
-                    return PredictionResult.builder()
-                            .coinSymbol(coinSymbol)
-                            .riskScore(predictedRisk * 10)
-                            .notes("Predicted at " + Instant.now())
-                            .build();
-                }
-            }
-        } catch (IOException | MalformedModelException e) {
-            throw new RuntimeException("Prediction failed", e);
         }
     }
 
