@@ -1,7 +1,9 @@
 package com.richieloco.coinsniper.controller;
 
 import com.richieloco.coinsniper.dto.PredictionForm;
+import com.richieloco.coinsniper.dto.PredictionResult;
 import com.richieloco.coinsniper.dto.TrainingResult;
+import com.richieloco.coinsniper.entity.TradeDecisionRecord;
 import com.richieloco.coinsniper.repository.TradeDecisionRepository;
 import com.richieloco.coinsniper.service.DJLTrainingService;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +23,6 @@ public class BacktestingController {
     private final TradeDecisionRepository tradeDecisionRepository;
     private final DJLTrainingService djlTrainingService;
 
-    /** View only: DO NOT train on GET. */
     @GetMapping("/backtesting")
     public Mono<String> backtesting(Model model) {
         return tradeDecisionRepository.findAll()
@@ -36,7 +37,6 @@ public class BacktestingController {
                 });
     }
 
-    /** Train only when the button is pressed. */
     @PostMapping("/backtesting/train")
     public Mono<String> train(Model model) {
         return tradeDecisionRepository.findAll()
@@ -62,23 +62,35 @@ public class BacktestingController {
                 );
     }
 
-    /** Predict remains reactive; uses the current saved model. */
     @PostMapping("/backtesting/predict")
     public Mono<String> predict(@ModelAttribute PredictionForm predictionForm, Model model) {
         String coinSymbol = predictionForm.getCoinSymbol();
         log.debug("Coin Symbol received: {}", coinSymbol);
 
-        model.addAttribute("metrics", TrainingResult.builder().build());
-        model.addAttribute("history", List.of());
-        model.addAttribute("predictionForm", predictionForm);
+        Mono<List<TradeDecisionRecord>> historyMono = tradeDecisionRepository.findAll().collectList();
+        Mono<PredictionResult> predictionMono = djlTrainingService.predict(coinSymbol);
 
-        return djlTrainingService.predict(coinSymbol)
-                .doOnNext(prediction -> model.addAttribute("prediction", prediction))
-                .map(prediction -> "backtesting")
+        return Mono.zip(historyMono, predictionMono)
+                .map(tuple -> {
+                    List<TradeDecisionRecord> history = tuple.getT1();
+                    PredictionResult prediction = tuple.getT2();
+
+                    model.addAttribute("history", history);
+                    model.addAttribute("metrics", djlTrainingService.getLastTrainingResult()); // Optional: cache it inside service
+                    model.addAttribute("predictionForm", predictionForm);
+                    model.addAttribute("prediction", prediction);
+                    return "backtesting";
+                })
                 .onErrorResume(ex -> {
                     log.error("Prediction failed", ex);
-                    model.addAttribute("predictionError", "Prediction failed: " + ex.getMessage());
-                    return Mono.just("backtesting");
+                    return tradeDecisionRepository.findAll().collectList()
+                            .map(history -> {
+                                model.addAttribute("history", history);
+                                model.addAttribute("metrics", djlTrainingService.getLastTrainingResult());
+                                model.addAttribute("predictionForm", predictionForm);
+                                model.addAttribute("predictionError", "Prediction failed: " + ex.getMessage());
+                                return "backtesting";
+                            });
                 });
     }
 }

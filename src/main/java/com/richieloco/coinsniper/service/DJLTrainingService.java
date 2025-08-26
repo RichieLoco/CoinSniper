@@ -40,6 +40,7 @@ import java.nio.file.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @Service
@@ -65,15 +66,23 @@ public class DJLTrainingService {
     public Mono<TrainingResult> trainReactive(List<TradeDecisionRecord> tradeData) {
         return Mono.fromCallable(() -> trainBlocking(tradeData))
                 .subscribeOn(Schedulers.boundedElastic())
+                .doOnNext(lastTraining::set)
                 .onErrorResume(ex -> {
                     log.warn("Training failed (graceful): {}", ex.getMessage());
-                    return Mono.just(TrainingResult.builder()
+                    TrainingResult fallback = TrainingResult.builder()
                             .lossPerEpoch(List.of())
                             .accuracyPerEpoch(List.of())
                             .averageAccuracy(0.0)
                             .modelSummary("Training failed: " + ex.getMessage())
-                            .build());
+                            .build();
+                    lastTraining.set(fallback);
+                    return Mono.just(fallback);
                 });
+    }
+
+    /** Exposes last training result to the controller **/
+    public TrainingResult getLastTrainingResult() {
+        return lastTraining.get();
     }
 
     /** Predict risk for the latest record of coinSymbol (non‑blocking). */
@@ -196,6 +205,15 @@ public class DJLTrainingService {
             throw new RuntimeException("Training failed", ex);
         }
     }
+
+    private final AtomicReference<TrainingResult> lastTraining = new AtomicReference<>(TrainingResult.builder()
+            .modelSummary("Model has not yet been trained.")
+            .lossPerEpoch(List.of())
+            .accuracyPerEpoch(List.of())
+            .averageAccuracy(0.0)
+            .build());
+
+
 
     /* --------------------------- Prediction --------------------------- */
 
