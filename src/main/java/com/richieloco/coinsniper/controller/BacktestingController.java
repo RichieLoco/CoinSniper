@@ -29,9 +29,7 @@ public class BacktestingController {
                 .collectList()
                 .map(history -> {
                     model.addAttribute("history", history);
-                    model.addAttribute("metrics", TrainingResult.builder()
-                            .modelSummary("Model not retrained on page load.")
-                            .build());
+                    model.addAttribute("metrics", djlTrainingService.getLastTrainingResult());
                     model.addAttribute("predictionForm", new PredictionForm());
                     return "backtesting";
                 });
@@ -76,7 +74,7 @@ public class BacktestingController {
                     PredictionResult prediction = tuple.getT2();
 
                     model.addAttribute("history", history);
-                    model.addAttribute("metrics", djlTrainingService.getLastTrainingResult()); // Optional: cache it inside service
+                    model.addAttribute("metrics", djlTrainingService.getLastTrainingResult());
                     model.addAttribute("predictionForm", predictionForm);
                     model.addAttribute("prediction", prediction);
                     return "backtesting";

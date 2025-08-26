@@ -45,8 +45,6 @@ public class BacktestingControllerTest {
 
         assertEquals("backtesting", view);
         assertEquals(List.of(record), model.getAttribute("history"));
-
-        verifyNoInteractions(djlTrainingService);
     }
 
     @Test
@@ -58,8 +56,6 @@ public class BacktestingControllerTest {
 
         assertEquals("backtesting", view);
         assertEquals(Collections.emptyList(), model.getAttribute("history"));
-
-        verifyNoInteractions(djlTrainingService);
     }
 
     @Test

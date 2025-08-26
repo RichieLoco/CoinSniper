@@ -169,10 +169,10 @@
 
 <!-- Charts Script -->
 <script th:inline="javascript">
-    const tradeData = [[${history}]];
-    const riskData = [[${history}]];
-    const hasLossData = [[${metrics.lossPerEpoch.size() > 0}]];
-    const hasAccData = [[${metrics.accuracyPerEpoch.size() > 0}]];
+    /*<![CDATA[*/
+    const tradeData = /*[[${history}]]*/ [];
+    const hasLossData = /*[[${metrics.lossPerEpoch != null and metrics.lossPerEpoch.size() > 0}]]*/ false;
+    const hasAccData = /*[[${metrics.accuracyPerEpoch != null and metrics.accuracyPerEpoch.size() > 0}]]*/ false;
 
     if (tradeData.length > 0) {
         const labels = tradeData.map(t => t.coinSymbol + ' @ ' + t.exchange);
@@ -193,36 +193,78 @@
 
         new Chart(document.getElementById('riskChart').getContext('2d'), {
             type: 'bar',
-            data: { labels: labels, datasets: [{ label: 'Risk Score', data: scores, backgroundColor: backgroundColors, borderColor: borderColors, borderWidth: borderWidths }] },
-            options: { scales: { y: { beginAtZero: true, max: 10 } } }
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Risk Score',
+                    data: scores,
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors,
+                    borderWidth: borderWidths
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10
+                    }
+                }
+            }
         });
 
         const executedCount = tradeData.filter(t => t.tradeExecuted).length;
         const notExecutedCount = tradeData.length - executedCount;
         new Chart(document.getElementById('executionChart').getContext('2d'), {
             type: 'pie',
-            data: { labels: ['Executed', 'Not Executed'], datasets: [{ data: [executedCount, notExecutedCount], backgroundColor: ['#4caf50', '#ef5350'] }] }
+            data: {
+                labels: ['Executed', 'Not Executed'],
+                datasets: [{
+                    data: [executedCount, notExecutedCount],
+                    backgroundColor: ['#4caf50', '#ef5350']
+                }]
+            }
         });
     }
 
     if (hasLossData) {
-        const lossData = [[${metrics.lossPerEpoch}]];
-        const epochLabels = lossData.map((_, i) => "Epoch " + (i+1));
+        const lossData = /*[[${metrics.lossPerEpoch}]]*/ [];
+        const epochLabels = lossData.map((_, i) => "Epoch " + (i + 1));
+
         new Chart(document.getElementById('lossChart').getContext('2d'), {
             type: 'line',
-            data: { labels: epochLabels, datasets: [{ label: 'Loss', data: lossData, borderColor: 'red', fill: false }] }
+            data: {
+                labels: epochLabels,
+                datasets: [{
+                    label: 'Loss',
+                    data: lossData,
+                    borderColor: 'red',
+                    fill: false
+                }]
+            }
         });
     }
 
     if (hasAccData) {
-        const accData = [[${metrics.accuracyPerEpoch}]];
-        const epochLabels = accData.map((_, i) => "Epoch " + (i+1));
+        const accData = /*[[${metrics.accuracyPerEpoch}]]*/ [];
+        const epochLabels = accData.map((_, i) => "Epoch " + (i + 1));
+
         new Chart(document.getElementById('accuracyChart').getContext('2d'), {
             type: 'line',
-            data: { labels: epochLabels, datasets: [{ label: 'Accuracy', data: accData, borderColor: 'blue', fill: false }] }
+            data: {
+                labels: epochLabels,
+                datasets: [{
+                    label: 'Accuracy',
+                    data: accData,
+                    borderColor: 'blue',
+                    fill: false
+                }]
+            }
         });
     }
+    /*]]>*/
 </script>
+
 
 </body>
 </html>

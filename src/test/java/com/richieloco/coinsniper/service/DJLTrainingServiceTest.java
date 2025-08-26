@@ -1,5 +1,6 @@
 package com.richieloco.coinsniper.service;
 
+import ai.djl.TrainingDivergedException;
 import com.richieloco.coinsniper.entity.TradeDecisionRecord;
 import com.richieloco.coinsniper.repository.TradeDecisionRepository;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,6 +13,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DJLTrainingServiceTest {
@@ -60,8 +62,9 @@ public class DJLTrainingServiceTest {
                 .tradeExecuted(true)
                 .build();
 
-        // Should not throw; onErrorResume returns a TrainingResult
-        trainer.trainReactive(List.of(badRecord)).block();
+        assertThrows(TrainingDivergedException.class, () -> {
+            trainer.trainReactive(List.of(badRecord)).block();
+        });
     }
 
     @Test
