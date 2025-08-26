@@ -4,11 +4,8 @@
     <title>Backtesting Results</title>
     <meta charset="UTF-8">
 
-    <!-- 🪙 Emoji favicon -->
-    <link rel="icon" href="data:image/svg+xml,
-    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
-      <text y='0.9em' font-size='90'>🪙</text>
-    </svg>">
+    <!-- Emoji favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🪙</text></svg>">
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -36,8 +33,7 @@
 <a href="/dashboard" class="back-button">🏠 Back to Dashboard</a>
 
 <div class="dashboard-grid">
-
-    <!-- Risk Scores -->
+    <!-- Historical Risk Scores -->
     <div class="card" th:if="${history.size() > 0}">
         <h2>Historical Risk Scores</h2>
         <div class="chart-container">
@@ -57,16 +53,12 @@
         </div>
     </div>
 
-    <!-- Loss Curve -->
+    <!-- Training Loss Curve -->
     <div class="card" th:if="${metrics.lossPerEpoch.size() > 0}">
         <h2>Training Loss Curve</h2>
         <div class="chart-container">
             <canvas id="lossChart"></canvas>
         </div>
-    </div>
-    <div class="card" th:if="${metrics.lossPerEpoch.size() == 0}">
-        <h2>Training Loss Curve</h2>
-        <p>No training data available yet.</p>
     </div>
 
     <!-- Accuracy Curve -->
@@ -75,10 +67,6 @@
         <div class="chart-container">
             <canvas id="accuracyChart"></canvas>
         </div>
-    </div>
-    <div class="card" th:if="${metrics.accuracyPerEpoch.size() == 0}">
-        <h2>Training Accuracy Curve</h2>
-        <p>No training data available yet.</p>
     </div>
 
     <!-- Training Summary -->
@@ -90,27 +78,23 @@
             <li>Average Accuracy: <span th:text="${#numbers.formatDecimal(metrics.averageAccuracy, 1, 2)}"></span></li>
         </ul>
     </div>
-    <div class="card" th:if="${metrics.lossPerEpoch.size() == 0}">
-        <h2>Training Summary</h2>
-        <p>No training data available yet.</p>
-    </div>
 
     <!-- Model Summary -->
     <div class="card">
         <h2>Model Architecture</h2>
         <details>
             <summary>View Details</summary>
-            <pre th:text="${metrics.modelSummary}" style="background:#f4f4f4;padding:10px;border-radius:6px;"></pre>
+            <pre th:text="${metrics.customSummary}" style="background:#f4f4f4;padding:10px;border-radius:6px;"></pre>
+
         </details>
     </div>
 
-    <!-- Train Model -->
+    <!-- Train Button -->
     <div class="card">
         <h2>Train Model</h2>
         <form th:action="@{/backtesting/train}" method="post">
             <button type="submit">Train on Current History</button>
         </form>
-
         <div th:if="${trainMessage != null}" style="margin-top:10px;color:#2e7d32;">
             <p th:text="${trainMessage}"></p>
         </div>
@@ -127,8 +111,7 @@
             <button type="submit">Predict</button>
         </form>
         <div th:if="${prediction != null}">
-            <p>Predicted Risk for <b th:text="${prediction.coinSymbol}"></b>:
-                <span th:text="${prediction.riskScore}"></span></p>
+            <p>Predicted Risk for <b th:text="${prediction.coinSymbol}"></b>: <span th:text="${prediction.riskScore}"></span></p>
             <p th:text="${prediction.notes}"></p>
         </div>
         <div th:if="${predictionError != null}" style="color:red">
@@ -136,18 +119,12 @@
         </div>
     </div>
 
-    <!-- Recent Trades Table -->
+    <!-- Trade History Table -->
     <div class="card" style="grid-column:1/-1;" th:if="${history.size() > 0}">
         <h2>Recent Trade History</h2>
         <table>
             <thead>
-            <tr>
-                <th>Coin</th>
-                <th>Exchange</th>
-                <th>Risk Score</th>
-                <th>Executed</th>
-                <th>Timestamp</th>
-            </tr>
+            <tr><th>Coin</th><th>Exchange</th><th>Risk Score</th><th>Executed</th><th>Timestamp</th></tr>
             </thead>
             <tbody>
             <tr th:each="trade : ${history}">
@@ -160,14 +137,9 @@
             </tbody>
         </table>
     </div>
-    <div class="card" style="grid-column:1/-1;" th:if="${history.size() == 0}">
-        <h2>Recent Trade History</h2>
-        <p>No trade history available yet.</p>
-    </div>
-
 </div>
 
-<!-- Charts Script -->
+<!-- Graph Rendering Script -->
 <script th:inline="javascript">
     /*<![CDATA[*/
     const tradeData = /*[[${history}]]*/ [];
@@ -179,19 +151,13 @@
         const scores = tradeData.map(t => t.riskScore);
         const executedFlags = tradeData.map(t => t.tradeExecuted);
 
-        function getRiskColor(score) {
-            if (score <= 3) return '#4caf50';
-            if (score <= 6) return '#ff9800';
-            return '#f44336';
-        }
+        const getRiskColor = score => score <= 3 ? '#4caf50' : score <= 6 ? '#ff9800' : '#f44336';
 
-        const backgroundColors = executedFlags.map((executed, i) =>
-            executed ? getRiskColor(scores[i]) : 'transparent'
-        );
+        const backgroundColors = executedFlags.map((executed, i) => executed ? getRiskColor(scores[i]) : 'transparent');
         const borderColors = scores.map(score => getRiskColor(score));
         const borderWidths = executedFlags.map(executed => executed ? 0 : 3);
 
-        new Chart(document.getElementById('riskChart').getContext('2d'), {
+        new Chart(document.getElementById('riskChart'), {
             type: 'bar',
             data: {
                 labels: labels,
@@ -203,24 +169,15 @@
                     borderWidth: borderWidths
                 }]
             },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 10
-                    }
-                }
-            }
+            options: { scales: { y: { beginAtZero: true, max: 10 } } }
         });
 
-        const executedCount = tradeData.filter(t => t.tradeExecuted).length;
-        const notExecutedCount = tradeData.length - executedCount;
-        new Chart(document.getElementById('executionChart').getContext('2d'), {
+        new Chart(document.getElementById('executionChart'), {
             type: 'pie',
             data: {
                 labels: ['Executed', 'Not Executed'],
                 datasets: [{
-                    data: [executedCount, notExecutedCount],
+                    data: [executedFlags.filter(x => x).length, executedFlags.filter(x => !x).length],
                     backgroundColor: ['#4caf50', '#ef5350']
                 }]
             }
@@ -229,42 +186,32 @@
 
     if (hasLossData) {
         const lossData = /*[[${metrics.lossPerEpoch}]]*/ [];
-        const epochLabels = lossData.map((_, i) => "Epoch " + (i + 1));
+        const lossParsed = Array.isArray(lossData) ? lossData : JSON.parse(lossData);
+        const lossLabels = lossParsed.map((_, i) => 'Epoch ' + (i + 1));
 
-        new Chart(document.getElementById('lossChart').getContext('2d'), {
+        new Chart(document.getElementById('lossChart'), {
             type: 'line',
             data: {
-                labels: epochLabels,
-                datasets: [{
-                    label: 'Loss',
-                    data: lossData,
-                    borderColor: 'red',
-                    fill: false
-                }]
+                labels: lossLabels,
+                datasets: [{ label: 'Loss', data: lossParsed, borderColor: 'red', fill: false }]
             }
         });
     }
 
     if (hasAccData) {
         const accData = /*[[${metrics.accuracyPerEpoch}]]*/ [];
-        const epochLabels = accData.map((_, i) => "Epoch " + (i + 1));
+        const accParsed = Array.isArray(accData) ? accData : JSON.parse(accData);
+        const accLabels = accParsed.map((_, i) => 'Epoch ' + (i + 1));
 
-        new Chart(document.getElementById('accuracyChart').getContext('2d'), {
+        new Chart(document.getElementById('accuracyChart'), {
             type: 'line',
             data: {
-                labels: epochLabels,
-                datasets: [{
-                    label: 'Accuracy',
-                    data: accData,
-                    borderColor: 'blue',
-                    fill: false
-                }]
+                labels: accLabels,
+                datasets: [{ label: 'Accuracy', data: accParsed, borderColor: 'blue', fill: false }]
             }
         });
     }
     /*]]>*/
 </script>
-
-
 </body>
 </html>
