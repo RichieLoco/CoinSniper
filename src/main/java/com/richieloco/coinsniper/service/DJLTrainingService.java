@@ -6,6 +6,7 @@ import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDList;
 import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
+import ai.djl.ndarray.types.Shape;
 import ai.djl.nn.Activation;
 import ai.djl.nn.SequentialBlock;
 import ai.djl.nn.core.Linear;
@@ -35,12 +36,9 @@ import reactor.core.scheduler.Schedulers;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
 @Service
@@ -49,7 +47,6 @@ public class DJLTrainingService {
     private final List<Double> cumulativeLossPerEpoch = new ArrayList<>();
     private final List<Double> cumulativeAccuracyPerEpoch = new ArrayList<>();
 
-    private static final String MODEL_DIR = "models/coin-sniper";
     private static final int EPOCHS = 8;
     private static final int BATCH_SIZE = 8;
 
@@ -69,10 +66,8 @@ public class DJLTrainingService {
 
     public Mono<TrainingResult> trainReactive(List<TradeDecisionRecord> history) {
         return Mono.fromCallable(() -> {
-            // Actually perform the training
             TrainingResult result = trainBlocking(history);
 
-            // Append new metrics to cumulative lists
             cumulativeLossPerEpoch.addAll(result.getLossPerEpoch());
             cumulativeAccuracyPerEpoch.addAll(result.getAccuracyPerEpoch());
 
@@ -173,11 +168,18 @@ public class DJLTrainingService {
     private PredictionResult runDjlPrediction(String coinSymbol, Double riskScore)
             throws IOException, MalformedModelException, TranslateException {
         float x = (float) Math.max(0.0, Math.min(10.0, riskScore)) / 10.0f;
-        Path modelDir = Path.of(MODEL_DIR);
-        if (!Files.exists(modelDir)) throw new IOException("Model directory not found: " + modelDir);
-
         try (Model model = Model.newInstance("coin-sniper-model", "PyTorch")) {
-            model.load(modelDir, "coin-sniper-model");
+
+            SequentialBlock block = new SequentialBlock()
+                    .add(Linear.builder().setUnits(8).build())
+                    .add(Activation.reluBlock())
+                    .add(Linear.builder().setUnits(1).build())
+                    .add(Activation.sigmoidBlock());
+            model.setBlock(block);
+
+            try (Trainer trainer = model.newTrainer(new DefaultTrainingConfig(Loss.sigmoidBinaryCrossEntropyLoss()))) {
+                trainer.initialize(new Shape(1, 1));
+            }
 
             Translator<float[], Float> translator = new Translator<>() {
                 public NDList processInput(TranslatorContext ctx, float[] input) {
@@ -185,9 +187,7 @@ public class DJLTrainingService {
                 }
                 public Float processOutput(TranslatorContext ctx, NDList list) {
                     NDArray out = list.singletonOrThrow();
-                    if (out.isScalar()) return out.getFloat();
-                    float[] arr = out.toFloatArray();
-                    return arr.length > 0 ? arr[0] : Float.NaN;
+                    return out.isScalar() ? out.getFloat() : out.toFloatArray()[0];
                 }
             };
 
@@ -210,9 +210,7 @@ public class DJLTrainingService {
                 }
                 public Float processOutput(TranslatorContext ctx, NDList list) {
                     NDArray out = list.singletonOrThrow();
-                    if (out.isScalar()) return out.getFloat();
-                    float[] arr = out.toFloatArray();
-                    return arr.length > 0 ? arr[0] : Float.NaN;
+                    return out.isScalar() ? out.getFloat() : out.toFloatArray()[0];
                 }
             };
 
@@ -244,15 +242,7 @@ public class DJLTrainingService {
         }
     }
 
-    private List<Double> concat(List<Double> a, List<Double> b) {
-        List<Double> result = new ArrayList<>(a != null ? a : List.of());
-        if (b != null) result.addAll(b);
-        return result;
-    }
-
     private record EvalStats(double loss, double accuracy) {}
-
-    /* --------------------------- Logging ------------------------------ */
 
     public void logToFile(List<TradeDecisionRecord> history) {
         logToFile(history, "logs/training_log.tsv");
@@ -270,5 +260,4 @@ public class DJLTrainingService {
             log.error("Error writing training log", ex);
         }
     }
-
 }
