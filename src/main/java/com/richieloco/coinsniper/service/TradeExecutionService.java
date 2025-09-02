@@ -44,7 +44,6 @@ public class TradeExecutionService {
                         }));
     }
 
-    //TODO... perhaps chance risk to enum and remove this mapping
     private double mapRiskToNumeric(String risk) {
         return switch (risk.toLowerCase()) {
             case "low" -> 2;

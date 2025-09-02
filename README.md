@@ -19,13 +19,13 @@ src
 ├── main
 │   ├── java
 │   │   └── com.richieloco.coinsniper
-│   │       ├── config              # YAML & AI model config
+│   │       ├── config              # Spring, YAML, AI, security, and exchange config
 │   │       ├── controller          # API & dashboard controllers
-│   │       ├── entity              # TradeDecisionRecord, etc.
+│   │       ├── entity              # R2DBC entities (TradeDecisionRecord, CoinAnnouncementRecord, ExchangeAssessmentRecord, ErrorResponseRecord, etc.)
 │   │       ├── ex                  # Custom exceptions
-│   │       ├── model               # Binance API response DTOs
+│   │       ├── model               # Binance & exchange DTOs
 │   │       ├── repository          # Reactive R2DBC repositories
-│   │       └── service             # AI, polling, and training services
+│   │       └── service             # AI, polling, exchange integration, training, RL
 │   └── resources
 │       └── application.yml         # Config file
 └── test
@@ -33,8 +33,8 @@ src
         └── com.richieloco.coinsniper
             ├── config              # Test configuration
             ├── controller          # Controller unit tests
-            ├── it                  # Integration tests
-            └── service             # Service layer logic tests
+            ├── it                  # Integration tests (Binance, polling, dashboard, backtesting)
+            └── service             # Service + AI logic tests
 ```
 
 ---
@@ -72,40 +72,73 @@ The bot polls Binance's Announcement API and then intelligently filters down pot
 ➡️ To:
 
 ```
-<Persisted trade decision>
+<Persisted trade decision + error logging>
 ```
 
 ➡️ To:
 
 ```
-<Reinforcement learning module input>
+<Reinforcement learning + backtesting module input>
 ```
 
 ---
 
 ## 💾 Persistence Layer
 
-The bot persists trade decisions and API responses into a database so it can track outcomes and serve them via:
+The bot persists all relevant data into a **PostgreSQL database via Spring Data R2DBC**:
 
-* `/dashboard` (Thymeleaf UI)
-* `/backtesting` (visual charts + history)
-* `/actuator/configprops` (Spring Boot insights)
+* **Trade Decisions** (with risk scores + execution status)  
+* **Binance Announcements** (raw + parsed)  
+* **Exchange Assessments** (AI evaluation results)  
+* **Error Responses** (API failure cases for diagnostics)  
+
+These are accessible via:
+
+* `/dashboard` (Thymeleaf UI with trades, announcements, risk assessments, error responses)  
+* `/backtesting` (historical trades + DJL training charts)  
+* `/actuator/configprops` (Spring Boot insights)  
 
 ---
 
-## 🧠 Deep Learning (Planned Feature)
+## 🧠 Deep Learning & Reinforcement Learning
 
-Using [Deep Java Library (DJL)](https://djl.ai/), the bot will analyze historical trades and optimize future strategies through on-device reinforcement learning.
+The bot integrates with [Deep Java Library (DJL)](https://djl.ai/) for ML/RL:
+
+- 📊 **Training pipeline** with loss/accuracy tracking  
+- 🔄 **Continued training** (resume from saved models, accumulate epochs)  
+- 🧩 **Custom summaries** (model architecture, optimizer, final loss/accuracy, hyperparameters)  
+- 🎯 **Reinforcement learning loop** with reward functions for trade outcomes  
+- 🧠 **AI-driven strategy updates** based on backtesting results  
+
+---
+
+## 📡 Exchange & Risk Management
+
+- Multi-exchange support (Binance, Bybit, Poloniex – extensible via `ExchangeAssessor` & `AssessmentFunction`)  
+- Real-time **risk assessment via Spring AI** with LLM providers (OpenAI, Groq, etc.)  
+- **Runtime strategy updates**: AI models adapt based on backtesting data   
+- **CSV logging** of executed trades for external analysis  
 
 ---
 
 ## 🔁 Continuous Polling
 
-The app supports live polling of the Binance announcements endpoint. Use the API endpoints:
+The app supports live polling of the Binance announcements endpoint.  
 
-* `POST /api/announcements/poll/start` ➡️ Start polling
-* `POST /api/announcements/poll/stop` ➡️ Stop polling
-* `GET /api/announcements/poll/status` ➡️ Check polling status
+Use the API endpoints:
+
+* `POST /api/announcements/poll/start` ➡️ Start polling (non-reactive Java scheduler)  
+* `POST /api/announcements/poll/stop` ➡️ Stop polling  
+* `GET /api/announcements/poll/status` ➡️ Check polling status  
+
+---
+
+## 🔐 Security
+
+- **Spring Security (Spring Boot 3.4.3, Spring Security 6.1)**  
+- Uses `SecurityFilterChain` instead of deprecated `httpBasic()` / `formLogin()`  
+- **JWT session management** with automatic token refresh (8h expiration)  
+- **OAuth2 support** for secure API key storage (OpenAI, exchange APIs)  
 
 ---
 
@@ -115,8 +148,8 @@ Use `SPRING_PROFILES_ACTIVE=prod` to activate production-grade polling.
 
 Other profiles:
 
-- `test` ➡️ Used for unit/integration tests with `NoSecurityTestConfig`
-- `dev`  ➡️ Hot reload and debug-friendly configuration
+- `test` ➡️ Unit/integration tests with `NoSecurityTestConfig`  
+- `dev`  ➡️ Hot reload + debug-friendly configuration  
 
 ---
 
@@ -124,14 +157,14 @@ Other profiles:
 
 Access UI pages at:
 
-* `http://localhost:8080/dashboard` ➡️ 📊 Recent trades
-* `http://localhost:8080/backtesting` ➡️ 📉 Backtesting results chart
+* `http://localhost:8080/dashboard` ➡️ 📊 Recent trades, announcements, risk assessments, error responses  
+* `http://localhost:8080/backtesting` ➡️ 📉 Backtesting results + DJL training charts  
 
 ---
 
 ## 🧪 Running Tests
 
-Unit and integration tests use JUnit 5 + StepVerifier for reactive flows.
+Unit and integration tests use **JUnit 5**, **Mockito (@Mock instead of @MockBean)**, and **StepVerifier**.  
 
 To run all tests:
 
@@ -146,29 +179,32 @@ To view test coverage (if JaCoCo is configured):
 open target/site/jacoco/index.html
 ```
 
-To run integration tests (e.g. classes in com.richieloco.coinsniper.it), use the integration-tests Maven profile:
+To run integration tests (e.g. classes in `com.richieloco.coinsniper.it`):
 
 ```bash
 ./mvnw verify -Pintegration-tests
 ```
 
-Notable test coverage includes:
+### ✅ Test Coverage
 
-- `AnnouncementCallingServiceTest` ➡️ Mocked and real failure scenarios
-- `AnnouncementPollingSchedulerTest` ➡️ Poll lifecycle logic
-- `DJLTrainingServiceTest` ➡️ Basic training pipeline
+- `AnnouncementCallingServiceTest` ➡️ Mocked + error handling scenarios  
+- `AnnouncementPollingSchedulerTest` ➡️ Poll start/stop lifecycle (non-reactive scheduler)  
+- `ExchangeRiskAssessorTest` ➡️ AI risk assessment via BaseAssessor/AssessmentFunction  
+- `DJLTrainingServiceTest` ➡️ Training continuation + model save/load + summaries  
+- `DashboardControllerTest` & `BacktestingControllerTest` ➡️ Unit tests  
+- `DashboardIntegrationTest` & `BacktestingIntegrationTest` ➡️ End-to-end validation with WebTestClient  
 
 ---
 
 ## 🧩 Kubernetes Deployment
 
-### 🛠️ Prerequisites:
+### 🛠️ Prerequisites
 
-* Java 21 JDK
-* Docker or Podman
-* Kubernetes cluster (e.g. k3s, kind, GKE)
+* Java 21 JDK  
+* Docker or Podman  
+* Kubernetes cluster (k3s, kind, or managed cloud)  
 
-### 🧰 Deployment Steps:
+### 🧰 Deployment Steps
 
 ```bash
 kubectl apply -f k8s/configmap.yaml
@@ -178,36 +214,59 @@ kubectl apply -f k8s/service.yaml
 
 Visit: `http://<k8s-node-ip>:<nodePort>`
 
-✅ Add `Ingress` and `Secret` for external TLS access as needed.
+✅ Add `Ingress` + Cloudflare Tunnel + TLS for secure external access.
 
 ---
 
-## 🍓 Raspberry Pi Deployment
+## 🍓 Raspberry Pi & Home-Lab Deployment
 
-### 📦 Steps:
+Tested on:
+
+- **Raspberry Pi 5** (8 GB RAM, 512 SSD)  
+- **Minisforum N5 Pro** (96 GB RAM, 56 TB storage, SSD + SATA)
+- **Minisforum V3** (32 GB RAM, 1 TB storage)
+
+### 📦 Steps
 
 ```bash
-# On Raspberry Pi
+# On Raspberry Pi / ARM server
 sudo apt install openjdk-21-jdk
 java -jar coin-sniper.jar
 ```
 
-You may also build for ARM:
+Or build for ARM:
 
 ```bash
 ./mvnw clean package
 scp target/coin-sniper.jar pi@raspberrypi:/home/pi
 ```
 
+For self-hosting with domain + SSL:  
+- Use **Cloudflare Tunnel** (no router port-forwarding needed)  
+- Or use **Nginx Proxy Manager** (on Pi or VM) with DNS → Cloudflare  
+
 ---
 
-## 🐳 Docker Deployment
+## 🐳 Docker & Docker Compose Deployment
 
-Ensure environment variables are passed correctly. Build & run:
+### Build & Run (single container)
 
 ```bash
 docker build -t coin-sniper .
 docker run -e SPRING_PROFILES_ACTIVE=prod -e OPENAI_API_KEY=sk-xxxxxxxx -p 8080:8080 coin-sniper
+```
+
+### Docker Compose
+
+A `docker-compose.yml` is included with services:  
+
+- **coin-sniper** (Spring Boot app)  
+- **PostgreSQL (R2DBC)** for persistence  
+- **Adminer** for DB inspection  
+- Optional: Nginx Proxy Manager for reverse proxy + TLS  
+
+```bash
+docker compose up -d
 ```
 
 ---
@@ -216,14 +275,19 @@ docker run -e SPRING_PROFILES_ACTIVE=prod -e OPENAI_API_KEY=sk-xxxxxxxx -p 8080:
 
 ```yaml
 spring:
+  r2dbc:
+    url: r2dbc:postgresql://db:5432/coinsniper
+    username: coinsniper
+    password: ${POSTGRES_PASSWORD}
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY} # 🔐 Loaded from environment variable
+      api-key: ${OPENAI_API_KEY} # 🔐 from env
 coin-sniper:
   supported:
     exchanges:
       - Binance
       - Bybit
+      - Poloniex
   stable-coins:
       - USDT
       - USDC
@@ -235,6 +299,14 @@ coin-sniper:
     enabled: true
     interval-seconds: 30
 ```
+
+---
+
+## 📧 Notifications
+
+- **Email alerts** for trade executions & errors (configurable via SMTP in Spring Mail)  
+- Weekly **performance summary reports** (total trades, win rate, PnL, drawdown)  
+- Planned: 📊 **Equity curve chart** embedded in weekly email  
 
 ---
 
@@ -262,15 +334,23 @@ $env:OPENAI_API_KEY = "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 ---
 
+## ⏭️ TODO
+
+1. Wiring into the APIs of the exchanges of which trading decisions have been made.
+2. Email alerts capturing announcements, trading decisions and any errors (via Spring Mail SMTP)
+3. Non-volatile DB storage
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome!
 
-1. Fork the repo
-2. Create your feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Open a Pull Request 🚀
+1. Fork the repo  
+2. Create your feature branch (`git checkout -b feature/your-feature`)  
+3. Commit your changes (`git commit -am 'Add new feature'`)  
+4. Push to the branch (`git push origin feature/your-feature`)  
+5. Open a Pull Request 🚀  
 
 ---
 
@@ -280,5 +360,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ---
 
-🧠 Built with Spring Boot WebFlux, R2DBC, DJL, Spring AI, and OpenAPI 3  
+🧠 Built with Spring Boot WebFlux, R2DBC (PostgreSQL), DJL (Deep Learning), Spring AI, Docker, Kubernetes, and OpenAPI 3  
 💬 Suggestions and contributions welcome!
