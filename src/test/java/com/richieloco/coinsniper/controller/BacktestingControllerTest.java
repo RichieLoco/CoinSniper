@@ -65,7 +65,7 @@ public class BacktestingControllerTest {
 
         when(repository.findAll()).thenReturn(Flux.just(record));
         doThrow(new RuntimeException("Training failed")).when(djlTrainingService).trainReactive(any());
-        doThrow(new RuntimeException("Log failed")).when(djlTrainingService).logToFile(any());
+        doThrow(new RuntimeException("Log failed")).when(djlTrainingService).logToFile(any(), anyString());
 
         String view = controller.backtesting(model).block();
 

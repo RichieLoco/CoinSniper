@@ -20,6 +20,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.time.Instant;
 
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
@@ -81,7 +82,7 @@ public class BacktestingIT {
                 });
 
         verify(trainingService, atLeastOnce()).trainReactive(anyList());
-        verify(trainingService, atLeastOnce()).logToFile(anyList());
+        verify(trainingService, atLeastOnce()).logToFile(anyList(), anyString());
 
     }
 
@@ -101,7 +102,7 @@ public class BacktestingIT {
                 });
 
         verify(trainingService, atLeastOnce()).trainReactive(anyList());
-        verify(trainingService, atLeastOnce()).logToFile(anyList());
+        verify(trainingService, atLeastOnce()).logToFile(anyList(), anyString());
     }
 
     @Test
@@ -129,7 +130,7 @@ public class BacktestingIT {
                 });
 
         verify(trainingService, atLeastOnce()).trainReactive(anyList());
-        verify(trainingService, atLeastOnce()).logToFile(anyList());
+        verify(trainingService, atLeastOnce()).logToFile(anyList(), anyString());
 
     }
 

@@ -43,7 +43,7 @@ public class DJLTrainingServiceTest {
 
         // Reactive train — will not throw thanks to onErrorResume
         trainer.trainReactive(data).block();
-        trainer.logToFile(data);
+        trainer.logToFile(data, "");
     }
 
     @Test
@@ -52,7 +52,7 @@ public class DJLTrainingServiceTest {
 
         // Should not throw even if DJL cannot run on CI
         trainer.trainReactive(data).block();
-        trainer.logToFile(data);
+        trainer.logToFile(data, "");
     }
 
     @Test

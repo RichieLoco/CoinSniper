@@ -37,9 +37,7 @@ public class CoinSniperMockTestConfig {
         AiPromptConfig config = mock(AiPromptConfig.class);
         PromptTemplate mockTemplate = mock(PromptTemplate.class);
         when(mockTemplate.render(anyMap())).thenReturn("Exchange: Binance, Coin Listing: XYZUSDT, Overall Risk Score: 3, Liquidity: HIGH, Trading Volume: MEDIUM, Trading Fees: LOW");
-
         when(config.exchangeCoinAvailabilityPromptTemplate()).thenReturn(mockTemplate);
-        when(config.exchangeCoinRiskPromptTemplate()).thenReturn(mockTemplate);
 
         return config;
     }
