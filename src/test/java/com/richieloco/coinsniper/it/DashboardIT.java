@@ -36,7 +36,7 @@ public class DashboardIT {
                                 .exchange("Binance")
                                 .riskScore(3.5)
                                 .tradeExecuted(true)
-                                .timestamp(now)
+                                .decidedAt(now)
                                 .build()
                 )
         ).block();

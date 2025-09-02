@@ -130,7 +130,7 @@
         <td th:text="${trade.exchange}"></td>
         <td th:text="${trade.riskScore}"></td>
         <td th:text="${trade.tradeExecuted}"></td>
-        <td th:text="${trade.timestamp}"></td>
+        <td th:text="${#temporals.format(trade.decidedAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
     </tr>
     </tbody>
 </table>

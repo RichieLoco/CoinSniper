@@ -187,7 +187,7 @@ public class AnnouncementPollingIT {
                                     .exchange("Binance")
                                     .riskScore(4.0)
                                     .tradeExecuted(true)
-                                    .timestamp(Instant.now())
+                                    .decidedAt(Instant.now())
                                     .build()
                     );
                 }

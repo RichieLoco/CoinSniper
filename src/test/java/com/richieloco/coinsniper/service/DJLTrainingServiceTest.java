@@ -36,7 +36,7 @@ public class DJLTrainingServiceTest {
                 .exchange("Binance")
                 .riskScore(3.5)
                 .tradeExecuted(true)
-                .timestamp(Instant.now())
+                .decidedAt(Instant.now())
                 .build();
 
         List<TradeDecisionRecord> data = List.of(record);
@@ -74,7 +74,7 @@ public class DJLTrainingServiceTest {
                 .exchange("MockEx")
                 .riskScore(2.5)
                 .tradeExecuted(false)
-                .timestamp(Instant.parse("2024-01-01T00:00:00Z"))
+                .decidedAt(Instant.parse("2024-01-01T00:00:00Z"))
                 .build();
 
         List<TradeDecisionRecord> data = List.of(record);

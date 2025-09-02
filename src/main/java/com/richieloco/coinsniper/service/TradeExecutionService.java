@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -33,14 +36,33 @@ public class TradeExecutionService {
                                 assessment != null &&
                                         config.getSupported().getExchanges().contains(assessment.getExchange()))
                         .flatMap(assessment -> {
+                            Instant decidedAt = Instant.now();
+
+                            String tsMinute = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+                                    .withZone(ZoneOffset.UTC)
+                                    .format(decidedAt);
+                            UUID id = java.util.UUID.randomUUID();
+
                             TradeDecisionRecord record = TradeDecisionRecord.builder()
+                                    .id(id)
                                     .coinSymbol(announcement.getCoinSymbol())
                                     .exchange(assessment.getExchange())
                                     .riskScore(mapRiskToNumeric(assessment.getOverallRiskScore()))
                                     .tradeExecuted(mapRiskToNumeric(assessment.getOverallRiskScore()) <= 5.0)
-                                    .timestamp(Instant.now())
+                                    .decidedAt(decidedAt)
+                                    .tsMinute(tsMinute)
                                     .build();
-                            return repository.save(record);
+
+                            return repository.upsertPerMinute(
+                                    id,
+                                    record.getCoinSymbol(),
+                                    record.getExchange(),
+                                    record.getRiskScore(),
+                                    record.isTradeExecuted(),
+                                    record.getDecidedAt(),
+                                    record.getTsMinute()
+                            ).thenReturn(record);
+
                         }));
     }
 

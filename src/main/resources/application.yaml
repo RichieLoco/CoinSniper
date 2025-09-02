@@ -63,6 +63,7 @@ coin-sniper:
     enabled: false
     #interval-seconds: 60
     interval-seconds: 84600 # 1 day (for testing)
+    #interval-seconds: 604800 # 1 week (for testing)
   api:
     binance:
       announcement:

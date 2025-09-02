@@ -66,7 +66,7 @@ public class DashboardControllerTest {
         Instant now = Instant.now();
 
         TradeDecisionRecord trade = TradeDecisionRecord.builder()
-                .coinSymbol("BTC").exchange("Binance").riskScore(4.5).tradeExecuted(true).timestamp(now).build();
+                .coinSymbol("BTC").exchange("Binance").riskScore(4.5).tradeExecuted(true).decidedAt(now).build();
 
         CoinAnnouncementRecord ann = CoinAnnouncementRecord.builder()
                 .coinSymbol("BTC").title("BTC Listing").announcedAt(now).build();

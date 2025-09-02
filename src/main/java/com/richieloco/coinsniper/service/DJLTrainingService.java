@@ -98,7 +98,7 @@ public class DJLTrainingService {
     }
 
     public Mono<PredictionResult> predict(String coinSymbol) {
-        return tradeDecisionRepository.findTopByCoinSymbolOrderByTimestampDesc(coinSymbol)
+        return tradeDecisionRepository.findTopByCoinSymbolOrderByDecidedAtDesc(coinSymbol)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("No historical data for coin symbol: " + coinSymbol)))
                 .flatMap(record -> Mono.fromCallable(() -> runDjlPrediction(coinSymbol, record.getRiskScore()))
                         .subscribeOn(Schedulers.boundedElastic()));
@@ -252,7 +252,7 @@ public class DJLTrainingService {
             for (TradeDecisionRecord td : history) {
                 writer.write("%s\t%s\t%.2f\t%b\t%s\n".formatted(
                         td.getCoinSymbol(), td.getExchange(), td.getRiskScore(),
-                        td.isTradeExecuted(), td.getTimestamp()));
+                        td.isTradeExecuted(), td.getDecidedAt()));
             }
         } catch (IOException ex) {
             log.error("Error writing training log", ex);

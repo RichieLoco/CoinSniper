@@ -39,7 +39,7 @@ public class TradeControllerTest {
                 .exchange("Binance")
                 .riskScore(4.2)
                 .tradeExecuted(true)
-                .timestamp(Instant.now())
+                .decidedAt(Instant.now())
                 .build();
 
         when(tradeExecutionService.evaluateAndTrade(input)).thenReturn(Flux.just(result));

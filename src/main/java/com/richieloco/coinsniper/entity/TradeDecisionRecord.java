@@ -1,5 +1,6 @@
 package com.richieloco.coinsniper.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.GeneratedValue;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -21,5 +22,9 @@ public class TradeDecisionRecord implements Identifiable {
     private String exchange;
     private double riskScore;
     private boolean tradeExecuted;
-    private Instant timestamp;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC")
+    private Instant decidedAt;
+    //... below used to eliminate duplicates from db
+    private String tsMinute;
+
 }

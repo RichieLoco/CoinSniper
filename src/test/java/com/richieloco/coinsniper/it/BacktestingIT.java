@@ -53,7 +53,7 @@ public class BacktestingIT {
                 .exchange("Binance")
                 .riskScore(3.2)
                 .tradeExecuted(true)
-                .timestamp(Instant.now())
+                .decidedAt(Instant.now())
                 .build();
 
         repository.save(record).block();
@@ -66,7 +66,7 @@ public class BacktestingIT {
                 .exchange("Binance")
                 .riskScore(3.2)
                 .tradeExecuted(true)
-                .timestamp(Instant.now())
+                .decidedAt(Instant.now())
                 .build();
 
         webTestClient.get()
@@ -112,7 +112,7 @@ public class BacktestingIT {
                 .exchange("Bybit")
                 .riskScore(2.1)
                 .tradeExecuted(false)
-                .timestamp(Instant.now())
+                .decidedAt(Instant.now())
                 .build();
 
         repository.save(extra).block();

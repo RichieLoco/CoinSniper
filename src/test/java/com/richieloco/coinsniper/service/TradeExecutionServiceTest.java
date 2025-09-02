@@ -54,7 +54,9 @@ public class TradeExecutionServiceTest {
                 .build();
 
         when(assessor.assess(any(ExchangeSelectorContext.class))).thenReturn(Mono.just(List.of(assessment)));
-        when(repo.save(any())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+        when(repo.upsertPerMinute(any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(Mono.empty());
+
 
         TradeExecutionService service = new TradeExecutionService(assessor, repo, config);
 
